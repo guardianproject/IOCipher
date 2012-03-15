@@ -9,3 +9,6 @@ Java.  Here's how:
   cd /path/to/guardianproject/iocipher
   make -C external
   ndk-build
+
+The shared library .so files are in libs/armeabi and the libsqlfs.a
+static library is in external/libsqlfs/.libs/libsqlfs.a.
