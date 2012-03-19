@@ -29,7 +29,7 @@ openssl-clean:
 
 sqlcipher/sqlite3.c:
 	cd sqlcipher && ./configure --enable-tempstore=yes \
-		CFLAGS="-DSQL_HAS_CODEC" LDFLAGS="-lcrypto"
+		CFLAGS="-DSQL_HAS_CODEC"
 	make -C sqlcipher sqlite3.c
 
 sqlcipher-clean:
