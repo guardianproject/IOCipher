@@ -38,7 +38,10 @@ sqlcipher-clean:
 
 
 
-libsqlfs/Makefile:
+libsqlfs/configure: libsqlfs/configure.in
+	cd libsqlfs && ./autogen.sh
+
+libsqlfs/Makefile: libsqlfs/configure
 	cd libsqlfs && \
 		./configure \
 			CC="$(CC)" \
