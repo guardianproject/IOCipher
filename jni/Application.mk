@@ -1,2 +1,4 @@
 APP_PROJECT_PATH := $(shell pwd)
-APP_BUILD_SCRIPT := $(APP_PROJECT_PATH)/external/Android.mk
+APP_BUILD_SCRIPT := $(APP_PROJECT_PATH)/jni/Android.mk
+#
+EXTERNAL_PATH := $(APP_PROJECT_PATH)/external

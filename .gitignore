@@ -1,1 +1,2 @@
-external/libsqlfs-build-stamp
+libs/armeabi/libiocipher.so
+obj/
