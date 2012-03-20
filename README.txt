@@ -11,6 +11,8 @@ Java. First, make sure you have the prerequisites:
 Now build everything:
 
   cd /path/to/guardianproject/iocipher
+  git submodule init
+  git submodule update
   make -C external
   ndk-build
 
