@@ -1,6 +1,7 @@
 bin/
 gen/
 libs/armeabi/libiocipher.so
+libs/armeabi/libstlport_shared.so
 obj/
 external/libsqlfs-build-stamp
 # Mac OS X detritus
