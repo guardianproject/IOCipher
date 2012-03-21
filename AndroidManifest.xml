@@ -7,11 +7,10 @@
     <uses-sdk android:minSdkVersion="7" />
 
     <application
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" >
+        android:label="IOCIpher" >
         <activity
             android:name=".IOCipherActivity"
-            android:label="@string/app_name" >
+            android:label="IOCIpher" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
