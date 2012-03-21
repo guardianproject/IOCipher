@@ -7,3 +7,6 @@
 [submodule "external/libsqlfs"]
 	path = external/libsqlfs
 	url = https://github.com/guardianproject/libsqlfs.git
+[submodule "external/libcore"]
+	path = external/libcore
+	url = http://android.googlesource.com/platform/libcore
