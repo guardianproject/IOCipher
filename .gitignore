@@ -4,6 +4,7 @@ libs/armeabi/libiocipher.so
 libs/armeabi/libstlport_shared.so
 obj/
 external/libsqlfs-build-stamp
+jni/TAGS
 # Mac OS X detritus
 .DS_Store
 

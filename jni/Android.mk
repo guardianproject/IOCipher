@@ -40,3 +40,11 @@ LOCAL_SRC_FILES := \
 
 include $(BUILD_SHARED_LIBRARY)
 
+
+TAGS:
+	etags *.h *.cpp \
+		$(shell pwd)/../external/libcore/include/*.h \
+		$(shell pwd)/../external/libsqlfs/*.h \
+		$(shell pwd)/../external/openssl/include/openssl/*.h \
+		$(shell pwd)/../external/sqlcipher/*.h
+
