@@ -3,3 +3,6 @@ gen/
 libs/armeabi/libiocipher.so
 obj/
 external/libsqlfs-build-stamp
+# Mac OS X detritus
+.DS_Store
+
