@@ -19,6 +19,8 @@
 
 #include <stdlib.h>
 
+#define LOG_TAG "JniConstants"
+
 jclass JniConstants::bidiRunClass;
 jclass JniConstants::bigDecimalClass;
 jclass JniConstants::booleanClass;

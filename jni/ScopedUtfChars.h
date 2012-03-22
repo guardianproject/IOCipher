@@ -36,7 +36,7 @@ public:
     {
         if (s == NULL) {
             mUtfChars = NULL;
-            jniThrowNullPointerException(env, NULL);
+            jniThrowRuntimeException(env, "null pointer");
         } else {
             mUtfChars = env->GetStringUTFChars(s, NULL);
         }

@@ -20,7 +20,6 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
-#include "NetworkUtilities.h"
 #include "ScopedBytes.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
@@ -28,6 +27,9 @@
 #include "StaticAssert.h"
 #include "UniquePtr.h"
 #include "toStringArray.h"
+
+// our replacements for missing things
+#include "stubs.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -216,6 +218,7 @@ private:
     std::vector<ScopedT*> mScopedBuffers;
 };
 
+/*
 static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage* ss) {
     // TODO: support AF_UNIX and AF_UNSPEC (and other families?)
     jint port;
@@ -227,6 +230,7 @@ static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage* ss) {
             "(Ljava/net/InetAddress;I)V");
     return env->NewObject(JniConstants::inetSocketAddressClass, ctor, inetAddress, port);
 }
+*/
 
 static jobject makeStructPasswd(JNIEnv* env, const struct passwd& pw) {
     TO_JAVA_STRING(pw_name, pw.pw_name);
@@ -299,6 +303,7 @@ static bool fillIfreq(JNIEnv* env, jstring javaInterfaceName, struct ifreq& req)
     return true;
 }
 
+/*
 static bool fillInetSocketAddress(JNIEnv* env, jint rc, jobject javaInetSocketAddress, const sockaddr_storage* ss) {
     if (rc == -1 || javaInetSocketAddress == NULL) {
         return true;
@@ -315,6 +320,7 @@ static bool fillInetSocketAddress(JNIEnv* env, jint rc, jobject javaInetSocketAd
     env->SetIntField(javaInetSocketAddress, portFid, port);
     return true;
 }
+*/
 
 static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     ScopedUtfChars path(env, javaPath);
@@ -331,6 +337,7 @@ static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     return makeStructStat(env, sb);
 }
 
+/*
 class Passwd {
 public:
     Passwd(JNIEnv* env) : mEnv(env), mResult(NULL) {
@@ -386,6 +393,7 @@ static jobject Posix_accept(JNIEnv* env, jobject, jobject javaFd, jobject javaIn
     }
     return (clientFd != -1) ? jniCreateFileDescriptor(env, clientFd) : NULL;
 }
+*/
 
 static jboolean Posix_access(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     ScopedUtfChars path(env, javaPath);
@@ -399,6 +407,7 @@ static jboolean Posix_access(JNIEnv* env, jobject, jstring javaPath, jint mode) 
     return (rc == 0);
 }
 
+/*
 static void Posix_bind(JNIEnv* env, jobject, jobject javaFd, jobject javaAddress, jint port) {
     sockaddr_storage ss;
     if (!inetAddressToSockaddr(env, javaAddress, port, &ss)) {
@@ -408,6 +417,7 @@ static void Posix_bind(JNIEnv* env, jobject, jobject javaFd, jobject javaAddress
     const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
     NET_FAILURE_RETRY("bind", bind(fd, sa, sizeof(sockaddr_storage)));
 }
+*/
 
 static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     ScopedUtfChars path(env, javaPath);
@@ -429,6 +439,7 @@ static void Posix_close(JNIEnv* env, jobject, jobject javaFd) {
     throwIfMinusOne(env, "close", close(fd));
 }
 
+/*
 static void Posix_connect(JNIEnv* env, jobject, jobject javaFd, jobject javaAddress, jint port) {
     sockaddr_storage ss;
     if (!inetAddressToSockaddr(env, javaAddress, port, &ss)) {
@@ -438,6 +449,7 @@ static void Posix_connect(JNIEnv* env, jobject, jobject javaFd, jobject javaAddr
     const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
     NET_FAILURE_RETRY("connect", connect(fd, sa, sizeof(sockaddr_storage)));
 }
+*/
 
 static jobject Posix_dup(JNIEnv* env, jobject, jobject javaOldFd) {
     int oldFd = jniGetFDFromFileDescriptor(env, javaOldFd);
@@ -525,15 +537,18 @@ static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
     throwIfMinusOne(env, "fsync", TEMP_FAILURE_RETRY(fsync(fd)));
 }
 
+/* TODO do we need this at all?
 static void Posix_ftruncate(JNIEnv* env, jobject, jobject javaFd, jlong length) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     throwIfMinusOne(env, "ftruncate", TEMP_FAILURE_RETRY(ftruncate64(fd, length)));
 }
+*/
 
 static jstring Posix_gai_strerror(JNIEnv* env, jobject, jint error) {
     return env->NewStringUTF(gai_strerror(error));
 }
 
+/*
 static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jobject javaHints) {
     ScopedUtfChars node(env, javaNode);
     if (node.c_str() == NULL) {
@@ -599,6 +614,7 @@ static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jo
     }
     return result;
 }
+*/
 
 static jint Posix_getegid(JNIEnv*, jobject) {
     return getegid();
@@ -620,6 +636,7 @@ static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
     return env->NewStringUTF(getenv(name.c_str()));
 }
 
+/*
 static jstring Posix_getnameinfo(JNIEnv* env, jobject, jobject javaAddress, jint flags) {
     sockaddr_storage ss;
     if (!inetAddressToSockaddrVerbatim(env, javaAddress, 0, &ss)) {
@@ -638,6 +655,7 @@ static jstring Posix_getnameinfo(JNIEnv* env, jobject, jobject javaAddress, jint
     }
     return env->NewStringUTF(buf);
 }
+*/
 
 static jint Posix_getpid(JNIEnv*, jobject) {
     return getpid();
@@ -647,6 +665,7 @@ static jint Posix_getppid(JNIEnv*, jobject) {
     return getppid();
 }
 
+/*
 static jobject Posix_getpwnam(JNIEnv* env, jobject, jstring javaName) {
     ScopedUtfChars name(env, javaName);
     if (name.c_str() == NULL) {
@@ -729,6 +748,7 @@ static jobject Posix_getsockoptTimeval(JNIEnv* env, jobject, jobject javaFd, jin
     }
     return makeStructTimeval(env, tv);
 }
+*/
 
 static jint Posix_getuid(JNIEnv*, jobject) {
     return getuid();
@@ -742,6 +762,7 @@ static jstring Posix_if_indextoname(JNIEnv* env, jobject, jint index) {
     return env->NewStringUTF(name);
 }
 
+/*
 static jobject Posix_inet_pton(JNIEnv* env, jobject, jint family, jstring javaName) {
     ScopedUtfChars name(env, javaName);
     if (name.c_str() == NULL) {
@@ -770,6 +791,7 @@ static jobject Posix_ioctlInetAddress(JNIEnv* env, jobject, jobject javaFd, jint
     }
     return sockaddrToInetAddress(env, reinterpret_cast<sockaddr_storage*>(&req.ifr_addr), NULL);
 }
+*/
 
 static jint Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobject javaArg) {
     // This is complicated because ioctls may return their result by updating their argument
@@ -940,7 +962,9 @@ static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray j
         return -1;
     }
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "pwrite", TEMP_FAILURE_RETRY(pwrite64(fd, bytes.get() + byteOffset, byteCount, offset)));
+    return throwIfMinusOne(env, "pwrite", TEMP_FAILURE_RETRY(pwrite64(fd, 
+                                                                      const_cast< jbyte * >(bytes.get() + byteOffset),
+                                                                      byteCount, offset)));
 }
 
 static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount) {
@@ -961,6 +985,7 @@ static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffe
     return throwIfMinusOne(env, "readv", TEMP_FAILURE_RETRY(readv(fd, ioVec.get(), ioVec.size())));
 }
 
+/*
 static jint Posix_recvfromBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jint flags, jobject javaInetSocketAddress) {
     ScopedBytesRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -976,6 +1001,7 @@ static jint Posix_recvfromBytes(JNIEnv* env, jobject, jobject javaFd, jobject ja
     fillInetSocketAddress(env, recvCount, javaInetSocketAddress, &ss);
     return recvCount;
 }
+*/
 
 static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
@@ -1015,6 +1041,7 @@ static jlong Posix_sendfile(JNIEnv* env, jobject, jobject javaOutFd, jobject jav
     return result;
 }
 
+/*
 static jint Posix_sendtoBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jint flags, jobject javaInetAddress, jint port) {
     ScopedBytesRO bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -1029,6 +1056,7 @@ static jint Posix_sendtoBytes(JNIEnv* env, jobject, jobject javaFd, jobject java
     socklen_t toLength = (javaInetAddress != NULL) ? sizeof(ss) : 0;
     return NET_FAILURE_RETRY("sendto", sendto(fd, bytes.get() + byteOffset, byteCount, flags, to, toLength));
 }
+*/
 
 static void Posix_setegid(JNIEnv* env, jobject, jint egid) {
     throwIfMinusOne(env, "setegid", TEMP_FAILURE_RETRY(setegid(egid)));
@@ -1042,6 +1070,7 @@ static void Posix_setgid(JNIEnv* env, jobject, jint gid) {
     throwIfMinusOne(env, "setgid", TEMP_FAILURE_RETRY(setgid(gid)));
 }
 
+/*
 static void Posix_setsockoptByte(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jint value) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     u_char byte = value;
@@ -1120,6 +1149,7 @@ static void Posix_setsockoptTimeval(JNIEnv* env, jobject, jobject javaFd, jint l
     value.tv_usec = env->GetLongField(javaTimeval, tvUsecFid);
     throwIfMinusOne(env, "setsockopt", TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value, sizeof(value))));
 }
+*/
 
 static void Posix_setuid(JNIEnv* env, jobject, jint uid) {
     throwIfMinusOne(env, "setuid", TEMP_FAILURE_RETRY(setuid(uid)));
@@ -1153,11 +1183,17 @@ static jobject Posix_statfs(JNIEnv* env, jobject, jstring javaPath) {
     return makeStructStatFs(env, sb);
 }
 
+/*
+TODO we probably want strerror() support, so we'll need to replace
+jniStrError() since it seems to be not available on many versions of
+libnativehelper.so
+
 static jstring Posix_strerror(JNIEnv* env, jobject, jint errnum) {
     char buffer[BUFSIZ];
     const char* message = jniStrError(errnum, buffer, sizeof(buffer));
     return env->NewStringUTF(message);
 }
+*/
 
 static void Posix_symlink(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
     ScopedUtfChars oldPath(env, javaOldPath);
@@ -1218,12 +1254,12 @@ static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buff
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Posix, accept, "(Ljava/io/FileDescriptor;Ljava/net/InetSocketAddress;)Ljava/io/FileDescriptor;"),
+//    NATIVE_METHOD(Posix, accept, "(Ljava/io/FileDescriptor;Ljava/net/InetSocketAddress;)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
-    NATIVE_METHOD(Posix, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
+//    NATIVE_METHOD(Posix, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
     NATIVE_METHOD(Posix, close, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(Posix, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
+//    NATIVE_METHOD(Posix, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(Posix, dup, "(Ljava/io/FileDescriptor;)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, dup2, "(Ljava/io/FileDescriptor;I)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),
@@ -1234,28 +1270,28 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, fstat, "(Ljava/io/FileDescriptor;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, fstatfs, "(Ljava/io/FileDescriptor;)Llibcore/io/StructStatFs;"),
     NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
-    NATIVE_METHOD(Posix, gai_strerror, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(Posix, getaddrinfo, "(Ljava/lang/String;Llibcore/io/StructAddrinfo;)[Ljava/net/InetAddress;"),
+//    NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
+//    NATIVE_METHOD(Posix, gai_strerror, "(I)Ljava/lang/String;"),
+//    NATIVE_METHOD(Posix, getaddrinfo, "(Ljava/lang/String;Llibcore/io/StructAddrinfo;)[Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, getegid, "()I"),
     NATIVE_METHOD(Posix, geteuid, "()I"),
     NATIVE_METHOD(Posix, getgid, "()I"),
     NATIVE_METHOD(Posix, getenv, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(Posix, getnameinfo, "(Ljava/net/InetAddress;I)Ljava/lang/String;"),
+//    NATIVE_METHOD(Posix, getnameinfo, "(Ljava/net/InetAddress;I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, getpid, "()I"),
     NATIVE_METHOD(Posix, getppid, "()I"),
-    NATIVE_METHOD(Posix, getpwnam, "(Ljava/lang/String;)Llibcore/io/StructPasswd;"),
-    NATIVE_METHOD(Posix, getpwuid, "(I)Llibcore/io/StructPasswd;"),
-    NATIVE_METHOD(Posix, getsockname, "(Ljava/io/FileDescriptor;)Ljava/net/SocketAddress;"),
-    NATIVE_METHOD(Posix, getsockoptByte, "(Ljava/io/FileDescriptor;II)I"),
-    NATIVE_METHOD(Posix, getsockoptInAddr, "(Ljava/io/FileDescriptor;II)Ljava/net/InetAddress;"),
-    NATIVE_METHOD(Posix, getsockoptInt, "(Ljava/io/FileDescriptor;II)I"),
-    NATIVE_METHOD(Posix, getsockoptLinger, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructLinger;"),
-    NATIVE_METHOD(Posix, getsockoptTimeval, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructTimeval;"),
+//    NATIVE_METHOD(Posix, getpwnam, "(Ljava/lang/String;)Llibcore/io/StructPasswd;"),
+//    NATIVE_METHOD(Posix, getpwuid, "(I)Llibcore/io/StructPasswd;"),
+//    NATIVE_METHOD(Posix, getsockname, "(Ljava/io/FileDescriptor;)Ljava/net/SocketAddress;"),
+//    NATIVE_METHOD(Posix, getsockoptByte, "(Ljava/io/FileDescriptor;II)I"),
+//    NATIVE_METHOD(Posix, getsockoptInAddr, "(Ljava/io/FileDescriptor;II)Ljava/net/InetAddress;"),
+//    NATIVE_METHOD(Posix, getsockoptInt, "(Ljava/io/FileDescriptor;II)I"),
+//    NATIVE_METHOD(Posix, getsockoptLinger, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructLinger;"),
+//    NATIVE_METHOD(Posix, getsockoptTimeval, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructTimeval;"),
     NATIVE_METHOD(Posix, getuid, "()I"),
     NATIVE_METHOD(Posix, if_indextoname, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(Posix, inet_pton, "(ILjava/lang/String;)Ljava/net/InetAddress;"),
-    NATIVE_METHOD(Posix, ioctlInetAddress, "(Ljava/io/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;"),
+//    NATIVE_METHOD(Posix, inet_pton, "(ILjava/lang/String;)Ljava/net/InetAddress;"),
+//    NATIVE_METHOD(Posix, ioctlInetAddress, "(Ljava/io/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;ILlibcore/util/MutableInt;)I"),
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),
     NATIVE_METHOD(Posix, kill, "(II)V"),
@@ -1276,27 +1312,27 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, pwriteBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, readBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
-    NATIVE_METHOD(Posix, recvfromBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I"),
+//    NATIVE_METHOD(Posix, recvfromBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sendfile, "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Llibcore/util/MutableLong;J)J"),
-    NATIVE_METHOD(Posix, sendtoBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetAddress;I)I"),
+//    NATIVE_METHOD(Posix, sendtoBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetAddress;I)I"),
     NATIVE_METHOD(Posix, setegid, "(I)V"),
     NATIVE_METHOD(Posix, seteuid, "(I)V"),
     NATIVE_METHOD(Posix, setgid, "(I)V"),
-    NATIVE_METHOD(Posix, setsockoptByte, "(Ljava/io/FileDescriptor;III)V"),
-    NATIVE_METHOD(Posix, setsockoptIfreq, "(Ljava/io/FileDescriptor;IILjava/lang/String;)V"),
-    NATIVE_METHOD(Posix, setsockoptInt, "(Ljava/io/FileDescriptor;III)V"),
-    NATIVE_METHOD(Posix, setsockoptIpMreqn, "(Ljava/io/FileDescriptor;III)V"),
-    NATIVE_METHOD(Posix, setsockoptGroupReq, "(Ljava/io/FileDescriptor;IILlibcore/io/StructGroupReq;)V"),
-    NATIVE_METHOD(Posix, setsockoptLinger, "(Ljava/io/FileDescriptor;IILlibcore/io/StructLinger;)V"),
-    NATIVE_METHOD(Posix, setsockoptTimeval, "(Ljava/io/FileDescriptor;IILlibcore/io/StructTimeval;)V"),
+//    NATIVE_METHOD(Posix, setsockoptByte, "(Ljava/io/FileDescriptor;III)V"),
+//    NATIVE_METHOD(Posix, setsockoptIfreq, "(Ljava/io/FileDescriptor;IILjava/lang/String;)V"),
+//    NATIVE_METHOD(Posix, setsockoptInt, "(Ljava/io/FileDescriptor;III)V"),
+//    NATIVE_METHOD(Posix, setsockoptIpMreqn, "(Ljava/io/FileDescriptor;III)V"),
+//    NATIVE_METHOD(Posix, setsockoptGroupReq, "(Ljava/io/FileDescriptor;IILlibcore/io/StructGroupReq;)V"),
+//    NATIVE_METHOD(Posix, setsockoptLinger, "(Ljava/io/FileDescriptor;IILlibcore/io/StructLinger;)V"),
+//    NATIVE_METHOD(Posix, setsockoptTimeval, "(Ljava/io/FileDescriptor;IILlibcore/io/StructTimeval;)V"),
     NATIVE_METHOD(Posix, setuid, "(I)V"),
     NATIVE_METHOD(Posix, shutdown, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, socket, "(III)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, statfs, "(Ljava/lang/String;)Llibcore/io/StructStatFs;"),
-    NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
+//    NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
     NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),

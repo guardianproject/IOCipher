@@ -14,10 +14,29 @@ android_sqlite_cflags :=  -DHAVE_USLEEP=1 -DSQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=10
 sqlcipher_cflags := -DSQLITE_HAS_CODEC -DHAVE_FDATASYNC=0 -Dfdatasync=fsync
 
 LOCAL_CFLAGS += $(android_sqlite_cflags) $(sqlcipher_cflags)
-LOCAL_C_INCLUDES:= external/openssl/include external/sqlcipher external/libsqlfs
-LOCAL_LDFLAGS   += -L$(LOCAL_PATH)/../external/openssl/obj/local/armeabi/
-LOCAL_LDLIBS    += -lcrypto
+LOCAL_C_INCLUDES:= \
+	external/libcore/include \
+	external/libsqlfs \
+	external/openssl/include \
+	external/sqlcipher
+LOCAL_LDFLAGS   += \
+	-L$(LOCAL_PATH)/../external/android-libs \
+	-L$(LOCAL_PATH)/../external/openssl/obj/local/armeabi/
+LOCAL_LDLIBS    += -lcrypto -llog -lnativehelper
 LOCAL_MODULE    := libiocipher
-LOCAL_SRC_FILES := ../external/libsqlfs/sqlfs.c ../external/sqlcipher/sqlite3.c
+LOCAL_SRC_FILES := \
+	AsynchronousSocketCloseMonitor.cpp \
+	JniConstants.cpp \
+	toStringArray.cpp \
+	java_io_Console.cpp \
+	java_io_File.cpp \
+	java_io_ObjectStreamClass.cpp \
+	libcore_io_AsynchronousCloseMonitor.cpp \
+	libcore_io_Memory.cpp \
+	libcore_io_OsConstants.cpp \
+	libcore_io_Posix.cpp \
+	../external/libsqlfs/sqlfs.c \
+	../external/sqlcipher/sqlite3.c
 
 include $(BUILD_SHARED_LIBRARY)
+

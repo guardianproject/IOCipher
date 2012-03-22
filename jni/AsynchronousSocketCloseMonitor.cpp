@@ -17,7 +17,7 @@
 #define LOG_TAG "AsynchronousSocketCloseMonitor"
 
 #include "AsynchronousSocketCloseMonitor.h"
-#include "cutils/log.h"
+#include "JNIHelp.h"
 
 #include <errno.h>
 #include <signal.h>

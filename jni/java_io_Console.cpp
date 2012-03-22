@@ -43,9 +43,12 @@ static jint Console_setEchoImpl(JNIEnv* env, jclass, jboolean on, jint previousS
     return previousState;
 }
 
+/* nativehelper methods that we don't need
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Console, setEchoImpl, "(ZI)I"),
 };
 int register_java_io_Console(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/Console", gMethods, NELEM(gMethods));
 }
+*/
+

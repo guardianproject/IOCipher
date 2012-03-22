@@ -32,7 +32,7 @@ public:
     : mEnv(env), mObject(object), mByteArray(NULL), mPtr(NULL)
     {
         if (mObject == NULL) {
-            jniThrowNullPointerException(mEnv, NULL);
+            jniThrowRuntimeException(mEnv, "null pointer");
         } else if (mEnv->IsInstanceOf(mObject, JniConstants::byteArrayClass)) {
             mByteArray = reinterpret_cast<jbyteArray>(mObject);
             mPtr = mEnv->GetByteArrayElements(mByteArray, NULL);

@@ -19,7 +19,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "JniException.h"
+//#include "JniException.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "readlink.h"
@@ -162,6 +162,7 @@ static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     return toStringArray(env, entries);
 }
 
+/* nativehelper methods that we don't need
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
     NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
@@ -171,3 +172,4 @@ static JNINativeMethod gMethods[] = {
 int register_java_io_File(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));
 }
+*/

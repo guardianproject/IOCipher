@@ -20,12 +20,12 @@
  * This file may be included by C or C++ code, which is trouble because jni.h
  * uses different typedefs for JNIEnv in each language.
  */
-#ifndef NATIVEHELPER_JNIHELP_H_
-#define NATIVEHELPER_JNIHELP_H_
+#ifndef IOCIPHER_JNIHELP_H_
+#define IOCIPHER_JNIHELP_H_
 
-#include "jni.h"
-#include "cutils/log.h"
+#include <jni.h>
 #include <unistd.h>
+#include <android/log.h>
 
 #ifndef NELEM
 # define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))
@@ -56,11 +56,6 @@ int jniRegisterNativeMethods(C_JNIEnv* env, const char* className, const JNINati
  * Currently aborts the VM if it can't throw the exception.
  */
 int jniThrowException(C_JNIEnv* env, const char* className, const char* msg);
-
-/*
- * Throw a java.lang.NullPointerException, with an optional message.
- */
-int jniThrowNullPointerException(C_JNIEnv* env, const char* msg);
 
 /*
  * Throw a java.lang.RuntimeException, with an optional message.
@@ -132,10 +127,6 @@ inline int jniThrowExceptionFmt(JNIEnv* env, const char* className, const char* 
     va_end(args);
 }
 
-inline int jniThrowNullPointerException(JNIEnv* env, const char* msg) {
-    return jniThrowNullPointerException(&env->functions, msg);
-}
-
 inline int jniThrowRuntimeException(JNIEnv* env, const char* msg) {
     return jniThrowRuntimeException(&env->functions, msg);
 }
@@ -174,6 +165,9 @@ inline void jniLogException(JNIEnv* env, int priority, const char* tag, jthrowab
 #define LOGW_EX(env, ...) LOG_EX(env, LOG_WARN, LOG_TAG, ##__VA_ARGS__)
 #define LOGE_EX(env, ...) LOG_EX(env, LOG_ERROR, LOG_TAG, ##__VA_ARGS__)
 
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+
 /*
  * TEMP_FAILURE_RETRY is defined by some, but not all, versions of
  * <unistd.h>. (Alas, it is not as standard as we'd hoped!) So, if it's
@@ -189,4 +183,4 @@ inline void jniLogException(JNIEnv* env, int priority, const char* tag, jthrowab
     _rc; })
 #endif
 
-#endif  /* NATIVEHELPER_JNIHELP_H_ */
+#endif  /* IOCIPHER_JNIHELP_H_ */
