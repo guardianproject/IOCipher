@@ -28,8 +28,8 @@ import java.lang.UnsupportedOperationException;
 
 ;
 
-public final class SqlFsPosix implements Os {
-	SqlFsPosix() {
+public final class Posix implements Os {
+	Posix() {
 	}
 
 	// Implemented by libsqlfs
