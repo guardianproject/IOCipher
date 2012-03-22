@@ -40,7 +40,7 @@
 #include <unistd.h>
 #include <utime.h>
 
-JNIEXPORT jstring JNICALL Java_info_guardianproject_iocipher_File_readlink(JNIEnv* env, jclass, jstring javaPath) {
+static jstring info_guardianproject_iocipher_File_readlink(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
         return NULL;
@@ -54,7 +54,7 @@ JNIEXPORT jstring JNICALL Java_info_guardianproject_iocipher_File_readlink(JNIEn
     return env->NewStringUTF(result.c_str());
 }
 
-JNIEXPORT jstring JNICALL Java_info_guardianproject_iocipher_File_realpath(JNIEnv* env, jclass, jstring javaPath) {
+static jstring info_guardianproject_iocipher_File_realpath(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
         return NULL;
@@ -69,7 +69,7 @@ JNIEXPORT jstring JNICALL Java_info_guardianproject_iocipher_File_realpath(JNIEn
     return env->NewStringUTF(result.c_str());
 }
 
-JNIEXPORT jboolean JNICALL Java_info_guardianproject_iocipher_File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, jlong ms) {
+static jboolean info_guardianproject_iocipher_File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, jlong ms) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
         return JNI_FALSE;
@@ -152,7 +152,7 @@ static bool readDirectory(JNIEnv* env, jstring javaPath, DirEntries& entries) {
     return true;
 }
 
-JNIEXPORT jobjectArray JNICALL Java_info_guardianproject_iocipher_File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
+static jobjectArray info_guardianproject_iocipher_File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     // Read the directory entries into an intermediate form.
     DirEntries entries;
     if (!readDirectory(env, javaPath, entries)) {

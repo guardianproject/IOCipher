@@ -24,7 +24,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-JNIEXPORT jint JNICALL Java_info_guardianproject_iocipher_Console_setEchoImpl(JNIEnv* env, jclass, jboolean on, jint previousState) {
+static jint info_guardianproject_iocipher_Console_setEchoImpl(JNIEnv* env, jclass, jboolean on, jint previousState) {
     termios state;
     if (TEMP_FAILURE_RETRY(tcgetattr(STDIN_FILENO, &state)) == -1) {
         jniThrowIOException(env, errno);

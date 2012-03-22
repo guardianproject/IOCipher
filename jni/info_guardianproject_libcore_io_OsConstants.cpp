@@ -40,7 +40,7 @@ static void initConstant(JNIEnv* env, jclass c, const char* fieldName, int value
     env->SetStaticIntField(c, field, value);
 }
 
-JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_OsConstants_initConstants(JNIEnv* env, jclass c) {
+static void info_guardianproject_libcore_io_OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "AF_INET", AF_INET);
     initConstant(env, c, "AF_INET6", AF_INET6);
     initConstant(env, c, "AF_UNIX", AF_UNIX);
