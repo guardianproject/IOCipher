@@ -42,3 +42,17 @@ static jint info_guardianproject_iocipher_Console_setEchoImpl(JNIEnv* env, jclas
     }
     return previousState;
 }
+
+static JNINativeMethod sMethods[] = {
+    {"setEchoImpl", "(ZI)I", (void *)info_guardianproject_iocipher_Console_setEchoImpl},
+};
+int register_info_guardianproject_iocipher_Console(JNIEnv* env) {
+    jclass cls;
+
+    cls = env->FindClass("info/guardianproject/iocipher/Console");
+    if (cls == NULL) {
+        LOGE("Can't find info/guardianproject/iocipher/Console\n");
+        return -1;
+    }
+    return env->RegisterNatives(cls, sMethods, NELEM(sMethods));
+}

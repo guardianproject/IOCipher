@@ -323,3 +323,41 @@ static void info_guardianproject_libcore_io_Memory_unsafeBulkPut(JNIEnv* env, jc
     unsafeBulkCopy(dst, src, byteCount, sizeofElement, swap);
     env->ReleasePrimitiveArrayCritical(srcArray, srcBytes, 0);
 }
+
+static JNINativeMethod sMethods[] = {
+    {"memmove", "(Ljava/lang/Object;ILjava/lang/Object;IJ)V", (void *)info_guardianproject_libcore_io_Memory_memmove},
+    {"peekByte", "!(I)B", (void *)info_guardianproject_libcore_io_Memory_peekByte},
+    {"peekByteArray", "(I[BII)V", (void *)info_guardianproject_libcore_io_Memory_peekByteArray},
+    {"peekCharArray", "(I[CIIZ)V", (void *)info_guardianproject_libcore_io_Memory_peekCharArray},
+    {"peekDoubleArray", "(I[DIIZ)V", (void *)info_guardianproject_libcore_io_Memory_peekDoubleArray},
+    {"peekFloatArray", "(I[FIIZ)V", (void *)info_guardianproject_libcore_io_Memory_peekFloatArray},
+    {"peekInt", "!(IZ)I", (void *)info_guardianproject_libcore_io_Memory_peekInt},
+    {"peekIntArray", "(I[IIIZ)V", (void *)info_guardianproject_libcore_io_Memory_peekIntArray},
+    {"peekLong", "!(IZ)J", (void *)info_guardianproject_libcore_io_Memory_peekLong},
+    {"peekLongArray", "(I[JIIZ)V", (void *)info_guardianproject_libcore_io_Memory_peekLongArray},
+    {"peekShort", "!(IZ)S", (void *)info_guardianproject_libcore_io_Memory_peekShort},
+    {"peekShortArray", "(I[SIIZ)V", (void *)info_guardianproject_libcore_io_Memory_peekShortArray},
+    {"pokeByte", "!(IB)V", (void *)info_guardianproject_libcore_io_Memory_pokeByte},
+    {"pokeByteArray", "(I[BII)V", (void *)info_guardianproject_libcore_io_Memory_pokeByteArray},
+    {"pokeCharArray", "(I[CIIZ)V", (void *)info_guardianproject_libcore_io_Memory_pokeCharArray},
+    {"pokeDoubleArray", "(I[DIIZ)V", (void *)info_guardianproject_libcore_io_Memory_pokeDoubleArray},
+    {"pokeFloatArray", "(I[FIIZ)V", (void *)info_guardianproject_libcore_io_Memory_pokeFloatArray},
+    {"pokeInt", "!(IIZ)V", (void *)info_guardianproject_libcore_io_Memory_pokeInt},
+    {"pokeIntArray", "(I[IIIZ)V", (void *)info_guardianproject_libcore_io_Memory_pokeIntArray},
+    {"pokeLong", "!(IJZ)V", (void *)info_guardianproject_libcore_io_Memory_pokeLong},
+    {"pokeLongArray", "(I[JIIZ)V", (void *)info_guardianproject_libcore_io_Memory_pokeLongArray},
+    {"pokeShort", "!(ISZ)V", (void *)info_guardianproject_libcore_io_Memory_pokeShort},
+    {"pokeShortArray", "(I[SIIZ)V", (void *)info_guardianproject_libcore_io_Memory_pokeShortArray},
+    {"unsafeBulkGet", "(Ljava/lang/Object;II[BIIZ)V", (void *)info_guardianproject_libcore_io_Memory_unsafeBulkGet},
+    {"unsafeBulkPut", "([BIILjava/lang/Object;IIZ)V", (void *)info_guardianproject_libcore_io_Memory_unsafeBulkPut},
+};
+int register_info_guardianproject_libcore_io_Memory(JNIEnv* env) {
+    jclass cls;
+
+    cls = env->FindClass("info/guardianproject/libcore/io/Memory");
+    if (cls == NULL) {
+        LOGE("Can't find info/guardianproject/libcore/io/Memory\n");
+        return -1;
+    }
+    return env->RegisterNatives(cls, sMethods, NELEM(sMethods));
+}

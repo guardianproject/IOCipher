@@ -13,6 +13,7 @@ include $(CLEAR_VARS)
 android_sqlite_cflags :=  -DHAVE_USLEEP=1 -DSQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=1048576 -DSQLITE_THREADSAFE=1 -DNDEBUG=1 -DSQLITE_ENABLE_MEMORY_MANAGEMENT=1 -DSQLITE_DEFAULT_AUTOVACUUM=1 -DSQLITE_TEMP_STORE=3 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_BACKWARDS -DSQLITE_ENABLE_LOAD_EXTENSION
 sqlcipher_cflags := -DSQLITE_HAS_CODEC -DHAVE_FDATASYNC=0 -Dfdatasync=fsync
 
+LOCAL_MODULE    := libiocipher
 LOCAL_CFLAGS += $(android_sqlite_cflags) $(sqlcipher_cflags)
 LOCAL_C_INCLUDES:= \
 	external/libcore/include \
@@ -23,16 +24,14 @@ LOCAL_LDFLAGS   += \
 	-L$(LOCAL_PATH)/../external/android-libs \
 	-L$(LOCAL_PATH)/../external/openssl/obj/local/armeabi/
 LOCAL_LDLIBS    += -lcrypto -llog -lnativehelper
-LOCAL_MODULE    := libiocipher
 LOCAL_SRC_FILES := \
 	AsynchronousSocketCloseMonitor.cpp \
 	JniConstants.cpp \
+	JNI_OnLoad.cpp \
 	readlink.cpp \
 	realpath.cpp \
 	toStringArray.cpp \
-	info_guardianproject_iocipher_Console.cpp \
 	info_guardianproject_iocipher_File.cpp \
-	info_guardianproject_iocipher_ObjectStreamClass.cpp \
 	info_guardianproject_libcore_io_AsynchronousCloseMonitor.cpp \
 	info_guardianproject_libcore_io_Memory.cpp \
 	info_guardianproject_libcore_io_OsConstants.cpp \

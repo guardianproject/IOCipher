@@ -25,3 +25,17 @@ static void info_guardianproject_libcore_io_AsynchronousCloseMonitor_signalBlock
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     AsynchronousSocketCloseMonitor::signalBlockedThreads(fd);
 }
+
+static JNINativeMethod sMethods[] = {
+    {"signalBlockedThreads", "(Ljava/io/FileDescriptor;)V", (void *)info_guardianproject_libcore_io_AsynchronousCloseMonitor_signalBlockedThreads},
+};
+
+int register_info_guardianproject_libcore_io_AsynchronousCloseMonitor(JNIEnv* env) {
+    AsynchronousSocketCloseMonitor::init();
+    jclass cls = env->FindClass("info/guardianproject/libcore/io/AsynchronousCloseMonitor");
+    if (cls == NULL) {
+        LOGE("Can't find info/guardianproject/libcore/io/AsynchronousCloseMonitor\n");
+        return -1;
+    }
+    return env->RegisterNatives(cls, sMethods, NELEM(sMethods));
+}

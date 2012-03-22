@@ -54,3 +54,22 @@ static jint info_guardianproject_iocipher_ObjectStreamClass_getConstructorId(JNI
 static jobject info_guardianproject_iocipher_ObjectStreamClass_newInstance(JNIEnv* env, jclass, jclass instantiationClass, jint methodId) {
     return env->NewObject(instantiationClass, reinterpret_cast<jmethodID>(methodId));
 }
+
+static JNINativeMethod sMethods[] = {
+    {"getConstructorId", "(Ljava/lang/Class;)I", (void *)info_guardianproject_iocipher_ObjectStreamClass_getConstructorId},
+    {"getConstructorSignature", "(Ljava/lang/reflect/Constructor;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_ObjectStreamClass_getConstructorSignature},
+    {"getFieldSignature", "(Ljava/lang/reflect/Field;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_ObjectStreamClass_getFieldSignature},
+    {"getMethodSignature", "(Ljava/lang/reflect/Method;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_ObjectStreamClass_getMethodSignature},
+    {"hasClinit", "(Ljava/lang/Class;)Z", (void *)info_guardianproject_iocipher_ObjectStreamClass_hasClinit},
+    {"newInstance", "(Ljava/lang/Class;I)Ljava/lang/Object;", (void *)info_guardianproject_iocipher_ObjectStreamClass_newInstance},
+};
+int register_info_guardianproject_iocipher_ObjectStreamClass(JNIEnv* env) {
+    jclass cls;
+
+    cls = env->FindClass("info/guardianproject/iocipher/ObjectStreamClass");
+    if (cls == NULL) {
+        LOGE("Can't find info/guardianproject/iocipher/ObjectStreamClass\n");
+        return -1;
+    }
+    return env->RegisterNatives(cls, sMethods, NELEM(sMethods));
+}

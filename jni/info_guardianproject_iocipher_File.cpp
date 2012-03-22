@@ -161,3 +161,20 @@ static jobjectArray info_guardianproject_iocipher_File_listImpl(JNIEnv* env, jcl
     // Translate the intermediate form into a Java String[].
     return toStringArray(env, entries);
 }
+
+static JNINativeMethod sMethods[] = {
+    {"listImpl", "(Ljava/lang/String;)[Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_listImpl},
+    {"readlink", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_readlink},
+    {"realpath", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_realpath},
+    {"setLastModifiedImpl", "(Ljava/lang/String;J)Z", (void *)info_guardianproject_iocipher_File_setLastModifiedImpl},
+};
+int register_info_guardianproject_iocipher_File(JNIEnv* env) {
+    jclass cls;
+
+    cls = env->FindClass("info/guardianproject/iocipher/File");
+    if (cls == NULL) {
+        LOGE("Can't find info/guardianproject/iocipher/File\n");
+        return -1;
+    }
+    return env->RegisterNatives(cls, sMethods, NELEM(sMethods));
+}

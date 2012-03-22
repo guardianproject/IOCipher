@@ -441,3 +441,17 @@ static void info_guardianproject_libcore_io_OsConstants_initConstants(JNIEnv* en
     initConstant(env, c, "_SC_XOPEN_VERSION", _SC_XOPEN_VERSION);
     initConstant(env, c, "_SC_XOPEN_XCU_VERSION", _SC_XOPEN_XCU_VERSION);
 }
+
+static JNINativeMethod sMethods[] = {
+    {"initConstants", "()V", (void *)info_guardianproject_libcore_io_OsConstants_initConstants},
+};
+int register_info_guardianproject_libcore_io_OsConstants(JNIEnv* env) {
+    jclass cls;
+
+    cls = env->FindClass("info/guardianproject/libcore/io/OsConstants");
+    if (cls == NULL) {
+        LOGE("Can't find info/guardianproject/libcore/io/OsConstants\n");
+        return -1;
+    }
+    return env->RegisterNatives(cls, sMethods, NELEM(sMethods));
+}

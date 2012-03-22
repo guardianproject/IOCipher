@@ -36,12 +36,6 @@ extern "C" {
 #endif
 
 /*
- * Register one or more native methods with a particular class.
- * "className" looks like "java/lang/String".
- */
-int jniRegisterNativeMethods(C_JNIEnv* env, const char* className, const JNINativeMethod* gMethods, int numMethods);
-
-/*
  * Throw an exception with the specified class and an optional message.
  *
  * The "className" argument will be passed directly to FindClass, which
@@ -106,9 +100,6 @@ void jniLogException(C_JNIEnv* env, int priority, const char* tag, jthrowable ex
  * inlines these, even on non-optimized builds.
  */
 #if defined(__cplusplus)
-inline int jniRegisterNativeMethods(JNIEnv* env, const char* className, const JNINativeMethod* gMethods, int numMethods) {
-    return jniRegisterNativeMethods(&env->functions, className, gMethods, numMethods);
-}
 
 inline int jniThrowException(JNIEnv* env, const char* className, const char* msg) {
     return jniThrowException(&env->functions, className, msg);
