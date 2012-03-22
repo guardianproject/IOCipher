@@ -441,10 +441,3 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "_SC_XOPEN_VERSION", _SC_XOPEN_VERSION);
     initConstant(env, c, "_SC_XOPEN_XCU_VERSION", _SC_XOPEN_XCU_VERSION);
 }
-
-static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(OsConstants, initConstants, "()V"),
-};
-int register_libcore_io_OsConstants(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "libcore/io/OsConstants", gMethods, NELEM(gMethods));
-}

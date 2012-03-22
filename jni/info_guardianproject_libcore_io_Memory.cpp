@@ -323,34 +323,3 @@ static void Memory_unsafeBulkPut(JNIEnv* env, jclass, jbyteArray dstArray, jint 
     unsafeBulkCopy(dst, src, byteCount, sizeofElement, swap);
     env->ReleasePrimitiveArrayCritical(srcArray, srcBytes, 0);
 }
-
-static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Memory, memmove, "(Ljava/lang/Object;ILjava/lang/Object;IJ)V"),
-    NATIVE_METHOD(Memory, peekByte, "!(I)B"),
-    NATIVE_METHOD(Memory, peekByteArray, "(I[BII)V"),
-    NATIVE_METHOD(Memory, peekCharArray, "(I[CIIZ)V"),
-    NATIVE_METHOD(Memory, peekDoubleArray, "(I[DIIZ)V"),
-    NATIVE_METHOD(Memory, peekFloatArray, "(I[FIIZ)V"),
-    NATIVE_METHOD(Memory, peekInt, "!(IZ)I"),
-    NATIVE_METHOD(Memory, peekIntArray, "(I[IIIZ)V"),
-    NATIVE_METHOD(Memory, peekLong, "!(IZ)J"),
-    NATIVE_METHOD(Memory, peekLongArray, "(I[JIIZ)V"),
-    NATIVE_METHOD(Memory, peekShort, "!(IZ)S"),
-    NATIVE_METHOD(Memory, peekShortArray, "(I[SIIZ)V"),
-    NATIVE_METHOD(Memory, pokeByte, "!(IB)V"),
-    NATIVE_METHOD(Memory, pokeByteArray, "(I[BII)V"),
-    NATIVE_METHOD(Memory, pokeCharArray, "(I[CIIZ)V"),
-    NATIVE_METHOD(Memory, pokeDoubleArray, "(I[DIIZ)V"),
-    NATIVE_METHOD(Memory, pokeFloatArray, "(I[FIIZ)V"),
-    NATIVE_METHOD(Memory, pokeInt, "!(IIZ)V"),
-    NATIVE_METHOD(Memory, pokeIntArray, "(I[IIIZ)V"),
-    NATIVE_METHOD(Memory, pokeLong, "!(IJZ)V"),
-    NATIVE_METHOD(Memory, pokeLongArray, "(I[JIIZ)V"),
-    NATIVE_METHOD(Memory, pokeShort, "!(ISZ)V"),
-    NATIVE_METHOD(Memory, pokeShortArray, "(I[SIIZ)V"),
-    NATIVE_METHOD(Memory, unsafeBulkGet, "(Ljava/lang/Object;II[BIIZ)V"),
-    NATIVE_METHOD(Memory, unsafeBulkPut, "([BIILjava/lang/Object;IIZ)V"),
-};
-int register_libcore_io_Memory(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "libcore/io/Memory", gMethods, NELEM(gMethods));
-}

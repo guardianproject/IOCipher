@@ -54,15 +54,3 @@ static jint ObjectStreamClass_getConstructorId(JNIEnv* env, jclass, jclass const
 static jobject ObjectStreamClass_newInstance(JNIEnv* env, jclass, jclass instantiationClass, jint methodId) {
     return env->NewObject(instantiationClass, reinterpret_cast<jmethodID>(methodId));
 }
-
-static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(ObjectStreamClass, getConstructorId, "(Ljava/lang/Class;)I"),
-    NATIVE_METHOD(ObjectStreamClass, getConstructorSignature, "(Ljava/lang/reflect/Constructor;)Ljava/lang/String;"),
-    NATIVE_METHOD(ObjectStreamClass, getFieldSignature, "(Ljava/lang/reflect/Field;)Ljava/lang/String;"),
-    NATIVE_METHOD(ObjectStreamClass, getMethodSignature, "(Ljava/lang/reflect/Method;)Ljava/lang/String;"),
-    NATIVE_METHOD(ObjectStreamClass, hasClinit, "(Ljava/lang/Class;)Z"),
-    NATIVE_METHOD(ObjectStreamClass, newInstance, "(Ljava/lang/Class;I)Ljava/lang/Object;"),
-};
-int register_java_io_ObjectStreamClass(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/io/ObjectStreamClass", gMethods, NELEM(gMethods));
-}

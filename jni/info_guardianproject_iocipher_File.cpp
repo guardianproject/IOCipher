@@ -161,15 +161,3 @@ static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     // Translate the intermediate form into a Java String[].
     return toStringArray(env, entries);
 }
-
-/* nativehelper methods that we don't need
-static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
-    NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(File, realpath, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
-};
-int register_java_io_File(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));
-}
-*/
