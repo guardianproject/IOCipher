@@ -28,13 +28,13 @@ LOCAL_SRC_FILES := \
 	AsynchronousSocketCloseMonitor.cpp \
 	JniConstants.cpp \
 	toStringArray.cpp \
-	java_io_Console.cpp \
-	java_io_File.cpp \
-	java_io_ObjectStreamClass.cpp \
-	libcore_io_AsynchronousCloseMonitor.cpp \
-	libcore_io_Memory.cpp \
-	libcore_io_OsConstants.cpp \
-	libcore_io_Posix.cpp \
+	info_guardianproject_iocipher_Console.cpp \
+	info_guardianproject_iocipher_File.cpp \
+	info_guardianproject_iocipher_ObjectStreamClass.cpp \
+	info_guardianproject_libcore_io_AsynchronousCloseMonitor.cpp \
+	info_guardianproject_libcore_io_Memory.cpp \
+	info_guardianproject_libcore_io_OsConstants.cpp \
+	info_guardianproject_libcore_io_Posix.cpp \
 	../external/libsqlfs/sqlfs.c \
 	../external/sqlcipher/sqlite3.c
 
