@@ -27,6 +27,8 @@ LOCAL_MODULE    := libiocipher
 LOCAL_SRC_FILES := \
 	AsynchronousSocketCloseMonitor.cpp \
 	JniConstants.cpp \
+	readlink.cpp \
+	realpath.cpp \
 	toStringArray.cpp \
 	info_guardianproject_iocipher_Console.cpp \
 	info_guardianproject_iocipher_File.cpp \
