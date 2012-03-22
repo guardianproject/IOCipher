@@ -152,9 +152,9 @@ public class File implements Serializable, Comparable<File> {
         if (name == null) {
             throw new NullPointerException();
         }
-        if (dirPath == null || dirPath.isEmpty()) {
+        if (dirPath == null || dirPath.length() == 0) {
             this.path = fixSlashes(name);
-        } else if (name.isEmpty()) {
+        } else if (name.length() == 0) {
             this.path = fixSlashes(dirPath);
         } else {
             this.path = fixSlashes(join(dirPath, name));
@@ -228,7 +228,7 @@ public class File implements Serializable, Comparable<File> {
             throw new IllegalArgumentException("Expected file scheme in URI: " + uri);
         }
         String rawPath = uri.getRawPath();
-        if (rawPath == null || rawPath.isEmpty()) {
+        if (rawPath == null || rawPath.length() == 0) {
             throw new IllegalArgumentException("Expected non-empty path in URI: " + uri);
         }
         if (uri.getRawAuthority() != null) {
@@ -380,7 +380,7 @@ public class File implements Serializable, Comparable<File> {
             return path;
         }
         String userDir = System.getProperty("user.dir");
-        return path.isEmpty() ? userDir : join(userDir, path);
+        return path.length() == 0 ? userDir : join(userDir, path);
     }
 
     /**
@@ -566,7 +566,7 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if the file is hidden, {@code false} otherwise.
      */
     public boolean isHidden() {
-        if (path.isEmpty()) {
+        if (path.length() == 0) {
             return false;
         }
         return getName().startsWith(".");
