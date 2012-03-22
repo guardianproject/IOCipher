@@ -17,6 +17,11 @@
 package info.guardianproject.libcore.io;
 
 public final class OsConstants {
+
+	static {
+		System.loadLibrary("iocipher");
+	}
+
     private OsConstants() { }
 
     public static boolean S_ISBLK(int mode) { return (mode & S_IFMT) == S_IFBLK; }

@@ -30,10 +30,6 @@ import java.lang.UnsupportedOperationException;
 
 public final class Posix implements Os {
 	
-	static {
-		System.loadLibrary("iocipher");
-	}
-	
 	Posix() {
 	}
 
