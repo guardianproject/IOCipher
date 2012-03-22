@@ -77,7 +77,7 @@ static inline void swapLongs(jlong* dstLongs, const jlong* srcLongs, size_t coun
     }
 }
 
-static void info_guardianproject_libcore_io_Memory_memmove(JNIEnv* env, jclass, jobject dstObject, jint dstOffset, jobject srcObject, jint srcOffset, jlong length) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_memmove(JNIEnv* env, jclass, jobject dstObject, jint dstOffset, jobject srcObject, jint srcOffset, jlong length) {
     ScopedBytesRW dstBytes(env, dstObject);
     if (dstBytes.get() == NULL) {
         return;
@@ -89,11 +89,11 @@ static void info_guardianproject_libcore_io_Memory_memmove(JNIEnv* env, jclass, 
     memmove(dstBytes.get() + dstOffset, srcBytes.get() + srcOffset, length);
 }
 
-static jbyte info_guardianproject_libcore_io_Memory_peekByte(JNIEnv*, jclass, jint srcAddress) {
+JNIEXPORT jbyte JNICALL Java_info_guardianproject_libcore_io_Memory_peekByte(JNIEnv*, jclass, jint srcAddress) {
     return *cast<const jbyte*>(srcAddress);
 }
 
-static void info_guardianproject_libcore_io_Memory_peekByteArray(JNIEnv* env, jclass, jint srcAddress, jbyteArray dst, jint dstOffset, jint byteCount) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_peekByteArray(JNIEnv* env, jclass, jint srcAddress, jbyteArray dst, jint dstOffset, jint byteCount) {
     env->SetByteArrayRegion(dst, dstOffset, byteCount, cast<const jbyte*>(srcAddress));
 }
 
@@ -118,35 +118,35 @@ static void info_guardianproject_libcore_io_Memory_peekByteArray(JNIEnv* env, jc
     } \
 }
 
-static void info_guardianproject_libcore_io_Memory_peekCharArray(JNIEnv* env, jclass, jint srcAddress, jcharArray dst, jint dstOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_peekCharArray(JNIEnv* env, jclass, jint srcAddress, jcharArray dst, jint dstOffset, jint count, jboolean swap) {
     PEEKER(jchar, Char, jshort, swapShorts);
 }
 
-static void info_guardianproject_libcore_io_Memory_peekDoubleArray(JNIEnv* env, jclass, jint srcAddress, jdoubleArray dst, jint dstOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_peekDoubleArray(JNIEnv* env, jclass, jint srcAddress, jdoubleArray dst, jint dstOffset, jint count, jboolean swap) {
     PEEKER(jdouble, Double, jlong, swapLongs);
 }
 
-static void info_guardianproject_libcore_io_Memory_peekFloatArray(JNIEnv* env, jclass, jint srcAddress, jfloatArray dst, jint dstOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_peekFloatArray(JNIEnv* env, jclass, jint srcAddress, jfloatArray dst, jint dstOffset, jint count, jboolean swap) {
     PEEKER(jfloat, Float, jint, swapInts);
 }
 
-static void info_guardianproject_libcore_io_Memory_peekIntArray(JNIEnv* env, jclass, jint srcAddress, jintArray dst, jint dstOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_peekIntArray(JNIEnv* env, jclass, jint srcAddress, jintArray dst, jint dstOffset, jint count, jboolean swap) {
     PEEKER(jint, Int, jint, swapInts);
 }
 
-static void info_guardianproject_libcore_io_Memory_peekLongArray(JNIEnv* env, jclass, jint srcAddress, jlongArray dst, jint dstOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_peekLongArray(JNIEnv* env, jclass, jint srcAddress, jlongArray dst, jint dstOffset, jint count, jboolean swap) {
     PEEKER(jlong, Long, jlong, swapLongs);
 }
 
-static void info_guardianproject_libcore_io_Memory_peekShortArray(JNIEnv* env, jclass, jint srcAddress, jshortArray dst, jint dstOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_peekShortArray(JNIEnv* env, jclass, jint srcAddress, jshortArray dst, jint dstOffset, jint count, jboolean swap) {
     PEEKER(jshort, Short, jshort, swapShorts);
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeByte(JNIEnv*, jclass, jint dstAddress, jbyte value) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeByte(JNIEnv*, jclass, jint dstAddress, jbyte value) {
     *cast<jbyte*>(dstAddress) = value;
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeByteArray(JNIEnv* env, jclass, jint dstAddress, jbyteArray src, jint offset, jint length) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeByteArray(JNIEnv* env, jclass, jint dstAddress, jbyteArray src, jint offset, jint length) {
     env->GetByteArrayRegion(src, offset, length, cast<jbyte*>(dstAddress));
 }
 
@@ -170,31 +170,31 @@ static void info_guardianproject_libcore_io_Memory_pokeByteArray(JNIEnv* env, jc
     } \
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeCharArray(JNIEnv* env, jclass, jint dstAddress, jcharArray src, jint srcOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeCharArray(JNIEnv* env, jclass, jint dstAddress, jcharArray src, jint srcOffset, jint count, jboolean swap) {
     POKER(jchar, Char, jshort, swapShorts);
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeDoubleArray(JNIEnv* env, jclass, jint dstAddress, jdoubleArray src, jint srcOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeDoubleArray(JNIEnv* env, jclass, jint dstAddress, jdoubleArray src, jint srcOffset, jint count, jboolean swap) {
     POKER(jdouble, Double, jlong, swapLongs);
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeFloatArray(JNIEnv* env, jclass, jint dstAddress, jfloatArray src, jint srcOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeFloatArray(JNIEnv* env, jclass, jint dstAddress, jfloatArray src, jint srcOffset, jint count, jboolean swap) {
     POKER(jfloat, Float, jint, swapInts);
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeIntArray(JNIEnv* env, jclass, jint dstAddress, jintArray src, jint srcOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeIntArray(JNIEnv* env, jclass, jint dstAddress, jintArray src, jint srcOffset, jint count, jboolean swap) {
     POKER(jint, Int, jint, swapInts);
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeLongArray(JNIEnv* env, jclass, jint dstAddress, jlongArray src, jint srcOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeLongArray(JNIEnv* env, jclass, jint dstAddress, jlongArray src, jint srcOffset, jint count, jboolean swap) {
     POKER(jlong, Long, jlong, swapLongs);
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeShortArray(JNIEnv* env, jclass, jint dstAddress, jshortArray src, jint srcOffset, jint count, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeShortArray(JNIEnv* env, jclass, jint dstAddress, jshortArray src, jint srcOffset, jint count, jboolean swap) {
     POKER(jshort, Short, jshort, swapShorts);
 }
 
-static jshort info_guardianproject_libcore_io_Memory_peekShort(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
+JNIEXPORT jshort JNICALL Java_info_guardianproject_libcore_io_Memory_peekShort(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
     jshort result = *cast<const jshort*>(srcAddress);
     if (swap) {
         result = bswap_16(result);
@@ -202,14 +202,14 @@ static jshort info_guardianproject_libcore_io_Memory_peekShort(JNIEnv*, jclass, 
     return result;
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeShort(JNIEnv*, jclass, jint dstAddress, jshort value, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeShort(JNIEnv*, jclass, jint dstAddress, jshort value, jboolean swap) {
     if (swap) {
         value = bswap_16(value);
     }
     *cast<jshort*>(dstAddress) = value;
 }
 
-static jint info_guardianproject_libcore_io_Memory_peekInt(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
+JNIEXPORT jint JNICALL Java_info_guardianproject_libcore_io_Memory_peekInt(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
     jint result = *cast<const jint*>(srcAddress);
     if (swap) {
         result = bswap_32(result);
@@ -217,14 +217,14 @@ static jint info_guardianproject_libcore_io_Memory_peekInt(JNIEnv*, jclass, jint
     return result;
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeInt(JNIEnv*, jclass, jint dstAddress, jint value, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeInt(JNIEnv*, jclass, jint dstAddress, jint value, jboolean swap) {
     if (swap) {
         value = bswap_32(value);
     }
     *cast<jint*>(dstAddress) = value;
 }
 
-static jlong info_guardianproject_libcore_io_Memory_peekLong(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
+JNIEXPORT jlong JNICALL Java_info_guardianproject_libcore_io_Memory_peekLong(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
     jlong result;
     if ((srcAddress & LONG_ALIGNMENT_MASK) == 0) {
         result = *cast<const jlong*>(srcAddress);
@@ -247,7 +247,7 @@ static jlong info_guardianproject_libcore_io_Memory_peekLong(JNIEnv*, jclass, ji
     return result;
 }
 
-static void info_guardianproject_libcore_io_Memory_pokeLong(JNIEnv*, jclass, jint dstAddress, jlong value, jboolean swap) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_pokeLong(JNIEnv*, jclass, jint dstAddress, jlong value, jboolean swap) {
     if (swap) {
         value = bswap_64(value);
     }
@@ -290,7 +290,7 @@ static void unsafeBulkCopy(jbyte* dst, const jbyte* src, jint byteCount,
     }
 }
 
-static void info_guardianproject_libcore_io_Memory_unsafeBulkGet(JNIEnv* env, jclass, jobject dstObject, jint dstOffset,
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_unsafeBulkGet(JNIEnv* env, jclass, jobject dstObject, jint dstOffset,
         jint byteCount, jbyteArray srcArray, jint srcOffset, jint sizeofElement, jboolean swap) {
     ScopedByteArrayRO srcBytes(env, srcArray);
     if (srcBytes.get() == NULL) {
@@ -307,7 +307,7 @@ static void info_guardianproject_libcore_io_Memory_unsafeBulkGet(JNIEnv* env, jc
     env->ReleasePrimitiveArrayCritical(dstArray, dstBytes, 0);
 }
 
-static void info_guardianproject_libcore_io_Memory_unsafeBulkPut(JNIEnv* env, jclass, jbyteArray dstArray, jint dstOffset,
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_Memory_unsafeBulkPut(JNIEnv* env, jclass, jbyteArray dstArray, jint dstOffset,
         jint byteCount, jobject srcObject, jint srcOffset, jint sizeofElement, jboolean swap) {
     ScopedByteArrayRW dstBytes(env, dstArray);
     if (dstBytes.get() == NULL) {

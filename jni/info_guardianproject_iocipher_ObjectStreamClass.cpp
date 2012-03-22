@@ -29,28 +29,28 @@ static jobject getSignature(JNIEnv* env, jclass c, jobject object) {
     return env->CallNonvirtualObjectMethod(object, objectClass, mid);
 }
 
-static jobject info_guardianproject_iocipher_ObjectStreamClass_getFieldSignature(JNIEnv* env, jclass, jobject field) {
+JNIEXPORT jobject JNICALL Java_info_guardianproject_iocipher_ObjectStreamClass_getFieldSignature(JNIEnv* env, jclass, jobject field) {
     return getSignature(env, JniConstants::fieldClass, field);
 }
 
-static jobject info_guardianproject_iocipher_ObjectStreamClass_getMethodSignature(JNIEnv* env, jclass, jobject method) {
+JNIEXPORT jobject JNICALL Java_info_guardianproject_iocipher_ObjectStreamClass_getMethodSignature(JNIEnv* env, jclass, jobject method) {
     return getSignature(env, JniConstants::methodClass, method);
 }
 
-static jobject info_guardianproject_iocipher_ObjectStreamClass_getConstructorSignature(JNIEnv* env, jclass, jobject constructor) {
+JNIEXPORT jobject JNICALL Java_info_guardianproject_iocipher_ObjectStreamClass_getConstructorSignature(JNIEnv* env, jclass, jobject constructor) {
     return getSignature(env, JniConstants::constructorClass, constructor);
 }
 
-static jboolean info_guardianproject_iocipher_ObjectStreamClass_hasClinit(JNIEnv * env, jclass, jclass targetClass) {
+JNIEXPORT jboolean JNICALL Java_info_guardianproject_iocipher_ObjectStreamClass_hasClinit(JNIEnv * env, jclass, jclass targetClass) {
     jmethodID mid = env->GetStaticMethodID(targetClass, "<clinit>", "()V");
     env->ExceptionClear();
     return (mid != 0);
 }
 
-static jint info_guardianproject_iocipher_ObjectStreamClass_getConstructorId(JNIEnv* env, jclass, jclass constructorClass) {
+JNIEXPORT jint JNICALL Java_info_guardianproject_iocipher_ObjectStreamClass_getConstructorId(JNIEnv* env, jclass, jclass constructorClass) {
     return reinterpret_cast<jint>(env->GetMethodID(constructorClass, "<init>", "()V"));
 }
 
-static jobject info_guardianproject_iocipher_ObjectStreamClass_newInstance(JNIEnv* env, jclass, jclass instantiationClass, jint methodId) {
+JNIEXPORT jobject JNICALL Java_info_guardianproject_iocipher_ObjectStreamClass_newInstance(JNIEnv* env, jclass, jclass instantiationClass, jint methodId) {
     return env->NewObject(instantiationClass, reinterpret_cast<jmethodID>(methodId));
 }

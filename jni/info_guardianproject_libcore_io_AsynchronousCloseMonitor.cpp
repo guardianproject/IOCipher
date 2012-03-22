@@ -21,7 +21,7 @@
 #include "JniConstants.h"
 #include "jni.h"
 
-static void info_guardianproject_libcore_io_AsynchronousCloseMonitor_signalBlockedThreads(JNIEnv* env, jclass, jobject javaFd) {
+JNIEXPORT void JNICALL Java_info_guardianproject_libcore_io_AsynchronousCloseMonitor_signalBlockedThreads(JNIEnv* env, jclass, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     AsynchronousSocketCloseMonitor::signalBlockedThreads(fd);
 }
