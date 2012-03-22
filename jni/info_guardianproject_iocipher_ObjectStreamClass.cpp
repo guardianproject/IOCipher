@@ -29,28 +29,28 @@ static jobject getSignature(JNIEnv* env, jclass c, jobject object) {
     return env->CallNonvirtualObjectMethod(object, objectClass, mid);
 }
 
-static jobject ObjectStreamClass_getFieldSignature(JNIEnv* env, jclass, jobject field) {
+static jobject info_guardianproject_iocipher_ObjectStreamClass_getFieldSignature(JNIEnv* env, jclass, jobject field) {
     return getSignature(env, JniConstants::fieldClass, field);
 }
 
-static jobject ObjectStreamClass_getMethodSignature(JNIEnv* env, jclass, jobject method) {
+static jobject info_guardianproject_iocipher_ObjectStreamClass_getMethodSignature(JNIEnv* env, jclass, jobject method) {
     return getSignature(env, JniConstants::methodClass, method);
 }
 
-static jobject ObjectStreamClass_getConstructorSignature(JNIEnv* env, jclass, jobject constructor) {
+static jobject info_guardianproject_iocipher_ObjectStreamClass_getConstructorSignature(JNIEnv* env, jclass, jobject constructor) {
     return getSignature(env, JniConstants::constructorClass, constructor);
 }
 
-static jboolean ObjectStreamClass_hasClinit(JNIEnv * env, jclass, jclass targetClass) {
+static jboolean info_guardianproject_iocipher_ObjectStreamClass_hasClinit(JNIEnv * env, jclass, jclass targetClass) {
     jmethodID mid = env->GetStaticMethodID(targetClass, "<clinit>", "()V");
     env->ExceptionClear();
     return (mid != 0);
 }
 
-static jint ObjectStreamClass_getConstructorId(JNIEnv* env, jclass, jclass constructorClass) {
+static jint info_guardianproject_iocipher_ObjectStreamClass_getConstructorId(JNIEnv* env, jclass, jclass constructorClass) {
     return reinterpret_cast<jint>(env->GetMethodID(constructorClass, "<init>", "()V"));
 }
 
-static jobject ObjectStreamClass_newInstance(JNIEnv* env, jclass, jclass instantiationClass, jint methodId) {
+static jobject info_guardianproject_iocipher_ObjectStreamClass_newInstance(JNIEnv* env, jclass, jclass instantiationClass, jint methodId) {
     return env->NewObject(instantiationClass, reinterpret_cast<jmethodID>(methodId));
 }
