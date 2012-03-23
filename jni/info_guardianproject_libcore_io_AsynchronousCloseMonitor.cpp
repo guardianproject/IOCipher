@@ -27,7 +27,7 @@ static void info_guardianproject_libcore_io_AsynchronousCloseMonitor_signalBlock
 }
 
 static JNINativeMethod sMethods[] = {
-    {"signalBlockedThreads", "(Ljava/io/FileDescriptor;)V", (void *)info_guardianproject_libcore_io_AsynchronousCloseMonitor_signalBlockedThreads},
+    {"signalBlockedThreads", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)info_guardianproject_libcore_io_AsynchronousCloseMonitor_signalBlockedThreads},
 };
 
 int register_info_guardianproject_libcore_io_AsynchronousCloseMonitor(JNIEnv* env) {

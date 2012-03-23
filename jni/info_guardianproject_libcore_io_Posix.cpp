@@ -449,7 +449,6 @@ static void info_guardianproject_libcore_io_Posix_connect(JNIEnv* env, jobject, 
     const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
     NET_FAILURE_RETRY("connect", connect(fd, sa, sizeof(sockaddr_storage)));
 }
-*/
 
 static jobject info_guardianproject_libcore_io_Posix_dup(JNIEnv* env, jobject, jobject javaOldFd) {
     int oldFd = jniGetFDFromFileDescriptor(env, javaOldFd);
@@ -531,6 +530,7 @@ static jobject info_guardianproject_libcore_io_Posix_fstatfs(JNIEnv* env, jobjec
     }
     return makeStructStatFs(env, sb);
 }
+*/
 
 static void info_guardianproject_libcore_io_Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
@@ -614,7 +614,6 @@ static jobjectArray info_guardianproject_libcore_io_Posix_getaddrinfo(JNIEnv* en
     }
     return result;
 }
-*/
 
 static jint info_guardianproject_libcore_io_Posix_getegid(JNIEnv*, jobject) {
     return getegid();
@@ -636,7 +635,6 @@ static jstring info_guardianproject_libcore_io_Posix_getenv(JNIEnv* env, jobject
     return env->NewStringUTF(getenv(name.c_str()));
 }
 
-/*
 static jstring info_guardianproject_libcore_io_Posix_getnameinfo(JNIEnv* env, jobject, jobject javaAddress, jint flags) {
     sockaddr_storage ss;
     if (!inetAddressToSockaddrVerbatim(env, javaAddress, 0, &ss)) {
@@ -655,7 +653,6 @@ static jstring info_guardianproject_libcore_io_Posix_getnameinfo(JNIEnv* env, jo
     }
     return env->NewStringUTF(buf);
 }
-*/
 
 static jint info_guardianproject_libcore_io_Posix_getpid(JNIEnv*, jobject) {
     return getpid();
@@ -665,7 +662,6 @@ static jint info_guardianproject_libcore_io_Posix_getppid(JNIEnv*, jobject) {
     return getppid();
 }
 
-/*
 static jobject info_guardianproject_libcore_io_Posix_getpwnam(JNIEnv* env, jobject, jstring javaName) {
     ScopedUtfChars name(env, javaName);
     if (name.c_str() == NULL) {
@@ -748,7 +744,6 @@ static jobject info_guardianproject_libcore_io_Posix_getsockoptTimeval(JNIEnv* e
     }
     return makeStructTimeval(env, tv);
 }
-*/
 
 static jint info_guardianproject_libcore_io_Posix_getuid(JNIEnv*, jobject) {
     return getuid();
@@ -762,7 +757,6 @@ static jstring info_guardianproject_libcore_io_Posix_if_indextoname(JNIEnv* env,
     return env->NewStringUTF(name);
 }
 
-/*
 static jobject info_guardianproject_libcore_io_Posix_inet_pton(JNIEnv* env, jobject, jint family, jstring javaName) {
     ScopedUtfChars name(env, javaName);
     if (name.c_str() == NULL) {
@@ -791,7 +785,6 @@ static jobject info_guardianproject_libcore_io_Posix_ioctlInetAddress(JNIEnv* en
     }
     return sockaddrToInetAddress(env, reinterpret_cast<sockaddr_storage*>(&req.ifr_addr), NULL);
 }
-*/
 
 static jint info_guardianproject_libcore_io_Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobject javaArg) {
     // This is complicated because ioctls may return their result by updating their argument
@@ -838,6 +831,7 @@ static void info_guardianproject_libcore_io_Posix_mincore(JNIEnv* env, jobject, 
     unsigned char* vec = reinterpret_cast<unsigned char*>(vector.get());
     throwIfMinusOne(env, "mincore", TEMP_FAILURE_RETRY(mincore(ptr, byteCount, vec)));
 }
+*/
 
 static void info_guardianproject_libcore_io_Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     ScopedUtfChars path(env, javaPath);
@@ -847,6 +841,7 @@ static void info_guardianproject_libcore_io_Posix_mkdir(JNIEnv* env, jobject, js
     throwIfMinusOne(env, "mkdir", TEMP_FAILURE_RETRY(mkdir(path.c_str(), mode)));
 }
 
+/*
 static void info_guardianproject_libcore_io_Posix_mlock(JNIEnv* env, jobject, jlong address, jlong byteCount) {
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
     throwIfMinusOne(env, "mlock", TEMP_FAILURE_RETRY(mlock(ptr, byteCount)));
@@ -876,6 +871,7 @@ static void info_guardianproject_libcore_io_Posix_munmap(JNIEnv* env, jobject, j
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
     throwIfMinusOne(env, "munmap", TEMP_FAILURE_RETRY(munmap(ptr, byteCount)));
 }
+*/
 
 static jobject info_guardianproject_libcore_io_Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, jint mode) {
     ScopedUtfChars path(env, javaPath);
@@ -886,6 +882,7 @@ static jobject info_guardianproject_libcore_io_Posix_open(JNIEnv* env, jobject, 
     return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
 }
 
+/*
 static jobjectArray info_guardianproject_libcore_io_Posix_pipe(JNIEnv* env, jobject) {
     int fds[2];
     throwIfMinusOne(env, "pipe", TEMP_FAILURE_RETRY(pipe(&fds[0])));
@@ -946,6 +943,7 @@ static jint info_guardianproject_libcore_io_Posix_poll(JNIEnv* env, jobject, job
     }
     return rc;
 }
+*/
 
 static jint info_guardianproject_libcore_io_Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jlong offset) {
     ScopedBytesRW bytes(env, javaBytes);
@@ -976,6 +974,7 @@ static jint info_guardianproject_libcore_io_Posix_readBytes(JNIEnv* env, jobject
     return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, bytes.get() + byteOffset, byteCount)));
 }
 
+/*
 static jint info_guardianproject_libcore_io_Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
     IoVec<ScopedBytesRW> ioVec(env, env->GetArrayLength(buffers));
     if (!ioVec.init(buffers, offsets, byteCounts)) {
@@ -985,7 +984,6 @@ static jint info_guardianproject_libcore_io_Posix_readv(JNIEnv* env, jobject, jo
     return throwIfMinusOne(env, "readv", TEMP_FAILURE_RETRY(readv(fd, ioVec.get(), ioVec.size())));
 }
 
-/*
 static jint info_guardianproject_libcore_io_Posix_recvfromBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jint flags, jobject javaInetSocketAddress) {
     ScopedBytesRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -1023,6 +1021,7 @@ static void info_guardianproject_libcore_io_Posix_rename(JNIEnv* env, jobject, j
     throwIfMinusOne(env, "rename", TEMP_FAILURE_RETRY(rename(oldPath.c_str(), newPath.c_str())));
 }
 
+/*
 static jlong info_guardianproject_libcore_io_Posix_sendfile(JNIEnv* env, jobject, jobject javaOutFd, jobject javaInFd, jobject javaOffset, jlong byteCount) {
     int outFd = jniGetFDFromFileDescriptor(env, javaOutFd);
     int inFd = jniGetFDFromFileDescriptor(env, javaInFd);
@@ -1041,7 +1040,6 @@ static jlong info_guardianproject_libcore_io_Posix_sendfile(JNIEnv* env, jobject
     return result;
 }
 
-/*
 static jint info_guardianproject_libcore_io_Posix_sendtoBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jint flags, jobject javaInetAddress, jint port) {
     ScopedBytesRO bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -1056,7 +1054,6 @@ static jint info_guardianproject_libcore_io_Posix_sendtoBytes(JNIEnv* env, jobje
     socklen_t toLength = (javaInetAddress != NULL) ? sizeof(ss) : 0;
     return NET_FAILURE_RETRY("sendto", sendto(fd, bytes.get() + byteOffset, byteCount, flags, to, toLength));
 }
-*/
 
 static void info_guardianproject_libcore_io_Posix_setegid(JNIEnv* env, jobject, jint egid) {
     throwIfMinusOne(env, "setegid", TEMP_FAILURE_RETRY(setegid(egid)));
@@ -1070,7 +1067,6 @@ static void info_guardianproject_libcore_io_Posix_setgid(JNIEnv* env, jobject, j
     throwIfMinusOne(env, "setgid", TEMP_FAILURE_RETRY(setgid(gid)));
 }
 
-/*
 static void info_guardianproject_libcore_io_Posix_setsockoptByte(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jint value) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     u_char byte = value;
@@ -1149,7 +1145,6 @@ static void info_guardianproject_libcore_io_Posix_setsockoptTimeval(JNIEnv* env,
     value.tv_usec = env->GetLongField(javaTimeval, tvUsecFid);
     throwIfMinusOne(env, "setsockopt", TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value, sizeof(value))));
 }
-*/
 
 static void info_guardianproject_libcore_io_Posix_setuid(JNIEnv* env, jobject, jint uid) {
     throwIfMinusOne(env, "setuid", TEMP_FAILURE_RETRY(setuid(uid)));
@@ -1164,6 +1159,7 @@ static jobject info_guardianproject_libcore_io_Posix_socket(JNIEnv* env, jobject
     int fd = throwIfMinusOne(env, "socket", TEMP_FAILURE_RETRY(socket(domain, type, protocol)));
     return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
 }
+*/
 
 static jobject info_guardianproject_libcore_io_Posix_stat(JNIEnv* env, jobject, jstring javaPath) {
     return doStat(env, javaPath, false);
@@ -1207,6 +1203,7 @@ static void info_guardianproject_libcore_io_Posix_symlink(JNIEnv* env, jobject, 
     throwIfMinusOne(env, "symlink", TEMP_FAILURE_RETRY(symlink(oldPath.c_str(), newPath.c_str())));
 }
 
+/*
 static jlong info_guardianproject_libcore_io_Posix_sysconf(JNIEnv* env, jobject, jint name) {
     // Since -1 is a valid result from sysconf(3), detecting failure is a little more awkward.
     errno = 0;
@@ -1234,6 +1231,7 @@ static jint info_guardianproject_libcore_io_Posix_waitpid(JNIEnv* env, jobject, 
     }
     return rc;
 }
+*/
 
 static jint info_guardianproject_libcore_io_Posix_writeBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount) {
     ScopedBytesRO bytes(env, javaBytes);
@@ -1244,6 +1242,7 @@ static jint info_guardianproject_libcore_io_Posix_writeBytes(JNIEnv* env, jobjec
     return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
 }
 
+/*
 static jint info_guardianproject_libcore_io_Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
     IoVec<ScopedBytesRO> ioVec(env, env->GetArrayLength(buffers));
     if (!ioVec.init(buffers, offsets, byteCounts)) {
@@ -1252,93 +1251,94 @@ static jint info_guardianproject_libcore_io_Posix_writev(JNIEnv* env, jobject, j
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     return throwIfMinusOne(env, "writev", TEMP_FAILURE_RETRY(writev(fd, ioVec.get(), ioVec.size())));
 }
+*/
 
 static JNINativeMethod sMethods[] = {
-//    {"accept", "(Ljava/io/FileDescriptor;Ljava/net/InetSocketAddress;)Ljava/io/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_accept},
+//    {"accept", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/net/InetSocketAddress;)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_accept},
     {"access", "(Ljava/lang/String;I)Z", (void *)info_guardianproject_libcore_io_Posix_access},
-//    {"bind", "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V", (void *)info_guardianproject_libcore_io_Posix_bind},
+//    {"bind", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/net/InetAddress;I)V", (void *)info_guardianproject_libcore_io_Posix_bind},
     {"chmod", "(Ljava/lang/String;I)V", (void *)info_guardianproject_libcore_io_Posix_chmod},
-    {"close", "(Ljava/io/FileDescriptor;)V", (void *)info_guardianproject_libcore_io_Posix_close},
-//    {"connect", "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V", (void *)info_guardianproject_libcore_io_Posix_connect},
-    {"dup", "(Ljava/io/FileDescriptor;)Ljava/io/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_dup},
-    {"dup2", "(Ljava/io/FileDescriptor;I)Ljava/io/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_dup2},
-    {"environ", "()[Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_environ},
-    {"fcntlVoid", "(Ljava/io/FileDescriptor;I)I", (void *)info_guardianproject_libcore_io_Posix_fcntlVoid},
-    {"fcntlLong", "(Ljava/io/FileDescriptor;IJ)I", (void *)info_guardianproject_libcore_io_Posix_fcntlLong},
-    {"fcntlFlock", "(Ljava/io/FileDescriptor;ILlibcore/io/StructFlock;)I", (void *)info_guardianproject_libcore_io_Posix_fcntlFlock},
-    {"fdatasync", "(Ljava/io/FileDescriptor;)V", (void *)info_guardianproject_libcore_io_Posix_fdatasync},
-    {"fstat", "(Ljava/io/FileDescriptor;)Llibcore/io/StructStat;", (void *)info_guardianproject_libcore_io_Posix_fstat},
-    {"fstatfs", "(Ljava/io/FileDescriptor;)Llibcore/io/StructStatFs;", (void *)info_guardianproject_libcore_io_Posix_fstatfs},
-    {"fsync", "(Ljava/io/FileDescriptor;)V", (void *)info_guardianproject_libcore_io_Posix_fsync},
-//    {"ftruncate", "(Ljava/io/FileDescriptor;J)V", (void *)info_guardianproject_libcore_io_Posix_ftruncate},
+    {"close", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)info_guardianproject_libcore_io_Posix_close},
+//    {"connect", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/net/InetAddress;I)V", (void *)info_guardianproject_libcore_io_Posix_connect},
+//    {"dup", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_dup},
+//    {"dup2", "(Linfo/guardianproject/iocipher/FileDescriptor;I)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_dup2},
+//    {"environ", "()[Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_environ},
+//    {"fcntlVoid", "(Linfo/guardianproject/iocipher/FileDescriptor;I)I", (void *)info_guardianproject_libcore_io_Posix_fcntlVoid},
+//    {"fcntlLong", "(Linfo/guardianproject/iocipher/FileDescriptor;IJ)I", (void *)info_guardianproject_libcore_io_Posix_fcntlLong},
+//    {"fcntlFlock", "(Linfo/guardianproject/iocipher/FileDescriptor;ILlibcore/io/StructFlock;)I", (void *)info_guardianproject_libcore_io_Posix_fcntlFlock},
+//    {"fdatasync", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)info_guardianproject_libcore_io_Posix_fdatasync},
+//    {"fstat", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/libcore/io/StructStat;", (void *)info_guardianproject_libcore_io_Posix_fstat},
+//    {"fstatfs", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/libcore/io/StructStatFs;", (void *)info_guardianproject_libcore_io_Posix_fstatfs},
+    {"fsync", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)info_guardianproject_libcore_io_Posix_fsync},
+//    {"ftruncate", "(Linfo/guardianproject/iocipher/FileDescriptor;J)V", (void *)info_guardianproject_libcore_io_Posix_ftruncate},
 //    {"gai_strerror", "(I)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_gai_strerror},
 //    {"getaddrinfo", "(Ljava/lang/String;Llibcore/io/StructAddrinfo;)[Ljava/net/InetAddress;", (void *)info_guardianproject_libcore_io_Posix_getaddrinfo},
-    {"getegid", "()I", (void *)info_guardianproject_libcore_io_Posix_getegid},
-    {"geteuid", "()I", (void *)info_guardianproject_libcore_io_Posix_geteuid},
-    {"getgid", "()I", (void *)info_guardianproject_libcore_io_Posix_getgid},
-    {"getenv", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_getenv},
+//    {"getegid", "()I", (void *)info_guardianproject_libcore_io_Posix_getegid},
+//    {"geteuid", "()I", (void *)info_guardianproject_libcore_io_Posix_geteuid},
+//    {"getgid", "()I", (void *)info_guardianproject_libcore_io_Posix_getgid},
+//    {"getenv", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_getenv},
 //    {"getnameinfo", "(Ljava/net/InetAddress;I)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_getnameinfo},
-    {"getpid", "()I", (void *)info_guardianproject_libcore_io_Posix_getpid},
-    {"getppid", "()I", (void *)info_guardianproject_libcore_io_Posix_getppid},
+//    {"getpid", "()I", (void *)info_guardianproject_libcore_io_Posix_getpid},
+//    {"getppid", "()I", (void *)info_guardianproject_libcore_io_Posix_getppid},
 //    {"getpwnam", "(Ljava/lang/String;)Llibcore/io/StructPasswd;", (void *)info_guardianproject_libcore_io_Posix_getpwnam},
 //    {"getpwuid", "(I)Llibcore/io/StructPasswd;", (void *)info_guardianproject_libcore_io_Posix_getpwuid},
-//    {"getsockname", "(Ljava/io/FileDescriptor;)Ljava/net/SocketAddress;", (void *)info_guardianproject_libcore_io_Posix_getsockname},
-//    {"getsockoptByte", "(Ljava/io/FileDescriptor;II)I", (void *)info_guardianproject_libcore_io_Posix_getsockoptByte},
-//    {"getsockoptInAddr", "(Ljava/io/FileDescriptor;II)Ljava/net/InetAddress;", (void *)info_guardianproject_libcore_io_Posix_getsockoptInAddr},
-//    {"getsockoptInt", "(Ljava/io/FileDescriptor;II)I", (void *)info_guardianproject_libcore_io_Posix_getsockoptInt},
-//    {"getsockoptLinger", "(Ljava/io/FileDescriptor;II)Llibcore/io/StructLinger;", (void *)info_guardianproject_libcore_io_Posix_getsockoptLinger},
-//    {"getsockoptTimeval", "(Ljava/io/FileDescriptor;II)Llibcore/io/StructTimeval;", (void *)info_guardianproject_libcore_io_Posix_getsockoptTimeval},
-    {"getuid", "()I", (void *)info_guardianproject_libcore_io_Posix_getuid},
-    {"if_indextoname", "(I)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_if_indextoname},
+//    {"getsockname", "(Linfo/guardianproject/iocipher/FileDescriptor;)Ljava/net/SocketAddress;", (void *)info_guardianproject_libcore_io_Posix_getsockname},
+//    {"getsockoptByte", "(Linfo/guardianproject/iocipher/FileDescriptor;II)I", (void *)info_guardianproject_libcore_io_Posix_getsockoptByte},
+//    {"getsockoptInAddr", "(Linfo/guardianproject/iocipher/FileDescriptor;II)Ljava/net/InetAddress;", (void *)info_guardianproject_libcore_io_Posix_getsockoptInAddr},
+//    {"getsockoptInt", "(Linfo/guardianproject/iocipher/FileDescriptor;II)I", (void *)info_guardianproject_libcore_io_Posix_getsockoptInt},
+//    {"getsockoptLinger", "(Linfo/guardianproject/iocipher/FileDescriptor;II)Llibcore/io/StructLinger;", (void *)info_guardianproject_libcore_io_Posix_getsockoptLinger},
+//    {"getsockoptTimeval", "(Linfo/guardianproject/iocipher/FileDescriptor;II)Llibcore/io/StructTimeval;", (void *)info_guardianproject_libcore_io_Posix_getsockoptTimeval},
+//    {"getuid", "()I", (void *)info_guardianproject_libcore_io_Posix_getuid},
+//    {"if_indextoname", "(I)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_if_indextoname},
 //    {"inet_pton", "(ILjava/lang/String;)Ljava/net/InetAddress;", (void *)info_guardianproject_libcore_io_Posix_inet_pton},
-//    {"ioctlInetAddress", "(Ljava/io/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;", (void *)info_guardianproject_libcore_io_Posix_ioctlInetAddress},
-    {"ioctlInt", "(Ljava/io/FileDescriptor;ILlibcore/util/MutableInt;)I", (void *)info_guardianproject_libcore_io_Posix_ioctlInt},
-    {"isatty", "(Ljava/io/FileDescriptor;)Z", (void *)info_guardianproject_libcore_io_Posix_isatty},
-    {"kill", "(II)V", (void *)info_guardianproject_libcore_io_Posix_kill},
-    {"listen", "(Ljava/io/FileDescriptor;I)V", (void *)info_guardianproject_libcore_io_Posix_listen},
-    {"lseek", "(Ljava/io/FileDescriptor;JI)J", (void *)info_guardianproject_libcore_io_Posix_lseek},
-    {"lstat", "(Ljava/lang/String;)Llibcore/io/StructStat;", (void *)info_guardianproject_libcore_io_Posix_lstat},
-    {"mincore", "(JJ[B)V", (void *)info_guardianproject_libcore_io_Posix_mincore},
+//    {"ioctlInetAddress", "(Linfo/guardianproject/iocipher/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;", (void *)info_guardianproject_libcore_io_Posix_ioctlInetAddress},
+//    {"ioctlInt", "(Linfo/guardianproject/iocipher/FileDescriptor;ILlibcore/util/MutableInt;)I", (void *)info_guardianproject_libcore_io_Posix_ioctlInt},
+//    {"isatty", "(Linfo/guardianproject/iocipher/FileDescriptor;)Z", (void *)info_guardianproject_libcore_io_Posix_isatty},
+//    {"kill", "(II)V", (void *)info_guardianproject_libcore_io_Posix_kill},
+//    {"listen", "(Linfo/guardianproject/iocipher/FileDescriptor;I)V", (void *)info_guardianproject_libcore_io_Posix_listen},
+//    {"lseek", "(Linfo/guardianproject/iocipher/FileDescriptor;JI)J", (void *)info_guardianproject_libcore_io_Posix_lseek},
+//    {"lstat", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStat;", (void *)info_guardianproject_libcore_io_Posix_lstat},
+//    {"mincore", "(JJ[B)V", (void *)info_guardianproject_libcore_io_Posix_mincore},
     {"mkdir", "(Ljava/lang/String;I)V", (void *)info_guardianproject_libcore_io_Posix_mkdir},
-    {"mlock", "(JJ)V", (void *)info_guardianproject_libcore_io_Posix_mlock},
-    {"mmap", "(JJIILjava/io/FileDescriptor;J)J", (void *)info_guardianproject_libcore_io_Posix_mmap},
-    {"msync", "(JJI)V", (void *)info_guardianproject_libcore_io_Posix_msync},
-    {"munlock", "(JJ)V", (void *)info_guardianproject_libcore_io_Posix_munlock},
-    {"munmap", "(JJ)V", (void *)info_guardianproject_libcore_io_Posix_munmap},
-    {"open", "(Ljava/lang/String;II)Ljava/io/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_open},
-    {"pipe", "()[Ljava/io/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_pipe},
-    {"poll", "([Llibcore/io/StructPollfd;I)I", (void *)info_guardianproject_libcore_io_Posix_poll},
-    {"preadBytes", "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)info_guardianproject_libcore_io_Posix_preadBytes},
-    {"pwriteBytes", "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)info_guardianproject_libcore_io_Posix_pwriteBytes},
-    {"readBytes", "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I", (void *)info_guardianproject_libcore_io_Posix_readBytes},
-    {"readv", "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)info_guardianproject_libcore_io_Posix_readv},
-//    {"recvfromBytes", "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I", (void *)info_guardianproject_libcore_io_Posix_recvfromBytes},
+//    {"mlock", "(JJ)V", (void *)info_guardianproject_libcore_io_Posix_mlock},
+//    {"mmap", "(JJIILinfo/guardianproject/iocipher/FileDescriptor;J)J", (void *)info_guardianproject_libcore_io_Posix_mmap},
+//    {"msync", "(JJI)V", (void *)info_guardianproject_libcore_io_Posix_msync},
+//    {"munlock", "(JJ)V", (void *)info_guardianproject_libcore_io_Posix_munlock},
+//    {"munmap", "(JJ)V", (void *)info_guardianproject_libcore_io_Posix_munmap},
+    {"open", "(Ljava/lang/String;II)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_open},
+//    {"pipe", "()[Linfo/guardianproject/iocipher/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_pipe},
+//    {"poll", "([Llibcore/io/StructPollfd;I)I", (void *)info_guardianproject_libcore_io_Posix_poll},
+    {"preadBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)info_guardianproject_libcore_io_Posix_preadBytes},
+    {"pwriteBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)info_guardianproject_libcore_io_Posix_pwriteBytes},
+    {"readBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)info_guardianproject_libcore_io_Posix_readBytes},
+//    {"readv", "(Linfo/guardianproject/iocipher/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)info_guardianproject_libcore_io_Posix_readv},
+//    {"recvfromBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I", (void *)info_guardianproject_libcore_io_Posix_recvfromBytes},
     {"remove", "(Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_remove},
     {"rename", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_rename},
-    {"sendfile", "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Llibcore/util/MutableLong;J)J", (void *)info_guardianproject_libcore_io_Posix_sendfile},
-//    {"sendtoBytes", "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetAddress;I)I", (void *)info_guardianproject_libcore_io_Posix_sendtoBytes},
-    {"setegid", "(I)V", (void *)info_guardianproject_libcore_io_Posix_setegid},
-    {"seteuid", "(I)V", (void *)info_guardianproject_libcore_io_Posix_seteuid},
-    {"setgid", "(I)V", (void *)info_guardianproject_libcore_io_Posix_setgid},
-//    {"setsockoptByte", "(Ljava/io/FileDescriptor;III)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptByte},
-//    {"setsockoptIfreq", "(Ljava/io/FileDescriptor;IILjava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptIfreq},
-//    {"setsockoptInt", "(Ljava/io/FileDescriptor;III)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptInt},
-//    {"setsockoptIpMreqn", "(Ljava/io/FileDescriptor;III)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptIpMreqn},
-//    {"setsockoptGroupReq", "(Ljava/io/FileDescriptor;IILlibcore/io/StructGroupReq;)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptGroupReq},
-//    {"setsockoptLinger", "(Ljava/io/FileDescriptor;IILlibcore/io/StructLinger;)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptLinger},
-//    {"setsockoptTimeval", "(Ljava/io/FileDescriptor;IILlibcore/io/StructTimeval;)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptTimeval},
-    {"setuid", "(I)V", (void *)info_guardianproject_libcore_io_Posix_setuid},
-    {"shutdown", "(Ljava/io/FileDescriptor;I)V", (void *)info_guardianproject_libcore_io_Posix_shutdown},
-    {"socket", "(III)Ljava/io/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_socket},
-    {"stat", "(Ljava/lang/String;)Llibcore/io/StructStat;", (void *)info_guardianproject_libcore_io_Posix_stat},
-    {"statfs", "(Ljava/lang/String;)Llibcore/io/StructStatFs;", (void *)info_guardianproject_libcore_io_Posix_statfs},
+//    {"sendfile", "(Linfo/guardianproject/iocipher/FileDescriptor;Linfo/guardianproject/iocipher/FileDescriptor;Llibcore/util/MutableLong;J)J", (void *)info_guardianproject_libcore_io_Posix_sendfile},
+//    {"sendtoBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetAddress;I)I", (void *)info_guardianproject_libcore_io_Posix_sendtoBytes},
+//    {"setegid", "(I)V", (void *)info_guardianproject_libcore_io_Posix_setegid},
+//    {"seteuid", "(I)V", (void *)info_guardianproject_libcore_io_Posix_seteuid},
+//    {"setgid", "(I)V", (void *)info_guardianproject_libcore_io_Posix_setgid},
+//    {"setsockoptByte", "(Linfo/guardianproject/iocipher/FileDescriptor;III)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptByte},
+//    {"setsockoptIfreq", "(Linfo/guardianproject/iocipher/FileDescriptor;IILjava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptIfreq},
+//    {"setsockoptInt", "(Linfo/guardianproject/iocipher/FileDescriptor;III)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptInt},
+//    {"setsockoptIpMreqn", "(Linfo/guardianproject/iocipher/FileDescriptor;III)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptIpMreqn},
+//    {"setsockoptGroupReq", "(Linfo/guardianproject/iocipher/FileDescriptor;IILlibcore/io/StructGroupReq;)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptGroupReq},
+//    {"setsockoptLinger", "(Linfo/guardianproject/iocipher/FileDescriptor;IILlibcore/io/StructLinger;)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptLinger},
+//    {"setsockoptTimeval", "(Linfo/guardianproject/iocipher/FileDescriptor;IILlibcore/io/StructTimeval;)V", (void *)info_guardianproject_libcore_io_Posix_setsockoptTimeval},
+//    {"setuid", "(I)V", (void *)info_guardianproject_libcore_io_Posix_setuid},
+//    {"shutdown", "(Linfo/guardianproject/iocipher/FileDescriptor;I)V", (void *)info_guardianproject_libcore_io_Posix_shutdown},
+//    {"socket", "(III)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_socket},
+    {"stat", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStat;", (void *)info_guardianproject_libcore_io_Posix_stat},
+    {"statfs", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStatFs;", (void *)info_guardianproject_libcore_io_Posix_statfs},
 //    {"strerror", "(I)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_strerror},
     {"symlink", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_symlink},
-    {"sysconf", "(I)J", (void *)info_guardianproject_libcore_io_Posix_sysconf},
-    {"uname", "()Llibcore/io/StructUtsname;", (void *)info_guardianproject_libcore_io_Posix_uname},
-    {"waitpid", "(ILlibcore/util/MutableInt;I)I", (void *)info_guardianproject_libcore_io_Posix_waitpid},
-    {"writeBytes", "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I", (void *)info_guardianproject_libcore_io_Posix_writeBytes},
-    {"writev", "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)info_guardianproject_libcore_io_Posix_writev},
+//    {"sysconf", "(I)J", (void *)info_guardianproject_libcore_io_Posix_sysconf},
+//    {"uname", "()Llibcore/io/StructUtsname;", (void *)info_guardianproject_libcore_io_Posix_uname},
+//    {"waitpid", "(ILlibcore/util/MutableInt;I)I", (void *)info_guardianproject_libcore_io_Posix_waitpid},
+    {"writeBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)info_guardianproject_libcore_io_Posix_writeBytes},
+//    {"writev", "(Linfo/guardianproject/iocipher/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)info_guardianproject_libcore_io_Posix_writev},
 };
 int register_info_guardianproject_libcore_io_Posix(JNIEnv* env) {
     jclass cls;
