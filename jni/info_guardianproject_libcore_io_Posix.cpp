@@ -85,6 +85,7 @@ struct addrinfo_deleter {
  *     NET_FAILURE_RETRY("syscall", syscall(fd, ...)); // Throws on error.
  * }
  */
+/*
 #define NET_FAILURE_RETRY(syscall_name, exp) ({ \
     typeof (exp) _rc = -1; \
     do { \
@@ -104,6 +105,7 @@ struct addrinfo_deleter {
         } \
     } while (_rc == -1); \
     _rc; })
+*/
 
 static void throwException(JNIEnv* env, jclass exceptionClass, jmethodID ctor3, jmethodID ctor2,
         const char* functionName, int error) {
@@ -138,6 +140,7 @@ static void throwErrnoException(JNIEnv* env, const char* functionName) {
     throwException(env, JniConstants::errnoExceptionClass, ctor3, ctor2, functionName, error);
 }
 
+/*
 static void throwGaiException(JNIEnv* env, const char* functionName, int error) {
     if (error == EAI_SYSTEM) {
         // EAI_SYSTEM means "look at errno instead", so we want our GaiException to have the
@@ -151,6 +154,7 @@ static void throwGaiException(JNIEnv* env, const char* functionName, int error) 
             "<init>", "(Ljava/lang/String;I)V");
     throwException(env, JniConstants::gaiExceptionClass, ctor3, ctor2, functionName, error);
 }
+*/
 
 template <typename rc_t>
 static rc_t throwIfMinusOne(JNIEnv* env, const char* name, rc_t rc) {
