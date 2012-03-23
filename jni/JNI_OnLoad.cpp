@@ -38,9 +38,11 @@ extern "C" jint JNI_OnLoad(JavaVM* vm, void* reserved)
         LOGE("Failed to get the environment using GetEnv()");
         return -1;
 	}
-	
-	LOGI("JNI_OnLoad register methods ");
 
+    LOGI("JNI_OnLoad init cached classes in JniConstants:");
+    JniConstants::init(env);
+
+    LOGI("JNI_OnLoad register methods:");
 //    register_info_guardianproject_iocipher_Console(env);
     register_info_guardianproject_iocipher_File(env);
 //    register_info_guardianproject_iocipher_ObjectStreamClass(env);
@@ -48,6 +50,8 @@ extern "C" jint JNI_OnLoad(JavaVM* vm, void* reserved)
     register_info_guardianproject_libcore_io_Memory(env);
     register_info_guardianproject_libcore_io_OsConstants(env);
     register_info_guardianproject_libcore_io_Posix(env);
+
+    LOGI("JNI_OnLoad done");
 
     return JNI_VERSION_1_6;
 }
