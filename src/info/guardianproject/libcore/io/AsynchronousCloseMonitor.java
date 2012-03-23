@@ -16,7 +16,7 @@
 
 package info.guardianproject.libcore.io;
 
-import java.io.FileDescriptor;
+import info.guardianproject.iocipher.FileDescriptor;
 
 public final class AsynchronousCloseMonitor {
     private AsynchronousCloseMonitor() {
