@@ -32,6 +32,7 @@ LOCAL_SRC_FILES := \
 	realpath.cpp \
 	toStringArray.cpp \
 	info_guardianproject_iocipher_File.cpp \
+	info_guardianproject_iocipher_VirtualFileSystem.cpp \
 	info_guardianproject_libcore_io_AsynchronousCloseMonitor.cpp \
 	info_guardianproject_libcore_io_Memory.cpp \
 	info_guardianproject_libcore_io_OsConstants.cpp \
