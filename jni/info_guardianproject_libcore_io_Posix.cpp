@@ -27,6 +27,7 @@
 #include "StaticAssert.h"
 #include "UniquePtr.h"
 #include "toStringArray.h"
+#include "sqlfs.h"
 
 // our replacements for missing things
 #include "stubs.h"
@@ -47,7 +48,7 @@
 #include <sys/sendfile.h>
 #include <sys/socket.h>
 #include <sys/socket.h>
-#include <sys/stat.h>
+#include <sys/stat.h> // TODO eventually we can remove this?
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/uio.h>
@@ -55,6 +56,12 @@
 #include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+/* right now, we use a single global virtual file system so we don't
+ * have to map the structs sqlfs_t and sqlite3 to Java code */
+extern char databaseFileName[PATH_MAX];
+extern sqlfs_t *sqlfs;
+
 
 #define TO_JAVA_STRING(NAME, EXP) \
         jstring NAME = env->NewStringUTF(EXP); \
@@ -404,7 +411,7 @@ static jboolean info_guardianproject_libcore_io_Posix_access(JNIEnv* env, jobjec
     if (path.c_str() == NULL) {
         return JNI_FALSE;
     }
-    int rc = TEMP_FAILURE_RETRY(access(path.c_str(), mode));
+    int rc = TEMP_FAILURE_RETRY(sqlfs_proc_access(sqlfs, path.c_str(), mode));
     if (rc == -1) {
         throwErrnoException(env, "access");
     }
@@ -428,7 +435,7 @@ static void info_guardianproject_libcore_io_Posix_chmod(JNIEnv* env, jobject, js
     if (path.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "chmod", TEMP_FAILURE_RETRY(chmod(path.c_str(), mode)));
+    throwIfMinusOne(env, "chmod", TEMP_FAILURE_RETRY(sqlfs_proc_chmod(sqlfs, path.c_str(), mode)));
 }
 
 static void info_guardianproject_libcore_io_Posix_close(JNIEnv* env, jobject, jobject javaFd) {
@@ -842,7 +849,12 @@ static void info_guardianproject_libcore_io_Posix_mkdir(JNIEnv* env, jobject, js
     if (path.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "mkdir", TEMP_FAILURE_RETRY(mkdir(path.c_str(), mode)));
+    if (sqlfs == NULL) {
+        // TODO throw exception warning that VirtualFileSystem is not open
+        LOGE("VirtualFileSystem is not open");
+        return;
+    }
+    throwIfMinusOne(env, "mkdir", TEMP_FAILURE_RETRY(sqlfs_proc_mkdir(sqlfs, path.c_str(), mode)));
 }
 
 /*
@@ -1022,7 +1034,7 @@ static void info_guardianproject_libcore_io_Posix_rename(JNIEnv* env, jobject, j
     if (newPath.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "rename", TEMP_FAILURE_RETRY(rename(oldPath.c_str(), newPath.c_str())));
+    throwIfMinusOne(env, "rename", TEMP_FAILURE_RETRY(sqlfs_proc_rename(sqlfs, oldPath.c_str(), newPath.c_str())));
 }
 
 /*
