@@ -45,6 +45,8 @@ public final class Posix implements Os {
 	public native void ftruncate(FileDescriptor fd, long length)
 			throws ErrnoException;
 
+	public native void link(String from, String to) throws ErrnoException;
+
 	public native void mkdir(String path, int mode) throws ErrnoException;
 
 	public native FileDescriptor open(String path, int flags, int mode)
@@ -119,10 +121,14 @@ public final class Posix implements Os {
 	public native void rename(String oldPath, String newPath)
 			throws ErrnoException;
 
+	public native void rmdir(String path) throws ErrnoException;
+
 	public native StructStatFs statfs(String path) throws ErrnoException;
 
 	public native void symlink(String oldPath, String newPath)
 			throws ErrnoException;
+
+	public native void unlink(String path) throws ErrnoException;
 
 	public int write(FileDescriptor fd, ByteBuffer buffer)
 			throws ErrnoException {

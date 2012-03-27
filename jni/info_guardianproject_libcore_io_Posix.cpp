@@ -844,6 +844,15 @@ static void info_guardianproject_libcore_io_Posix_mincore(JNIEnv* env, jobject, 
 }
 */
 
+static void info_guardianproject_libcore_io_Posix_link(JNIEnv* env, jobject, jstring javaFrom, jstring javaTo) {
+    ScopedUtfChars from(env, javaFrom);
+    ScopedUtfChars to(env, javaTo);
+    if (from.c_str() == NULL || from.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "link", TEMP_FAILURE_RETRY(sqlfs_proc_link(sqlfs, from.c_str(), from.c_str())));
+}
+
 static void info_guardianproject_libcore_io_Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -1040,6 +1049,14 @@ static void info_guardianproject_libcore_io_Posix_rename(JNIEnv* env, jobject, j
     throwIfMinusOne(env, "rename", TEMP_FAILURE_RETRY(sqlfs_proc_rename(sqlfs, oldPath.c_str(), newPath.c_str())));
 }
 
+static void info_guardianproject_libcore_io_Posix_rmdir(JNIEnv* env, jobject, jstring javaPath) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "rmdir", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(sqlfs, path.c_str())));
+}
+
 /*
 static jlong info_guardianproject_libcore_io_Posix_sendfile(JNIEnv* env, jobject, jobject javaOutFd, jobject javaInFd, jobject javaOffset, jlong byteCount) {
     int outFd = jniGetFDFromFileDescriptor(env, javaOutFd);
@@ -1222,6 +1239,14 @@ static void info_guardianproject_libcore_io_Posix_symlink(JNIEnv* env, jobject, 
     throwIfMinusOne(env, "symlink", TEMP_FAILURE_RETRY(sqlfs_proc_symlink(sqlfs, oldPath.c_str(), newPath.c_str())));
 }
 
+static void info_guardianproject_libcore_io_Posix_unlink(JNIEnv* env, jobject, jstring javaPath) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "unlink", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(sqlfs, path.c_str())));
+}
+
 /*
 static jlong info_guardianproject_libcore_io_Posix_sysconf(JNIEnv* env, jobject, jint name) {
     // Since -1 is a valid result from sysconf(3), detecting failure is a little more awkward.
@@ -1318,6 +1343,7 @@ static JNINativeMethod sMethods[] = {
 //    {"lseek", "(Linfo/guardianproject/iocipher/FileDescriptor;JI)J", (void *)info_guardianproject_libcore_io_Posix_lseek},
 //    {"lstat", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStat;", (void *)info_guardianproject_libcore_io_Posix_lstat},
 //    {"mincore", "(JJ[B)V", (void *)info_guardianproject_libcore_io_Posix_mincore},
+    {"link", "(Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_link},
     {"mkdir", "(Ljava/lang/String;I)V", (void *)info_guardianproject_libcore_io_Posix_mkdir},
 //    {"mlock", "(JJ)V", (void *)info_guardianproject_libcore_io_Posix_mlock},
 //    {"mmap", "(JJIILinfo/guardianproject/iocipher/FileDescriptor;J)J", (void *)info_guardianproject_libcore_io_Posix_mmap},
@@ -1334,6 +1360,7 @@ static JNINativeMethod sMethods[] = {
 //    {"recvfromBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I", (void *)info_guardianproject_libcore_io_Posix_recvfromBytes},
     {"remove", "(Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_remove},
     {"rename", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_rename},
+    {"rmdir", "(Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_rmdir},
 //    {"sendfile", "(Linfo/guardianproject/iocipher/FileDescriptor;Linfo/guardianproject/iocipher/FileDescriptor;Llibcore/util/MutableLong;J)J", (void *)info_guardianproject_libcore_io_Posix_sendfile},
 //    {"sendtoBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetAddress;I)I", (void *)info_guardianproject_libcore_io_Posix_sendtoBytes},
 //    {"setegid", "(I)V", (void *)info_guardianproject_libcore_io_Posix_setegid},
@@ -1353,6 +1380,7 @@ static JNINativeMethod sMethods[] = {
     {"statfs", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStatFs;", (void *)info_guardianproject_libcore_io_Posix_statfs},
 //    {"strerror", "(I)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_strerror},
     {"symlink", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_symlink},
+    {"unlink", "(Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_unlink},
 //    {"sysconf", "(I)J", (void *)info_guardianproject_libcore_io_Posix_sysconf},
 //    {"uname", "()Llibcore/io/StructUtsname;", (void *)info_guardianproject_libcore_io_Posix_uname},
 //    {"waitpid", "(ILlibcore/util/MutableInt;I)I", (void *)info_guardianproject_libcore_io_Posix_waitpid},
