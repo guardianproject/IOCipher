@@ -1216,7 +1216,7 @@ static void info_guardianproject_libcore_io_Posix_symlink(JNIEnv* env, jobject, 
     if (newPath.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "symlink", TEMP_FAILURE_RETRY(symlink(oldPath.c_str(), newPath.c_str())));
+    throwIfMinusOne(env, "symlink", TEMP_FAILURE_RETRY(sqlfs_proc_symlink(sqlfs, oldPath.c_str(), newPath.c_str())));
 }
 
 /*
