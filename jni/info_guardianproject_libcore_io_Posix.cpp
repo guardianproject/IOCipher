@@ -1022,7 +1022,10 @@ static void info_guardianproject_libcore_io_Posix_remove(JNIEnv* env, jobject, j
     if (path.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "remove", TEMP_FAILURE_RETRY(remove(path.c_str())));
+    if(sqlfs_is_dir(sqlfs, path.c_str()))
+        throwIfMinusOne(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(sqlfs, path.c_str())));
+    else
+        throwIfMinusOne(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(sqlfs, path.c_str())));
 }
 
 static void info_guardianproject_libcore_io_Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
