@@ -25,7 +25,7 @@ static jint info_guardianproject_iocipher_VirtualFileSystem_init(JNIEnv *env, jo
     }
 }
 
-static jint info_guardianproject_iocipher_VirtualFileSystem_open(JNIEnv *env, jobject) {
+static jint info_guardianproject_iocipher_VirtualFileSystem_mount(JNIEnv *env, jobject) {
     if(sqlfs != 0) {
         LOGI("sqlfs_open: already open");
         return 1;
@@ -33,7 +33,7 @@ static jint info_guardianproject_iocipher_VirtualFileSystem_open(JNIEnv *env, jo
     sqlfs_open(databaseFileName, &sqlfs);
 }
 
-static jint info_guardianproject_iocipher_VirtualFileSystem_open_key(JNIEnv *env, jobject, jstring key) {
+static jint info_guardianproject_iocipher_VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring key) {
     // TODO implement open_key
 }
 
@@ -51,15 +51,13 @@ static jboolean info_guardianproject_iocipher_VirtualFileSystem_isOpen(JNIEnv *e
 
 static JNINativeMethod sMethods[] = {
     {"init", "(Ljava/lang/String;)I", (void *)info_guardianproject_iocipher_VirtualFileSystem_init},
-    {"open", "()I", (void *)info_guardianproject_iocipher_VirtualFileSystem_open},
-    {"open", "(Ljava/lang/String;)I", (void *)info_guardianproject_iocipher_VirtualFileSystem_open_key},
-    {"close", "()I", (void *)info_guardianproject_iocipher_VirtualFileSystem_close},
+    {"mount", "()I", (void *)info_guardianproject_iocipher_VirtualFileSystem_mount},
+    {"mount", "(Ljava/lang/String;)I", (void *)info_guardianproject_iocipher_VirtualFileSystem_mount_key},
+    {"unmount", "()I", (void *)info_guardianproject_iocipher_VirtualFileSystem_close},
     {"isOpen", "()Z", (void *)info_guardianproject_iocipher_VirtualFileSystem_isOpen},
 };
 int register_info_guardianproject_iocipher_VirtualFileSystem(JNIEnv* env) {
-    jclass cls;
-
-    cls = env->FindClass("info/guardianproject/iocipher/VirtualFileSystem");
+    jclass cls = env->FindClass("info/guardianproject/iocipher/VirtualFileSystem");
     if (cls == NULL) {
         LOGE("Can't find info/guardianproject/iocipher/VirtualFileSystem\n");
         return -1;

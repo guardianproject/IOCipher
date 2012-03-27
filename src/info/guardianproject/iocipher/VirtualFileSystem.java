@@ -14,13 +14,13 @@ public class VirtualFileSystem {
 		this(dir.getAbsolutePath());
 	}
 
-	public native int init(String dbFileName);
+	private native int init(String dbFileName);
 
-	public native int open();
+	public native int mount();
 
-	public native int open(String key);
+	public native int mount(String key);
 
-	public native int close();
+	public native int unmount();
 
 	public native boolean isOpen();
 
