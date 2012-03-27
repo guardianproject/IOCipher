@@ -2,6 +2,10 @@ package info.guardianproject.iocipher;
 
 public class VirtualFileSystem {
 
+	static {
+		System.loadLibrary("iocipher");
+	}
+
 	public VirtualFileSystem (String dirname) {
 		init(dirname);
 	}
