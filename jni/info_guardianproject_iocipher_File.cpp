@@ -78,23 +78,38 @@ static jstring info_guardianproject_iocipher_File_realpath(JNIEnv* env, jclass, 
     return env->NewStringUTF(result.c_str());
 }
 
+static jlong info_guardianproject_iocipher_File_lastModifiedImpl(JNIEnv* env, jclass, jstring javaPath) {
+    jboolean ret = 0;
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return JNI_FALSE;
+    }
+
+    key_attr attr;
+    sqlfs_get_attr(sqlfs, "mtime", &attr);
+    return static_cast<jlong>(attr.mtime) * 1000L;
+}
+
 static jboolean info_guardianproject_iocipher_File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, jlong ms) {
+    jboolean ret = 0;
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
         return JNI_FALSE;
     }
 
     // We want to preserve the access time.
-    struct stat sb;
-    if (stat(path.c_str(), &sb) == -1) {
-        return JNI_FALSE;
-    }
+    key_attr atime;
+    sqlfs_get_attr(sqlfs, "atime", &atime);
 
     // TODO: we could get microsecond resolution with utimes(3), "legacy" though it is.
     utimbuf times;
-    times.actime = sb.st_atime;
-    times.modtime = static_cast<time_t>(ms / 1000);
-    return (utime(path.c_str(), &times) == 0);
+    key_attr mtime;
+    mtime.mtime = static_cast<time_t>(ms / 1000);
+    if(!sqlfs_set_attr(sqlfs, "mtime", &mtime))
+        return 0;
+    if(!sqlfs_set_attr(sqlfs, "atime", &atime))
+        return 0;
+    return 1;
 }
 
 typedef std::vector<std::string> DirEntries;
@@ -126,6 +141,7 @@ static JNINativeMethod sMethods[] = {
     {"listImpl", "(Ljava/lang/String;)[Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_listImpl},
     {"readlink", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_readlink},
     {"realpath", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_realpath},
+    {"lastModifiedImpl", "(Ljava/lang/String;)J", (void *)info_guardianproject_iocipher_File_lastModifiedImpl},
     {"setLastModifiedImpl", "(Ljava/lang/String;J)Z", (void *)info_guardianproject_iocipher_File_setLastModifiedImpl},
 };
 int register_info_guardianproject_iocipher_File(JNIEnv* env) {
