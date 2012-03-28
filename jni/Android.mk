@@ -28,6 +28,7 @@ LOCAL_SRC_FILES := \
 	AsynchronousSocketCloseMonitor.cpp \
 	JniConstants.cpp \
 	JNI_OnLoad.cpp \
+	JNIHelp.cpp \
 	readlink.cpp \
 	realpath.cpp \
 	toStringArray.cpp \
