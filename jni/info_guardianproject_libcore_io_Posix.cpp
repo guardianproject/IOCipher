@@ -1343,7 +1343,7 @@ static JNINativeMethod sMethods[] = {
 //    {"lseek", "(Linfo/guardianproject/iocipher/FileDescriptor;JI)J", (void *)info_guardianproject_libcore_io_Posix_lseek},
 //    {"lstat", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStat;", (void *)info_guardianproject_libcore_io_Posix_lstat},
 //    {"mincore", "(JJ[B)V", (void *)info_guardianproject_libcore_io_Posix_mincore},
-    {"link", "(Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_link},
+    {"link", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_link},
     {"mkdir", "(Ljava/lang/String;I)V", (void *)info_guardianproject_libcore_io_Posix_mkdir},
 //    {"mlock", "(JJ)V", (void *)info_guardianproject_libcore_io_Posix_mlock},
 //    {"mmap", "(JJIILinfo/guardianproject/iocipher/FileDescriptor;J)J", (void *)info_guardianproject_libcore_io_Posix_mmap},
