@@ -16,7 +16,6 @@
 
 #define LOG_TAG "Posix"
 
-#include "AsynchronousSocketCloseMonitor.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"

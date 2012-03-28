@@ -25,7 +25,6 @@ LOCAL_LDFLAGS   += \
 	-L$(LOCAL_PATH)/../external/openssl/obj/local/armeabi/
 LOCAL_LDLIBS    += -lcrypto -llog -lnativehelper
 LOCAL_SRC_FILES := \
-	AsynchronousSocketCloseMonitor.cpp \
 	JniConstants.cpp \
 	JNI_OnLoad.cpp \
 	JNIHelp.cpp \
@@ -34,7 +33,6 @@ LOCAL_SRC_FILES := \
 	toStringArray.cpp \
 	info_guardianproject_iocipher_File.cpp \
 	info_guardianproject_iocipher_VirtualFileSystem.cpp \
-	info_guardianproject_libcore_io_AsynchronousCloseMonitor.cpp \
 	info_guardianproject_libcore_io_Memory.cpp \
 	info_guardianproject_libcore_io_OsConstants.cpp \
 	info_guardianproject_libcore_io_Posix.cpp \
