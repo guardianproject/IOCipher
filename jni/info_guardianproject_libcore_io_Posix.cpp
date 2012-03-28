@@ -24,7 +24,7 @@
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "StaticAssert.h"
-#include "UniquePtr.h"
+//#include "UniquePtr.h"
 #include "toStringArray.h"
 #include "sqlfs.h"
 

@@ -64,6 +64,7 @@ static jclass findClass(C_JNIEnv* env, const char* className) {
     return (*env)->FindClass(e, className);
 }
 
+/* TODO should we use this instead of the standard JNI env->RegisterNatives?
 extern "C" int jniRegisterNativeMethods(C_JNIEnv* env, const char* className,
     const JNINativeMethod* gMethods, int numMethods)
 {
@@ -84,6 +85,7 @@ extern "C" int jniRegisterNativeMethods(C_JNIEnv* env, const char* className,
 
     return 0;
 }
+*/
 
 /*
  * Returns a human-readable summary of an exception object.  The buffer will
@@ -348,40 +350,4 @@ int jniGetFDFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor) {
 void jniSetFileDescriptorOfFD(C_JNIEnv* env, jobject fileDescriptor, int value) {
     JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
     (*env)->SetIntField(e, fileDescriptor, gCachedFields.descriptorField, value);
-}
-
-/*
- * DO NOT USE THIS FUNCTION
- *
- * Get a pointer to the elements of a non-movable array.
- *
- * The semantics are similar to GetDirectBufferAddress.  Specifically, the VM
- * guarantees that the array will not move, and the caller must ensure that
- * it does not continue to use the pointer after the object is collected.
- *
- * We currently use an illegal sequence that trips up CheckJNI when
- * the "forcecopy" mode is enabled.  We pass in a magic value to work
- * around the problem.
- *
- * Returns NULL if the array is movable.
- */
-#define kNoCopyMagic 0xd5aab57f     /* also in CheckJni.c */
-extern "C" jbyte* jniGetNonMovableArrayElements(C_JNIEnv* env, jarray arrayObj) {
-    JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
-
-    jbyteArray byteArray = reinterpret_cast<jbyteArray>(arrayObj);
-
-    /*
-     * Normally the "isCopy" parameter is for a return value only, so the
-     * non-CheckJNI VM will ignore whatever we pass in.
-     */
-    uint32_t noCopy = kNoCopyMagic;
-    jbyte* result = (*env)->GetByteArrayElements(e, byteArray, reinterpret_cast<jboolean*>(&noCopy));
-
-    /*
-     * The non-CheckJNI implementation only cares about the array object,
-     * so we can replace the element pointer with the magic value.
-     */
-    (*env)->ReleaseByteArrayElements(e, byteArray, reinterpret_cast<jbyte*>(kNoCopyMagic), 0);
-    return result;
 }

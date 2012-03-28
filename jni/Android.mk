@@ -16,14 +16,12 @@ sqlcipher_cflags := -DSQLITE_HAS_CODEC -DHAVE_FDATASYNC=0 -Dfdatasync=fsync
 LOCAL_MODULE    := libiocipher
 LOCAL_CFLAGS += $(android_sqlite_cflags) $(sqlcipher_cflags)
 LOCAL_C_INCLUDES:= \
-	external/libcore/include \
 	external/libsqlfs \
 	external/openssl/include \
 	external/sqlcipher
 LOCAL_LDFLAGS   += \
-	-L$(LOCAL_PATH)/../external/android-libs \
 	-L$(LOCAL_PATH)/../external/openssl/obj/local/armeabi/
-LOCAL_LDLIBS    += -lcrypto -llog -lnativehelper
+LOCAL_LDLIBS    += -lcrypto -llog
 LOCAL_SRC_FILES := \
 	JniConstants.cpp \
 	JNI_OnLoad.cpp \
@@ -44,7 +42,6 @@ include $(BUILD_SHARED_LIBRARY)
 
 TAGS:
 	etags *.h *.cpp \
-		$(shell pwd)/../external/libcore/include/*.h \
 		$(shell pwd)/../external/libsqlfs/*.h \
 		$(shell pwd)/../external/openssl/include/openssl/*.h \
 		$(shell pwd)/../external/sqlcipher/*.h \
