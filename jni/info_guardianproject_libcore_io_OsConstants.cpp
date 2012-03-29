@@ -40,7 +40,7 @@ static void initConstant(JNIEnv* env, jclass c, const char* fieldName, int value
     env->SetStaticIntField(c, field, value);
 }
 
-static void info_guardianproject_libcore_io_OsConstants_initConstants(JNIEnv* env, jclass c) {
+static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "AF_INET", AF_INET);
     initConstant(env, c, "AF_INET6", AF_INET6);
     initConstant(env, c, "AF_UNIX", AF_UNIX);
@@ -443,7 +443,7 @@ static void info_guardianproject_libcore_io_OsConstants_initConstants(JNIEnv* en
 }
 
 static JNINativeMethod sMethods[] = {
-    {"initConstants", "()V", (void *)info_guardianproject_libcore_io_OsConstants_initConstants},
+    {"initConstants", "()V", (void *)OsConstants_initConstants},
 };
 int register_info_guardianproject_libcore_io_OsConstants(JNIEnv* env) {
     jclass cls;
