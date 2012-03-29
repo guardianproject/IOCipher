@@ -532,12 +532,13 @@ static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
     throwIfMinusOne(env, "fsync", TEMP_FAILURE_RETRY(sqlfs_proc_fsync(sqlfs, path.c_str(), 0, NULL)));
 }
 
-/* TODO do we need this at all?
+/* in sqlfs, truncate() and ftruncate() do the same thing since there
+ * isn't a difference between and open and a closed file */
 static void Posix_ftruncate(JNIEnv* env, jobject, jobject javaFd, jlong length) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    throwIfMinusOne(env, "ftruncate", TEMP_FAILURE_RETRY(ftruncate64(fd, length)));
+    jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
+    ScopedUtfChars path(env, javaPath);
+    throwIfMinusOne(env, "ftruncate", TEMP_FAILURE_RETRY(sqlfs_proc_truncate(sqlfs, path.c_str(), length)));
 }
-*/
 
 /*
 static jstring Posix_gai_strerror(JNIEnv* env, jobject, jint error) {
@@ -1277,7 +1278,7 @@ static JNINativeMethod sMethods[] = {
     {"fstat", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/libcore/io/StructStat;", (void *)Posix_fstat},
 //    {"fstatfs", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/libcore/io/StructStatFs;", (void *)Posix_fstatfs},
     {"fsync", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)Posix_fsync},
-//    {"ftruncate", "(Linfo/guardianproject/iocipher/FileDescriptor;J)V", (void *)Posix_ftruncate},
+    {"ftruncate", "(Linfo/guardianproject/iocipher/FileDescriptor;J)V", (void *)Posix_ftruncate},
 //    {"gai_strerror", "(I)Ljava/lang/String;", (void *)Posix_gai_strerror},
 //    {"getaddrinfo", "(Ljava/lang/String;Llibcore/io/StructAddrinfo;)[Ljava/net/InetAddress;", (void *)Posix_getaddrinfo},
 //    {"getegid", "()I", (void *)Posix_getegid},
