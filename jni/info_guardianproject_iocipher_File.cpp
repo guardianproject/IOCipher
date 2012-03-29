@@ -128,6 +128,14 @@ static int fill_dir(void *buf, const char *name, const struct stat *statp, off_t
     return 0;
 }
 
+static jboolean info_guardianproject_iocipher_File_isDirectoryImpl(JNIEnv* env, jclass, jstring javaPath) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return JNI_FALSE;
+    }
+    return sqlfs_is_dir(sqlfs, path.c_str());
+}
+
 static jobjectArray info_guardianproject_iocipher_File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     DirEntries entries;
@@ -138,6 +146,7 @@ static jobjectArray info_guardianproject_iocipher_File_listImpl(JNIEnv* env, jcl
 }
 
 static JNINativeMethod sMethods[] = {
+    {"isDirectoryImpl", "(Ljava/lang/String;)Z", (void *)info_guardianproject_iocipher_File_isDirectoryImpl},
     {"listImpl", "(Ljava/lang/String;)[Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_listImpl},
     {"readlink", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_readlink},
     {"realpath", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_realpath},

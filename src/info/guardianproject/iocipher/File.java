@@ -531,15 +531,10 @@ public class File implements Serializable, Comparable<File> {
      *         otherwise.
      */
     public boolean isDirectory() {
-        try {
-        	//TODO(ramblurr) use sqlfs_is_dir() here?
-        	return S_ISDIR(Libcore.os.stat(path).st_mode);
-            //return S_ISDIR(Libcore.os.stat(path).st_mode);
-        } catch (ErrnoException errnoException) {
-            // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
-            return false;
-        }
+        return isDirectoryImpl(path);
     }
+
+    private native boolean isDirectoryImpl(String path);
 
     /**
      * Indicates if this file represents a <em>file</em> on the underlying
@@ -548,12 +543,8 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if this file is a file, {@code false} otherwise.
      */
     public boolean isFile() {
-        try {
-            return S_ISREG(Libcore.os.stat(path).st_mode);
-        } catch (ErrnoException errnoException) {
-            // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
-            return false;
-        }
+        // TODO currently we only have files and dirs, so file == !dir, that will change with symlinks
+        return !isDirectoryImpl(path);
     }
 
     /**
