@@ -1200,17 +1200,22 @@ static jobject info_guardianproject_libcore_io_Posix_stat(JNIEnv* env, jobject, 
     return doStat(env, javaPath, false);
 }
 
+/* we are faking this somewhat by using the data from the underlying
+ partition that the database file is stored on.  That means we ignore
+ the javaPath passed in and just use the databaseFilename. */
 static jobject info_guardianproject_libcore_io_Posix_statfs(JNIEnv* env, jobject, jstring javaPath) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return NULL;
-    }
     struct statfs sb;
-    int rc = TEMP_FAILURE_RETRY(statfs(path.c_str(), &sb));
+    int rc = TEMP_FAILURE_RETRY(statfs(databaseFileName, &sb));
     if (rc == -1) {
         throwErrnoException(env, "statfs");
         return NULL;
     }
+    /* some guesses at how things should be represented */
+    sb.f_bsize = 4096; // libsqlfs uses 4k page sizes in sqlite (I think)
+
+    struct stat st;
+    stat(databaseFileName, &st);
+    sb.f_blocks = st.st_blocks;
     return makeStructStatFs(env, sb);
 }
 

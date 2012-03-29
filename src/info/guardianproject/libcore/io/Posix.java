@@ -125,6 +125,11 @@ public final class Posix implements Os {
 
 	public native StructStatFs statfs(String path) throws ErrnoException;
 
+	public StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException {
+		// since statfs is faked anyway based on the path to the database file, just call statfs()
+		return statfs("");
+	}
+
 	public native void symlink(String oldPath, String newPath)
 			throws ErrnoException;
 
@@ -206,11 +211,6 @@ public final class Posix implements Os {
 	}
 
 	public StructStat fstat(FileDescriptor fd)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public StructStatFs fstatfs(FileDescriptor fd)
 			throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
