@@ -1219,17 +1219,11 @@ static jobject info_guardianproject_libcore_io_Posix_statfs(JNIEnv* env, jobject
     return makeStructStatFs(env, sb);
 }
 
-/*
-TODO we probably want strerror() support, so we'll need to replace
-jniStrError() since it seems to be not available on many versions of
-libnativehelper.so
-
 static jstring info_guardianproject_libcore_io_Posix_strerror(JNIEnv* env, jobject, jint errnum) {
     char buffer[BUFSIZ];
     const char* message = jniStrError(errnum, buffer, sizeof(buffer));
     return env->NewStringUTF(message);
 }
-*/
 
 static void info_guardianproject_libcore_io_Posix_symlink(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
     ScopedUtfChars oldPath(env, javaOldPath);
@@ -1382,7 +1376,7 @@ static JNINativeMethod sMethods[] = {
 //    {"socket", "(III)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)info_guardianproject_libcore_io_Posix_socket},
     {"stat", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStat;", (void *)info_guardianproject_libcore_io_Posix_stat},
     {"statfs", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStatFs;", (void *)info_guardianproject_libcore_io_Posix_statfs},
-//    {"strerror", "(I)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_strerror},
+    {"strerror", "(I)Ljava/lang/String;", (void *)info_guardianproject_libcore_io_Posix_strerror},
     {"symlink", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_symlink},
     {"unlink", "(Ljava/lang/String;)V", (void *)info_guardianproject_libcore_io_Posix_unlink},
 //    {"sysconf", "(I)J", (void *)info_guardianproject_libcore_io_Posix_sysconf},

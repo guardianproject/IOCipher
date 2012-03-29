@@ -130,6 +130,8 @@ public final class Posix implements Os {
 		return statfs("");
 	}
 
+	public native String strerror(int errno);
+
 	public native void symlink(String oldPath, String newPath)
 			throws ErrnoException;
 
@@ -484,10 +486,6 @@ public final class Posix implements Os {
 
 	public FileDescriptor socket(int domain, int type, int protocol)
 			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public String strerror(int errno) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
