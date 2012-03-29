@@ -42,9 +42,9 @@ include $(BUILD_SHARED_LIBRARY)
 
 TAGS:
 	etags *.h *.cpp \
-		$(shell pwd)/../external/libsqlfs/*.h \
+		$(shell pwd)/../external/libsqlfs/*.[ch] \
 		$(shell pwd)/../external/openssl/include/openssl/*.h \
-		$(shell pwd)/../external/sqlcipher/*.h \
+		$(shell pwd)/../external/sqlcipher/*.[ch] \
 		$(NDK_BASE)/platforms/android-8/arch-arm/usr/include/*.h \
 		$(NDK_BASE)/platforms/android-8/arch-arm/usr/include/*/*.h
 
