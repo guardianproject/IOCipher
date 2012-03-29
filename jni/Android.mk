@@ -4,6 +4,17 @@
 
 LOCAL_PATH:= $(call my-dir)
 
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE     := libsqlfs
+LOCAL_CFLAGS     := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25
+LOCAL_C_INCLUDES := external/libsqlfs external/sqlcipher
+LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfs.c
+
+include $(BUILD_STATIC_LIBRARY)
+
+
 include $(CLEAR_VARS)
 
 # NOTE the following flags,
@@ -14,6 +25,7 @@ android_sqlite_cflags :=  -DHAVE_USLEEP=1 -DSQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=10
 sqlcipher_cflags := -DSQLITE_HAS_CODEC -DHAVE_FDATASYNC=0 -Dfdatasync=fsync
 
 LOCAL_MODULE    := libiocipher
+LOCAL_STATIC_LIBRARIES := libsqlfs
 LOCAL_CFLAGS += $(android_sqlite_cflags) $(sqlcipher_cflags)
 LOCAL_C_INCLUDES:= \
 	external/libsqlfs \
@@ -34,7 +46,6 @@ LOCAL_SRC_FILES := \
 	info_guardianproject_libcore_io_Memory.cpp \
 	info_guardianproject_libcore_io_OsConstants.cpp \
 	info_guardianproject_libcore_io_Posix.cpp \
-	../external/libsqlfs/sqlfs.c \
 	../external/sqlcipher/sqlite3.c
 
 include $(BUILD_SHARED_LIBRARY)
