@@ -115,7 +115,9 @@ public final class Posix implements Os {
 			int byteCount) throws ErrnoException;
 	
 	public native StructStat stat(String path) throws ErrnoException;
-	
+
+	public native StructStat fstat(FileDescriptor fd) throws ErrnoException;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Not implemented by libsqlfs
 	////////////////////////////////////////////////////////////////////////
@@ -164,11 +166,6 @@ public final class Posix implements Os {
 	}
 
 	public void fdatasync(FileDescriptor fd)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public StructStat fstat(FileDescriptor fd)
 			throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}

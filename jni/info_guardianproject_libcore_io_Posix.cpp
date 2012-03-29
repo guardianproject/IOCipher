@@ -518,29 +518,12 @@ static void Posix_fdatasync(JNIEnv* env, jobject, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     throwIfMinusOne(env, "fdatasync", TEMP_FAILURE_RETRY(fdatasync(fd)));
 }
+*/
 
 static jobject Posix_fstat(JNIEnv* env, jobject, jobject javaFd) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    struct stat sb;
-    int rc = TEMP_FAILURE_RETRY(fstat(fd, &sb));
-    if (rc == -1) {
-        throwErrnoException(env, "fstat");
-        return NULL;
-    }
-    return makeStructStat(env, sb);
+    jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
+    return doStat(env, javaPath, false);
 }
-
-static jobject Posix_fstatfs(JNIEnv* env, jobject, jobject javaFd) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    struct statfs sb;
-    int rc = TEMP_FAILURE_RETRY(fstatfs(fd, &sb));
-    if (rc == -1) {
-        throwErrnoException(env, "fstatfs");
-        return NULL;
-    }
-    return makeStructStatFs(env, sb);
-}
-*/
 
 static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
@@ -1289,7 +1272,7 @@ static JNINativeMethod sMethods[] = {
 //    {"fcntlLong", "(Linfo/guardianproject/iocipher/FileDescriptor;IJ)I", (void *)Posix_fcntlLong},
 //    {"fcntlFlock", "(Linfo/guardianproject/iocipher/FileDescriptor;ILlibcore/io/StructFlock;)I", (void *)Posix_fcntlFlock},
 //    {"fdatasync", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)Posix_fdatasync},
-//    {"fstat", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/libcore/io/StructStat;", (void *)Posix_fstat},
+    {"fstat", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/libcore/io/StructStat;", (void *)Posix_fstat},
 //    {"fstatfs", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/libcore/io/StructStatFs;", (void *)Posix_fstatfs},
     {"fsync", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)Posix_fsync},
 //    {"ftruncate", "(Linfo/guardianproject/iocipher/FileDescriptor;J)V", (void *)Posix_ftruncate},
