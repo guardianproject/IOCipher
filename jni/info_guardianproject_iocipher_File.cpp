@@ -49,7 +49,7 @@ extern sqlfs_t *sqlfs;
 // from fuse.h
 typedef int(* 	fuse_fill_dir_t )(void *buf, const char *name, const struct stat *stbuf, off_t off);
 
-static jstring info_guardianproject_iocipher_File_readlink(JNIEnv* env, jclass, jstring javaPath) {
+static jstring File_readlink(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
         return NULL;
@@ -63,7 +63,7 @@ static jstring info_guardianproject_iocipher_File_readlink(JNIEnv* env, jclass, 
     return env->NewStringUTF(result.c_str());
 }
 
-static jstring info_guardianproject_iocipher_File_realpath(JNIEnv* env, jclass, jstring javaPath) {
+static jstring File_realpath(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
         return NULL;
@@ -78,7 +78,7 @@ static jstring info_guardianproject_iocipher_File_realpath(JNIEnv* env, jclass, 
     return env->NewStringUTF(result.c_str());
 }
 
-static jlong info_guardianproject_iocipher_File_lastModifiedImpl(JNIEnv* env, jclass, jstring javaPath) {
+static jlong File_lastModifiedImpl(JNIEnv* env, jclass, jstring javaPath) {
     jboolean ret = 0;
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -90,7 +90,7 @@ static jlong info_guardianproject_iocipher_File_lastModifiedImpl(JNIEnv* env, jc
     return static_cast<jlong>(attr.mtime) * 1000L;
 }
 
-static jboolean info_guardianproject_iocipher_File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, jlong ms) {
+static jboolean File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, jlong ms) {
     jboolean ret = 0;
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -128,7 +128,7 @@ static int fill_dir(void *buf, const char *name, const struct stat *statp, off_t
     return 0;
 }
 
-static jboolean info_guardianproject_iocipher_File_isDirectoryImpl(JNIEnv* env, jclass, jstring javaPath) {
+static jboolean File_isDirectoryImpl(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
         return JNI_FALSE;
@@ -136,7 +136,7 @@ static jboolean info_guardianproject_iocipher_File_isDirectoryImpl(JNIEnv* env, 
     return sqlfs_is_dir(sqlfs, path.c_str());
 }
 
-static jobjectArray info_guardianproject_iocipher_File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
+static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     DirEntries entries;
     // using FUSE readdir in old getdir() style which gives us the whole thing at once
@@ -146,12 +146,12 @@ static jobjectArray info_guardianproject_iocipher_File_listImpl(JNIEnv* env, jcl
 }
 
 static JNINativeMethod sMethods[] = {
-    {"isDirectoryImpl", "(Ljava/lang/String;)Z", (void *)info_guardianproject_iocipher_File_isDirectoryImpl},
-    {"listImpl", "(Ljava/lang/String;)[Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_listImpl},
-    {"readlink", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_readlink},
-    {"realpath", "(Ljava/lang/String;)Ljava/lang/String;", (void *)info_guardianproject_iocipher_File_realpath},
-    {"lastModifiedImpl", "(Ljava/lang/String;)J", (void *)info_guardianproject_iocipher_File_lastModifiedImpl},
-    {"setLastModifiedImpl", "(Ljava/lang/String;J)Z", (void *)info_guardianproject_iocipher_File_setLastModifiedImpl},
+    {"isDirectoryImpl", "(Ljava/lang/String;)Z", (void *)File_isDirectoryImpl},
+    {"listImpl", "(Ljava/lang/String;)[Ljava/lang/String;", (void *)File_listImpl},
+    {"readlink", "(Ljava/lang/String;)Ljava/lang/String;", (void *)File_readlink},
+    {"realpath", "(Ljava/lang/String;)Ljava/lang/String;", (void *)File_realpath},
+    {"lastModifiedImpl", "(Ljava/lang/String;)J", (void *)File_lastModifiedImpl},
+    {"setLastModifiedImpl", "(Ljava/lang/String;J)Z", (void *)File_setLastModifiedImpl},
 };
 int register_info_guardianproject_iocipher_File(JNIEnv* env) {
     jclass cls;

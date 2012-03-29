@@ -24,7 +24,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-static jint info_guardianproject_iocipher_Console_setEchoImpl(JNIEnv* env, jclass, jboolean on, jint previousState) {
+static jint Console_setEchoImpl(JNIEnv* env, jclass, jboolean on, jint previousState) {
     termios state;
     if (TEMP_FAILURE_RETRY(tcgetattr(STDIN_FILENO, &state)) == -1) {
         jniThrowIOException(env, errno);
@@ -44,7 +44,7 @@ static jint info_guardianproject_iocipher_Console_setEchoImpl(JNIEnv* env, jclas
 }
 
 static JNINativeMethod sMethods[] = {
-    {"setEchoImpl", "(ZI)I", (void *)info_guardianproject_iocipher_Console_setEchoImpl},
+    {"setEchoImpl", "(ZI)I", (void *)Console_setEchoImpl},
 };
 int register_info_guardianproject_iocipher_Console(JNIEnv* env) {
     jclass cls;

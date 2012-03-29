@@ -12,7 +12,7 @@
 char databaseFileName[PATH_MAX] = { NULL };
 sqlfs_t *sqlfs = NULL;
 
-static jint info_guardianproject_iocipher_VirtualFileSystem_init(JNIEnv *env, jobject, jstring javaPath) {
+static jint VirtualFileSystem_init(JNIEnv *env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     const char *pathstr = path.c_str();
     // TODO check if dir exists and throw exception if not
@@ -25,7 +25,7 @@ static jint info_guardianproject_iocipher_VirtualFileSystem_init(JNIEnv *env, jo
     }
 }
 
-static jint info_guardianproject_iocipher_VirtualFileSystem_mount(JNIEnv *env, jobject) {
+static jint VirtualFileSystem_mount(JNIEnv *env, jobject) {
     if(sqlfs != 0) {
         LOGI("sqlfs_open: already open");
         return 1;
@@ -33,16 +33,16 @@ static jint info_guardianproject_iocipher_VirtualFileSystem_mount(JNIEnv *env, j
     sqlfs_open(databaseFileName, &sqlfs);
 }
 
-static jint info_guardianproject_iocipher_VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring key) {
+static jint VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring key) {
     // TODO implement open_key
 }
 
-static jint info_guardianproject_iocipher_VirtualFileSystem_close(JNIEnv *env, jobject) {
+static jint VirtualFileSystem_close(JNIEnv *env, jobject) {
     sqlfs_close(sqlfs);
     sqlfs = 0;
 }
 
-static jboolean info_guardianproject_iocipher_VirtualFileSystem_isOpen(JNIEnv *env, jobject) {
+static jboolean VirtualFileSystem_isOpen(JNIEnv *env, jobject) {
     if(sqlfs == 0)
         return 0;
     else
@@ -50,11 +50,11 @@ static jboolean info_guardianproject_iocipher_VirtualFileSystem_isOpen(JNIEnv *e
 }
 
 static JNINativeMethod sMethods[] = {
-    {"init", "(Ljava/lang/String;)I", (void *)info_guardianproject_iocipher_VirtualFileSystem_init},
-    {"mount", "()I", (void *)info_guardianproject_iocipher_VirtualFileSystem_mount},
-    {"mount", "(Ljava/lang/String;)I", (void *)info_guardianproject_iocipher_VirtualFileSystem_mount_key},
-    {"unmount", "()I", (void *)info_guardianproject_iocipher_VirtualFileSystem_close},
-    {"isOpen", "()Z", (void *)info_guardianproject_iocipher_VirtualFileSystem_isOpen},
+    {"init", "(Ljava/lang/String;)I", (void *)VirtualFileSystem_init},
+    {"mount", "()I", (void *)VirtualFileSystem_mount},
+    {"mount", "(Ljava/lang/String;)I", (void *)VirtualFileSystem_mount_key},
+    {"unmount", "()I", (void *)VirtualFileSystem_close},
+    {"isOpen", "()Z", (void *)VirtualFileSystem_isOpen},
 };
 int register_info_guardianproject_iocipher_VirtualFileSystem(JNIEnv* env) {
     jclass cls = env->FindClass("info/guardianproject/iocipher/VirtualFileSystem");
