@@ -335,7 +335,8 @@ public class File implements Serializable, Comparable<File> {
      * ones will still have access until the last one closes the file.
      * </ul>
      */
-    public void deleteOnExit() {
+    public void deleteOnExit() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("Not implemented");
     	//TODO(ramblurr) implement this for iocipher?
         //DeleteOnExit.getInstance().addFile(getAbsolutePath());
     }
@@ -423,6 +424,7 @@ public class File implements Serializable, Comparable<File> {
      * @hide
      */
     private static native String realpath(String path);
+    // TODO implement readlink
     private static native String readlink(String path);
 
     /**
@@ -920,6 +922,7 @@ public class File implements Serializable, Comparable<File> {
      *         already exists.
      * @throws IOException if it's not possible to create the file.
      */
+    // TODO implement createNewFile, currently it just crashes
     public boolean createNewFile() throws IOException {
         FileDescriptor fd = null;
         try {
