@@ -525,9 +525,11 @@ static jobject Posix_fstat(JNIEnv* env, jobject, jobject javaFd) {
     return doStat(env, javaPath, false);
 }
 
+// TODO if sqlfs_proc_fsync changes to need isfdatasync and *fi, then fix here
 static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    throwIfMinusOne(env, "fsync", TEMP_FAILURE_RETRY(fsync(fd)));
+    jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
+    ScopedUtfChars path(env, javaPath);
+    throwIfMinusOne(env, "fsync", TEMP_FAILURE_RETRY(sqlfs_proc_fsync(sqlfs, path.c_str(), 0, NULL)));
 }
 
 /* TODO do we need this at all?
