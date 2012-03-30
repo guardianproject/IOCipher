@@ -8,7 +8,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE     := libsqlfs
-LOCAL_CFLAGS     := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25
+LOCAL_CFLAGS     := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DWITH_SQLCIPHER
 LOCAL_C_INCLUDES := external/libsqlfs external/sqlcipher
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfs.c
 
