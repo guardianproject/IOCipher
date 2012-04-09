@@ -15,10 +15,9 @@ sqlfs_t *sqlfs = NULL;
 static jint VirtualFileSystem_init(JNIEnv *env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     const char *pathstr = path.c_str();
-    // TODO check if dir exists and throw exception if not
+    // TODO check if dirname exists for javaPath is dir and throw exception
     if (databaseFileName != NULL || (pathstr != NULL && strcmp(pathstr, databaseFileName) != 0)) {
         strncpy(databaseFileName, pathstr, PATH_MAX);
-        strncat(databaseFileName, "/sqlcipherfs.db", PATH_MAX - strlen(pathstr));
         sqlfs_init(databaseFileName);
     } else {
         LOGI("%s already exists, not running sqlfs_init()", pathstr);

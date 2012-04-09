@@ -6,12 +6,12 @@ public class VirtualFileSystem {
 		System.loadLibrary("iocipher");
 	}
 
-	public VirtualFileSystem (String dirname) {
-		init(dirname);
+	public VirtualFileSystem (String file) {
+		init(file);
 	}
 
-	public VirtualFileSystem (java.io.File dir) {
-		this(dir.getAbsolutePath());
+	public VirtualFileSystem (java.io.File file) {
+		this(file.getAbsolutePath());
 	}
 
 	private native int init(String dbFileName);
