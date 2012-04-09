@@ -439,14 +439,9 @@ static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
 
 static void Posix_close(JNIEnv* env, jobject, jobject javaFd) {
     // Get the FileDescriptor's 'fd' field and clear it.
-    // We need to do this before we can throw an IOException (http://b/3222087).
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    jniSetFileDescriptorOfFD(env, javaFd, -1);
-
-    // Even if close(2) fails with EINTR, the fd will have been closed.
-    // Using TEMP_FAILURE_RETRY will either lead to EBADF or closing someone else's fd.
-    // http://lkml.indiana.edu/hypermail/linux/kernel/0509.1/0877.html
-    throwIfMinusOne(env, "close", close(fd));
+    // sqlfs doesn't have a close() since files don't really need to be open()ed
+    jstring path = jniGetPathFromFileDescriptor(env, javaFd);
+    jniSetFileDescriptorInvalid(env, javaFd);
 }
 
 /*
@@ -888,8 +883,28 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     if (path.c_str() == NULL) {
         return NULL;
     }
-    int fd = throwIfMinusOne(env, "open", TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode)));
-    return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
+    LOGI("path: %s %x %o", path.c_str(), flags, mode);
+    struct fuse_file_info ffi;
+    ffi.flags = flags;
+    ffi.direct_io = 0; // don't use direct_io so this open() call will create a file
+
+    int result = 0;
+    if(flags & O_CREAT) {
+        LOGI("sqlfs_proc_create");
+        char buf = 0;
+        result = sqlfs_proc_write(sqlfs, path.c_str(), &buf, 0, 0, &ffi);
+    } else {
+        LOGI("sqlfs_proc_open");
+        result = sqlfs_proc_open(sqlfs, path.c_str(), &ffi);
+    }
+	if (result < 0) {
+		errno = abs(result); // sqlfs/FUSE returns errno errors as negative values
+		throwErrnoException(env, "open");
+		return NULL;
+	} else {
+		sqlfs_proc_chmod(sqlfs, path.c_str(), mode);
+		return jniCreateFileDescriptor(env, javaPath);
+	}
 }
 
 /*
@@ -960,8 +975,16 @@ static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBy
     if (bytes.get() == NULL) {
         return -1;
     }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, bytes.get() + byteOffset, byteCount)));
+    jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
+    ScopedUtfChars path(env, javaPath);
+    int result = sqlfs_proc_read(sqlfs, path.c_str(), reinterpret_cast<char*>(bytes.get()), byteCount, byteOffset, NULL);
+    if (result < 0) {
+        errno = abs(result); // sqlfs/FUSE returns errno errors as negative values
+        throwErrnoException(env, "read");
+        return -1;
+    } else {
+        return result;
+    }
 }
 
 /*
@@ -1246,8 +1269,18 @@ static jint Posix_writeBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray ja
     if (bytes.get() == NULL) {
         return -1;
     }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
+    jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
+    ScopedUtfChars path(env, javaPath);
+    //return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
+    int result = sqlfs_proc_write(sqlfs, path.c_str(), reinterpret_cast<const char*>(bytes.get()), byteCount, byteOffset, NULL);
+    if (result < 0) {
+        errno = abs(result); // sqlfs/FUSE returns errno errors as negative values
+        throwErrnoException(env, "write");
+        return -1;
+    } else {
+        // TODO make this stick the values into javaBytes
+        return result;
+    }
 }
 
 /*

@@ -70,19 +70,25 @@ int jniThrowIOException(C_JNIEnv* env, int errnum);
 const char* jniStrError(int errnum, char* buf, size_t buflen);
 
 /*
- * Returns a new java.io.FileDescriptor for the given int fd.
+ * Returns a new info.guardianproject.iocipher.FileDescriptor for the given path.
  */
-jobject jniCreateFileDescriptor(C_JNIEnv* env, int fd);
+jobject jniCreateFileDescriptor(C_JNIEnv* env, jstring path);
 
 /*
- * Returns the int fd from a java.io.FileDescriptor.
+ * Returns the full path from a info.guardianproject.iocipher.FileDescriptor. sqlfs uses the
+ * full path as the file descriptor.
  */
-int jniGetFDFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor);
+jstring jniGetPathFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor);
 
 /*
- * Sets the int fd in a java.io.FileDescriptor.
+ * Sets the path as file descriptor in a info.guardianproject.iocipher.FileDescriptor.
  */
-void jniSetFileDescriptorOfFD(C_JNIEnv* env, jobject fileDescriptor, int value);
+void jniSetFileDescriptorWithPath(C_JNIEnv* env, jobject fileDescriptor, jstring path);
+
+/*
+ * Sets a info.guardianproject.iocipher.FileDescriptor as no longer valid.
+ */
+void jniSetFileDescriptorInvalid(C_JNIEnv* env, jobject fileDescriptor);
 
 /*
  * Log a message and an exception.
@@ -126,16 +132,20 @@ inline int jniThrowIOException(JNIEnv* env, int errnum) {
     return jniThrowIOException(&env->functions, errnum);
 }
 
-inline jobject jniCreateFileDescriptor(JNIEnv* env, int fd) {
-    return jniCreateFileDescriptor(&env->functions, fd);
+inline jobject jniCreateFileDescriptor(JNIEnv* env, jstring path) {
+    return jniCreateFileDescriptor(&env->functions, path);
 }
 
-inline int jniGetFDFromFileDescriptor(JNIEnv* env, jobject fileDescriptor) {
-    return jniGetFDFromFileDescriptor(&env->functions, fileDescriptor);
+inline jstring jniGetPathFromFileDescriptor(JNIEnv* env, jobject fileDescriptor) {
+    return jniGetPathFromFileDescriptor(&env->functions, fileDescriptor);
 }
 
-inline void jniSetFileDescriptorOfFD(JNIEnv* env, jobject fileDescriptor, int value) {
-    jniSetFileDescriptorOfFD(&env->functions, fileDescriptor, value);
+inline void jniSetFileDescriptorWithPath(JNIEnv* env, jobject fileDescriptor, jstring path) {
+    jniSetFileDescriptorWithPath(&env->functions, fileDescriptor, path);
+}
+
+inline void jniSetFileDescriptorInvalid(JNIEnv* env, jobject fileDescriptor) {
+    jniSetFileDescriptorInvalid(&env->functions, fileDescriptor);
 }
 
 inline void jniLogException(JNIEnv* env, int priority, const char* tag, jthrowable exception = NULL) {

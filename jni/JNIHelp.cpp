@@ -309,12 +309,13 @@ const char* jniStrError(int errnum, char* buf, size_t buflen) {
 static struct CachedFields {
     jclass fileDescriptorClass;
     jmethodID fileDescriptorCtor;
-    jfieldID descriptorField;
+    jfieldID pathField;
+    jfieldID invalidField;
 } gCachedFields;
 
 int registerJniHelp(JNIEnv* env) {
     gCachedFields.fileDescriptorClass =
-            reinterpret_cast<jclass>(env->NewGlobalRef(env->FindClass("java/io/FileDescriptor")));
+            reinterpret_cast<jclass>(env->NewGlobalRef(env->FindClass("info/guardianproject/iocipher/FileDescriptor")));
     if (gCachedFields.fileDescriptorClass == NULL) {
         return -1;
     }
@@ -325,29 +326,45 @@ int registerJniHelp(JNIEnv* env) {
         return -1;
     }
 
-    gCachedFields.descriptorField =
-            env->GetFieldID(gCachedFields.fileDescriptorClass, "descriptor", "I");
-    if (gCachedFields.descriptorField == NULL) {
+    gCachedFields.pathField =
+        env->GetFieldID(gCachedFields.fileDescriptorClass,
+                        "path", "Ljava/lang/String;");
+    if (gCachedFields.pathField == NULL) {
+        return -1;
+    }
+
+    gCachedFields.invalidField =
+        env->GetFieldID(gCachedFields.fileDescriptorClass,
+                        "invalid", "Ljava/lang/String;");
+    if (gCachedFields.invalidField == NULL) {
         return -1;
     }
 
     return 0;
 }
 
-jobject jniCreateFileDescriptor(C_JNIEnv* env, int fd) {
+/* in sqlfs, the full path is used as the file descriptor */
+jobject jniCreateFileDescriptor(C_JNIEnv* env, jstring javaPath) {
     JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
     jobject fileDescriptor = (*env)->NewObject(e,
             gCachedFields.fileDescriptorClass, gCachedFields.fileDescriptorCtor);
-    jniSetFileDescriptorOfFD(env, fileDescriptor, fd);
+    jniSetFileDescriptorWithPath(env, fileDescriptor, javaPath);
     return fileDescriptor;
 }
 
-int jniGetFDFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor) {
+jstring jniGetPathFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor) {
     JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
-    return (*env)->GetIntField(e, fileDescriptor, gCachedFields.descriptorField);
+    return static_cast<jstring>((*env)->GetObjectField(e, fileDescriptor, gCachedFields.pathField));
 }
 
-void jniSetFileDescriptorOfFD(C_JNIEnv* env, jobject fileDescriptor, int value) {
+void jniSetFileDescriptorWithPath(C_JNIEnv* env, jobject fileDescriptor, jstring javaPath) {
     JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
-    (*env)->SetIntField(e, fileDescriptor, gCachedFields.descriptorField, value);
+    (*env)->SetObjectField(e, fileDescriptor, gCachedFields.pathField, javaPath);
+}
+
+void jniSetFileDescriptorInvalid(C_JNIEnv* env, jobject fileDescriptor) {
+    JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
+    jstring javaInvalid = static_cast<jstring>((*env)->GetObjectField(e, fileDescriptor,
+                                                                      gCachedFields.invalidField));
+    (*env)->SetObjectField(e, fileDescriptor, gCachedFields.pathField, javaInvalid);
 }
