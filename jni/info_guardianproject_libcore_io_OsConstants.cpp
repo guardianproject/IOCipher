@@ -275,7 +275,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SIGRTMAX", SIGRTMAX);
     initConstant(env, c, "SIGRTMIN", SIGRTMIN);
     initConstant(env, c, "SIGSEGV", SIGSEGV);
+#if defined(SIGSTKFLT)
     initConstant(env, c, "SIGSTKFLT", SIGSTKFLT);
+#endif
     initConstant(env, c, "SIGSTOP", SIGSTOP);
     initConstant(env, c, "SIGSYS", SIGSYS);
     initConstant(env, c, "SIGTERM", SIGTERM);
