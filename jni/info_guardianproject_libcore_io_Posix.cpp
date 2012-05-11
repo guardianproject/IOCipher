@@ -892,7 +892,7 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     if(flags & O_CREAT) {
         LOGI("sqlfs_proc_create");
         char buf = 0;
-        result = sqlfs_proc_write(sqlfs, path.c_str(), &buf, 0, 0, &ffi);
+        result = sqlfs_proc_create(sqlfs, path.c_str(), mode, &ffi);
     } else {
         LOGI("sqlfs_proc_open");
         result = sqlfs_proc_open(sqlfs, path.c_str(), &ffi);
