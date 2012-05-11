@@ -338,8 +338,10 @@ static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
         return NULL;
     }
     struct stat sb;
-    int rc = isLstat ? TEMP_FAILURE_RETRY(lstat(path.c_str(), &sb))
-                     : TEMP_FAILURE_RETRY(stat(path.c_str(), &sb));
+    // TODO implement lstat() once symlink support is added
+    if (isLstat)
+        jniThrowRuntimeException(env, "lstat() is not implemented");
+    int rc = TEMP_FAILURE_RETRY(sqlfs_proc_getattr(sqlfs, path.c_str(), &sb));
     if (rc == -1) {
         throwErrnoException(env, isLstat ? "lstat" : "stat");
         return NULL;
