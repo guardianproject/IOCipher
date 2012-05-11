@@ -22,6 +22,7 @@
 #include "JniConstants.h"
 
 /* each class file includes its own register function */
+int registerJniHelp(JNIEnv* env);
 //int register_info_guardianproject_iocipher_Console(JNIEnv *env);
 int register_info_guardianproject_iocipher_File(JNIEnv *env);
 int register_info_guardianproject_iocipher_VirtualFileSystem(JNIEnv *env);
@@ -43,6 +44,7 @@ extern "C" jint JNI_OnLoad(JavaVM* vm, void* reserved)
     JniConstants::init(env);
 
     LOGI("JNI_OnLoad register methods:");
+    registerJniHelp(env);
 //    register_info_guardianproject_iocipher_Console(env);
     register_info_guardianproject_iocipher_File(env);
     register_info_guardianproject_iocipher_VirtualFileSystem(env);
