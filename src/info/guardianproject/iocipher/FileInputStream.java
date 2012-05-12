@@ -177,9 +177,18 @@ public class FileInputStream extends InputStream implements Closeable {
         return fd;
     }
 
+    public static int readSingleByte(InputStream in) throws IOException {
+        byte[] buffer = new byte[1];
+        int result = in.read(buffer, 0, 1);
+        return (result != -1) ? buffer[0] & 0xff : -1;
+    }
+
     @Override public int read() throws IOException {
-//TODO(ramblurr) implement        return Streams.readSingleByte(this);
-    	throw new IOException("Not yet implemented");
+        return readSingleByte(this);
+    }
+
+    @Override public int read(byte[] b) throws IOException {
+        return readSingleByte(this);
     }
 
     @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
