@@ -17,13 +17,10 @@
 
 package info.guardianproject.iocipher;
 
-//TODO(ramblurr) needed? import dalvik.system.CloseGuard;
-
-import info.guardianproject.libcore.io.ErrnoException;
+import static info.guardianproject.libcore.io.OsConstants.O_RDONLY;
+import static info.guardianproject.libcore.io.OsConstants.SEEK_CUR;
 import info.guardianproject.libcore.io.IoBridge;
 import info.guardianproject.libcore.io.IoUtils;
-import info.guardianproject.libcore.io.Libcore;
-import static info.guardianproject.libcore.io.OsConstants.*;
 
 import java.io.BufferedInputStream;
 import java.io.Closeable;
@@ -204,17 +201,8 @@ public class FileInputStream extends InputStream implements Closeable {
         if (byteCount < 0) {
             throw new IOException("byteCount < 0: " + byteCount);
         }
-        try {
-            // Try lseek(2). That returns the new offset, but we'll throw an
-            // exception if it couldn't perform exactly the seek we asked for.
-            Libcore.os.lseek(fd, byteCount, SEEK_CUR);
-            return byteCount;
-        } catch (ErrnoException errnoException) {
-            if (errnoException.errno == ESPIPE) {
-                // You can't seek on a pipe, so fall back to the superclass' implementation.
-                return super.skip(byteCount);
-            }
-            throw errnoException.rethrowAsIOException();
-        }
+        long before = channel.position();
+        long after = channel.lseek(byteCount, SEEK_CUR);
+        return after - before;
     }
 }

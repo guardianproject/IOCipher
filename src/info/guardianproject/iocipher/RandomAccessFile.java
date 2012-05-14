@@ -228,11 +228,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             file.
      */
     public long getFilePointer() throws IOException {
-        try {
-            return Libcore.os.lseek(fd, 0L, SEEK_CUR);
-        } catch (ErrnoException errnoException) {
-            throw errnoException.rethrowAsIOException();
-        }
+        return channel.position();
     }
 
     /**
@@ -612,11 +608,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (offset < 0) {
             throw new IOException("offset < 0: " + offset);
         }
-        try {
-            Libcore.os.lseek(fd, offset, SEEK_SET);
-        } catch (ErrnoException errnoException) {
-            throw errnoException.rethrowAsIOException();
-        }
+        channel.lseek(offset, SEEK_SET);
     }
 
     /**

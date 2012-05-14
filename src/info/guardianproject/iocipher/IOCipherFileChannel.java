@@ -16,13 +16,10 @@
 
 package info.guardianproject.iocipher;
 
-import static info.guardianproject.libcore.io.OsConstants.EAGAIN;
-import static info.guardianproject.libcore.io.OsConstants.O_ACCMODE;
-import static info.guardianproject.libcore.io.OsConstants.O_RDONLY;
-import static info.guardianproject.libcore.io.OsConstants.O_WRONLY;
 import info.guardianproject.libcore.io.ErrnoException;
 import info.guardianproject.libcore.io.Libcore;
 import info.guardianproject.libcore.io.StructStat;
+import static info.guardianproject.libcore.io.OsConstants.*;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -128,6 +125,54 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 				throw errnoException.rethrowAsIOException();
 			}
 		}
+	}
+
+	/**
+	 * IOCipher version of POSIX lseek, since the underlying FUSE layer does not
+	 * track the position in open files for us, we do it inside of this class.
+	 * This class wraps a {@link FileDescriptor}, so you cannot specify one as
+	 * an argument.
+	 * 
+	 * @param offset
+	 *            the new position to seek to.
+	 * @param whence
+	 *            changes the pointer repositioning behavior:
+	 *            <ul>
+	 *            <li>if
+	 *            {@link info.guardianproject.libcore.io.OsConstants.SEEK_SET
+	 *            SEEK_SET} then file pointer is set to <i>offset</i></li>
+	 *            <li>if
+	 *            {@link info.guardianproject.libcore.io.OsConstants.SEEK_CUR
+	 *            SEEK_CUR} then file pointer is set to <i>current position +
+	 *            offset</i></li>
+	 *            <li>if
+	 *            {@link info.guardianproject.libcore.io.OsConstants.SEEK_END
+	 *            SEEK_END} then file pointer is set to <i>file size +
+	 *            offset</i></li>
+	 *            </ul>
+	 * 
+	 * @throws ClosedChannelException
+	 *             if this channel is already closed.
+	 * 
+	 * @return new position of file pointer
+	 */
+	public long lseek(long offset, int whence) throws IOException {
+		checkOpen();
+		long tmpPosition = position;
+		if (whence == SEEK_SET) {
+			tmpPosition = offset;
+		} else if (whence == SEEK_CUR) {
+			tmpPosition += offset;
+		} else if (whence == SEEK_END) {
+			tmpPosition = size() + offset;
+		} else {
+			throw new IllegalArgumentException("Unknown 'whence': " + whence);
+		}
+		if (tmpPosition < 0)
+			throw new IOException("negative resulting position: " + tmpPosition);
+		else
+			position = tmpPosition;
+		return position;
 	}
 
 	/**

@@ -806,11 +806,6 @@ static void Posix_listen(JNIEnv* env, jobject, jobject javaFd, jint backlog) {
     throwIfMinusOne(env, "listen", TEMP_FAILURE_RETRY(listen(fd, backlog)));
 }
 
-static jlong Posix_lseek(JNIEnv* env, jobject, jobject javaFd, jlong offset, jint whence) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "lseek", TEMP_FAILURE_RETRY(lseek64(fd, offset, whence)));
-}
-
 static jobject Posix_lstat(JNIEnv* env, jobject, jstring javaPath) {
     return doStat(env, javaPath, true);
 }
@@ -1339,7 +1334,6 @@ static JNINativeMethod sMethods[] = {
 //    {"isatty", "(Linfo/guardianproject/iocipher/FileDescriptor;)Z", (void *)Posix_isatty},
 //    {"kill", "(II)V", (void *)Posix_kill},
 //    {"listen", "(Linfo/guardianproject/iocipher/FileDescriptor;I)V", (void *)Posix_listen},
-//    {"lseek", "(Linfo/guardianproject/iocipher/FileDescriptor;JI)J", (void *)Posix_lseek},
 //    {"lstat", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStat;", (void *)Posix_lstat},
 //    {"mincore", "(JJ[B)V", (void *)Posix_mincore},
     {"link", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)Posix_link},

@@ -300,11 +300,6 @@ public final class Posix implements Os {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	public long lseek(FileDescriptor fd, long offset, int whence)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
 	public StructStat lstat(String path) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
