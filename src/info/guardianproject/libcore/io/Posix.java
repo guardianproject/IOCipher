@@ -18,9 +18,6 @@ package info.guardianproject.libcore.io;
 
 import info.guardianproject.iocipher.FileDescriptor;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 public final class Posix implements Os {
@@ -134,21 +131,6 @@ public final class Posix implements Os {
 	//////////////////////////////////////////////////////////////////////////
 	// Not implemented by libsqlfs
 	////////////////////////////////////////////////////////////////////////
-	public FileDescriptor accept(FileDescriptor fd,
-			InetSocketAddress peerAddress) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void bind(FileDescriptor fd, InetAddress address, int port)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void connect(FileDescriptor fd, InetAddress address, int port)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
 	public FileDescriptor dup(FileDescriptor oldFd)
 			throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
@@ -187,11 +169,6 @@ public final class Posix implements Os {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	public InetAddress[] getaddrinfo(String node, StructAddrinfo hints)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
 	public int getegid() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
@@ -205,11 +182,6 @@ public final class Posix implements Os {
 	}
 
 	public String getenv(String name) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public String getnameinfo(InetAddress address, int flags)
-			throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
@@ -230,54 +202,7 @@ public final class Posix implements Os {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	public SocketAddress getsockname(FileDescriptor fd)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public int getsockoptByte(FileDescriptor fd, int level, int option)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public int getsockoptInt(FileDescriptor fd, int level, int option)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public StructLinger getsockoptLinger(FileDescriptor fd, int level,
-			int option) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public StructTimeval getsockoptTimeval(FileDescriptor fd, int level,
-			int option) throws UnsupportedOperationException
-
-	{
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
 	public int getuid() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public String if_indextoname(int index)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public InetAddress inet_pton(int family, String address)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd,
-			String interfaceName) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
@@ -364,46 +289,6 @@ public final class Posix implements Os {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags,
-			InetSocketAddress srcAddress) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset,
-			int byteCount, int flags, InetSocketAddress srcAddress)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	private int recvfromBytes(FileDescriptor fd, Object buffer, int byteOffset,
-			int byteCount, int flags, InetSocketAddress srcAddress)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public long sendfile(FileDescriptor outFd, FileDescriptor inFd,
-			long inOffset, long byteCount) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags,
-			InetAddress inetAddress, int port)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset,
-			int byteCount, int flags, InetAddress inetAddress, int port)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	private int sendtoBytes(FileDescriptor fd, Object buffer, int byteOffset,
-			int byteCount, int flags, InetAddress inetAddress, int port)
-			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
 	public void setegid(int egid) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
@@ -413,41 +298,6 @@ public final class Posix implements Os {
 	}
 
 	public void setgid(int gid) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void setsockoptByte(FileDescriptor fd, int level, int option,
-			int value) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void setsockoptIfreq(FileDescriptor fd, int level, int option,
-			String value) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void setsockoptInt(FileDescriptor fd, int level, int option,
-			int value) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void setsockoptIpMreqn(FileDescriptor fd, int level, int option,
-			int value) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void setsockoptGroupReq(FileDescriptor fd, int level, int option,
-			StructGroupReq value) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void setsockoptLinger(FileDescriptor fd, int level, int option,
-			StructLinger value) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void setsockoptTimeval(FileDescriptor fd, int level, int option,
-			StructTimeval value) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
