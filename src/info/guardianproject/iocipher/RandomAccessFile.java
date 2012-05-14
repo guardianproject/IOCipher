@@ -17,25 +17,27 @@
 
 package info.guardianproject.iocipher;
 
-//TODO(ramblurr) needed? import dalvik.system.CloseGuard;
-import java.io.Closeable;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.EOFException;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.ByteOrder;
-//TODO(ramblurr) needed? import java.nio.NioUtils;
-import java.nio.channels.FileChannel;
-//TODO(ramblurr) needed? import java.nio.charset.ModifiedUtf8;
-import java.util.Arrays;
+import static info.guardianproject.libcore.io.OsConstants.O_CREAT;
+import static info.guardianproject.libcore.io.OsConstants.O_RDONLY;
+import static info.guardianproject.libcore.io.OsConstants.O_RDWR;
+import static info.guardianproject.libcore.io.OsConstants.O_SYNC;
+import static info.guardianproject.libcore.io.OsConstants.SEEK_CUR;
+import static info.guardianproject.libcore.io.OsConstants.SEEK_SET;
 import info.guardianproject.libcore.io.ErrnoException;
 import info.guardianproject.libcore.io.IoBridge;
 import info.guardianproject.libcore.io.IoUtils;
 import info.guardianproject.libcore.io.Libcore;
 import info.guardianproject.libcore.io.Memory;
 import info.guardianproject.libcore.io.SizeOf;
-import static info.guardianproject.libcore.io.OsConstants.*;
+
+import java.io.Closeable;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UTFDataFormatException;
+import java.nio.ByteOrder;
 
 /**
  * Allows reading from and writing to a file in a random-access manner. This is
@@ -55,7 +57,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
 
     // The unique file channel associated with this FileInputStream (lazily
     // initialized).
-    private FileChannel channel;
+    private IOCipherFileChannel channel;
 
     private int mode;
 
@@ -186,22 +188,20 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Gets this file's {@link FileChannel} object.
+     * Gets this file's {@link IOCipherFileChannel} object.
      * <p>
-     * The file channel's {@link FileChannel#position() position} is the same
+     * The file channel's {@link IOCipherFileChannel#position() position} is the same
      * as this file's file pointer offset (see {@link #getFilePointer()}). Any
      * changes made to this file's file pointer offset are also visible in the
      * file channel's position and vice versa.
      *
      * @return this file's file channel instance.
      */
-    public final synchronized FileChannel getChannel() {
-    	throw new UnsupportedOperationException("not yet implemented");
-    	/* TODO(ramblurr) implement
-        if(channel == null) {
-            channel = NioUtils.newFileChannel(this, fd, mode);
-        }
-        return channel;*/
+    public final synchronized IOCipherFileChannel getChannel() {
+    	if (channel == null) {
+    		channel = new IOCipherFileChannel(this, fd, mode);
+    	}
+    	return channel;
     }
 
     /**

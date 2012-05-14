@@ -59,30 +59,6 @@ public final class IoBridge {
 
 
     /*TODO(ramblurr) unneeded?
-    public static int available(FileDescriptor fd) throws IOException {
-        try {
-            MutableInt available = new MutableInt(0);
-            Libcore.os.ioctlInt(fd, FIONREAD, available);
-            if (available.value < 0) {
-                // If the fd refers to a regular file, the result is the difference between
-                // the file size and the file position. This may be negative if the position
-                // is past the end of the file. If the fd refers to a special file masquerading
-                // as a regular file, the result may be negative because the special file
-                // may appear to have zero size and yet a previous read call may have
-                // read some amount of data and caused the file position to be advanced.
-                available.value = 0;
-            }
-            return available.value;
-        } catch (ErrnoException errnoException) {
-            if (errnoException.errno == ENOTTY) {
-                // The fd is unwilling to opine about its read buffer.
-                return 0;
-            }
-            throw errnoException.rethrowAsIOException();
-        }
-    }*/
-
-    /*TODO(ramblurr) unneeded?
     public static void bind(FileDescriptor fd, InetAddress address, int port) throws SocketException {
         if (address instanceof Inet6Address && ((Inet6Address) address).getScopeId() == 0) {
             // Linux won't let you bind a link-local address without a scope id. Find one.

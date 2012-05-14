@@ -17,17 +17,15 @@
 
 package info.guardianproject.iocipher;
 
-//TODO(ramblurr) needed? import dalvik.system.CloseGuard;
-//TODO(ramblurr) needed? import java.nio.NioUtils;
+import info.guardianproject.libcore.io.IoBridge;
+import info.guardianproject.libcore.io.IoUtils;
+import static info.guardianproject.libcore.io.OsConstants.*;
+
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.channels.FileChannel;
-import java.util.Arrays;
-import info.guardianproject.libcore.io.IoBridge;
-import info.guardianproject.libcore.io.IoUtils;
-import static info.guardianproject.libcore.io.OsConstants.*;
 
 /**
  * An output stream that writes bytes to a file. If the output file exists, it
@@ -60,7 +58,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
     private final boolean shouldClose;
 
     /** The unique file channel. Lazily initialized because it's rarely needed. */
-    private FileChannel channel;
+    private IOCipherFileChannel channel;
 
     /** File access mode */
     private final int mode;
@@ -106,8 +104,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
         this.fd = fd;
         this.shouldClose = false;
         this.mode = O_WRONLY;
-        //TODO(ramblurr) implement! this.channel = NioUtils.newFileChannel(this, fd, mode);
-        throw new UnsupportedOperationException("not yet implemented");
+        this.channel = new IOCipherFileChannel(this, fd, mode);
+        // TODO comment below needed? we don't use the guard stuff
         // Note that we do not call guard.open here because the
         // FileDescriptor is not owned by the stream.
     }
@@ -169,18 +167,16 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     /**
-     * Returns a write-only {@link FileChannel} that shares its position with
+     * Returns a write-only {@link IOCipherFileChannel} that shares its position with
      * this stream.
      */
-    public FileChannel getChannel() {
-    	throw new UnsupportedOperationException("not yet implemented");
-    	/* TODO(ramblurr) implement
+    public IOCipherFileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
-                channel = NioUtils.newFileChannel(this, fd, mode);
+                channel = new IOCipherFileChannel(this, fd, mode);
             }
             return channel;
-        }*/
+        }
     }
 
     /**

@@ -19,19 +19,18 @@ package info.guardianproject.iocipher;
 
 //TODO(ramblurr) needed? import dalvik.system.CloseGuard;
 
-import java.io.Closeable;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-//TODO(ramblurr) needed? import java.nio.NioUtils;
-import java.nio.channels.FileChannel;
-import java.util.Arrays;
 import info.guardianproject.libcore.io.ErrnoException;
 import info.guardianproject.libcore.io.IoBridge;
 import info.guardianproject.libcore.io.IoUtils;
 import info.guardianproject.libcore.io.Libcore;
-//TODO(ramblurr) needed? import info.guardianproject.libcore.io.Streams;
 import static info.guardianproject.libcore.io.OsConstants.*;
+
+import java.io.BufferedInputStream;
+import java.io.Closeable;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.FileChannel;
 
 /**
  * An input stream that reads bytes from a file.
@@ -63,7 +62,7 @@ public class FileInputStream extends InputStream implements Closeable {
     private final boolean shouldClose;
 
     /** The unique file channel. Lazily initialized because it's rarely needed. */
-    private FileChannel channel;
+    private IOCipherFileChannel channel;
 
     //TODO(ramblurr) needed? private final CloseGuard guard = CloseGuard.get();
 
@@ -110,8 +109,15 @@ public class FileInputStream extends InputStream implements Closeable {
     }
 
     @Override
-    public int available() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not implemented for libsqlfs");
+    public int available() throws IOException {
+    	long value = channel.size() - channel.position();
+    	if (value < 0) {
+    		// The result is the difference between the file size and the file 
+    		// position. This may be negative if the position is past the end
+    		// of the file.
+    		value = 0;
+    	}
+    	return (int)value;
     }
 
     @Override
@@ -159,15 +165,13 @@ public class FileInputStream extends InputStream implements Closeable {
      * Returns a read-only {@link FileChannel} that shares its position with
      * this stream.
      */
-    public FileChannel getChannel() {
-    	throw new UnsupportedOperationException("not yet implemented");
-    	/* TODO(ramblurr) implement
+    public IOCipherFileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
-                channel = NioUtils.newFileChannel(this, fd, O_RDONLY);
+                channel = new IOCipherFileChannel(this, fd, O_RDONLY);
             }
             return channel;
-        }*/
+        }
     }
 
     /**
