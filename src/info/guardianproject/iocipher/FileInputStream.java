@@ -188,7 +188,7 @@ public class FileInputStream extends InputStream implements Closeable {
     }
 
     @Override public int read(byte[] b) throws IOException {
-        return readSingleByte(this);
+        return IoBridge.read(fd, b, 0, b.length);
     }
 
     @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
