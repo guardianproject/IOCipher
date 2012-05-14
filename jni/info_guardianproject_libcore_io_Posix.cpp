@@ -972,17 +972,17 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
 }
 */
 
-static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount) {
+static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jlong offset) {
     ScopedBytesRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
         return -1;
     }
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    int result = sqlfs_proc_read(sqlfs, path.c_str(), reinterpret_cast<char*>(bytes.get()), byteCount, byteOffset, NULL);
+    int result = sqlfs_proc_read(sqlfs, path.c_str(), reinterpret_cast<char*>(bytes.get() + byteOffset), byteCount, offset, NULL);
     if (result < 0) {
         errno = abs(result); // sqlfs/FUSE returns errno errors as negative values
-        throwErrnoException(env, "read");
+        throwErrnoException(env, "pread");
         return -1;
     } else {
         return result;
@@ -1352,9 +1352,9 @@ static JNINativeMethod sMethods[] = {
     {"open", "(Ljava/lang/String;II)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)Posix_open},
 //    {"pipe", "()[Linfo/guardianproject/iocipher/FileDescriptor;", (void *)Posix_pipe},
 //    {"poll", "([Llibcore/io/StructPollfd;I)I", (void *)Posix_poll},
-//    {"preadBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)Posix_preadBytes},
+    {"preadBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)Posix_preadBytes},
 //    {"pwriteBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)Posix_pwriteBytes},
-    {"readBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)Posix_readBytes},
+//    {"readBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)Posix_readBytes},
 //    {"readv", "(Linfo/guardianproject/iocipher/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)Posix_readv},
 //    {"recvfromBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I", (void *)Posix_recvfromBytes},
     {"remove", "(Ljava/lang/String;)V", (void *)Posix_remove},

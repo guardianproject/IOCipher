@@ -17,16 +17,11 @@
 package info.guardianproject.libcore.io;
 
 import info.guardianproject.iocipher.FileDescriptor;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-//import java.nio.NioUtils;
-//import libcore.util.MutableInt;
-//import libcore.util.MutableLong;
-import java.lang.UnsupportedOperationException;
-
-;
 
 public final class Posix implements Os {
 	
@@ -52,25 +47,43 @@ public final class Posix implements Os {
 	public native FileDescriptor open(String path, int flags, int mode)
 			throws ErrnoException;
 
-	public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+	private native int preadBytes(FileDescriptor fd, Object buffer, int bufferOffset, int byteCount, long offset) throws ErrnoException;
+
+	public int pread(FileDescriptor fd, ByteBuffer buffer, long offset)
+	throws ErrnoException {
 		if (buffer.isDirect()) {
-			return readBytes(fd, buffer, buffer.position(), buffer.remaining());
+			return preadBytes(fd, buffer, buffer.position(), buffer.remaining(), offset);
 		} else {
-			return readBytes(fd, buffer.array(),
+			return preadBytes(fd, buffer.array(),
 					buffer.arrayOffset() + buffer.position(),
-					buffer.remaining());
+					buffer.remaining(), offset);
+		}
+	}
+
+	public int pread(FileDescriptor fd, byte[] bytes, int byteOffset,
+			int byteCount, long offset) throws ErrnoException {
+        // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
+        return preadBytes(fd, bytes, byteOffset, byteCount, offset);
+	}
+
+	public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+		// TODO implement position like POSIX read()
+		if (buffer.isDirect()) {
+			return preadBytes(fd, buffer, buffer.position(), buffer.remaining(), 0);
+		} else {
+			return preadBytes(fd, buffer.array(),
+					buffer.arrayOffset() + buffer.position(),
+					buffer.remaining(), 0);
 		}
 	}
 
 	public int read(FileDescriptor fd, byte[] bytes, int byteOffset,
 			int byteCount) throws ErrnoException {
+		// TODO implement position like POSIX read()
 		// This indirection isn't strictly necessary, but ensures that our
 		// public interface is type safe.
-		return readBytes(fd, bytes, byteOffset, byteCount);
+		return preadBytes(fd, bytes, byteOffset, byteCount, 0);
 	}
-
-	private native int readBytes(FileDescriptor fd, Object buffer, int offset,
-			int byteCount) throws ErrnoException;
 
 	public native void remove(String path) throws ErrnoException;
 
@@ -333,21 +346,6 @@ public final class Posix implements Os {
 
 	public int poll(StructPollfd[] fds, int timeoutMs)
 			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public int pread(FileDescriptor fd, ByteBuffer buffer, long offset)
-	throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public int pread(FileDescriptor fd, byte[] bytes, int byteOffset,
-			int byteCount, long offset) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	private int preadBytes(FileDescriptor fd, Object buffer,
-			int bufferOffset, int byteCount, long offset) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
