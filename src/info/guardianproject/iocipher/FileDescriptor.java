@@ -55,6 +55,8 @@ public final class FileDescriptor {
 	private final String invalid = "INVALID";
 	private String path = invalid;
 
+	public long position = 0;
+
 	static {
 		// TODO do we need stdin, stdout, stderr on this?
 		// in.descriptor = STDIN_FILENO;

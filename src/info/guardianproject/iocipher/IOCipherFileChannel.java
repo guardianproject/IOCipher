@@ -38,7 +38,6 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	private final Object stream;
 	private final FileDescriptor fd;
 	private final int mode;
-	private long position;
 
 	/**
 	 * Create a new file channel implementation class that wraps the given fd
@@ -158,7 +157,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 */
 	public long lseek(long offset, int whence) throws IOException {
 		checkOpen();
-		long tmpPosition = position;
+		long tmpPosition = fd.position;
 		if (whence == SEEK_SET) {
 			tmpPosition = offset;
 		} else if (whence == SEEK_CUR) {
@@ -171,8 +170,8 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 		if (tmpPosition < 0)
 			throw new IOException("negative resulting position: " + tmpPosition);
 		else
-			position = tmpPosition;
-		return position;
+			fd.position = tmpPosition;
+		return fd.position;
 	}
 
 	/**
@@ -185,7 +184,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 */
 	public long position() throws IOException {
 		checkOpen();
-		return position;
+		return fd.position;
 	}
 
 	/**
@@ -211,7 +210,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 			throw new IllegalArgumentException(
 					"negative file position not allowed: " + newPosition);
 		checkOpen();
-		position = newPosition;
+		fd.position = newPosition;
 		return this;
 	}
 

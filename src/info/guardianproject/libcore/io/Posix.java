@@ -64,22 +64,23 @@ public final class Posix implements Os {
 	}
 
 	public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
-		// TODO implement position like POSIX read()
+		int ret;
 		if (buffer.isDirect()) {
-			return preadBytes(fd, buffer, buffer.position(), buffer.remaining(), 0);
+			ret = preadBytes(fd, buffer, buffer.position(), buffer.remaining(), 0);
 		} else {
-			return preadBytes(fd, buffer.array(),
+			ret = preadBytes(fd, buffer.array(),
 					buffer.arrayOffset() + buffer.position(),
 					buffer.remaining(), 0);
 		}
+		fd.position += ret;
+		return ret;
 	}
 
 	public int read(FileDescriptor fd, byte[] bytes, int byteOffset,
 			int byteCount) throws ErrnoException {
-		// TODO implement position like POSIX read()
-		// This indirection isn't strictly necessary, but ensures that our
-		// public interface is type safe.
-		return preadBytes(fd, bytes, byteOffset, byteCount, 0);
+		int ret = preadBytes(fd, bytes, byteOffset, byteCount, fd.position);
+		fd.position += byteCount;
+		return ret;
 	}
 
 	public native void remove(String path) throws ErrnoException;
