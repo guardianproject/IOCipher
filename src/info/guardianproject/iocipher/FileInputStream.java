@@ -58,7 +58,6 @@ public class FileInputStream extends InputStream implements Closeable {
     private FileDescriptor fd;
     private final boolean shouldClose;
 
-    /** The unique file channel. Lazily initialized because it's rarely needed. */
     private IOCipherFileChannel channel;
 
     //TODO(ramblurr) needed? private final CloseGuard guard = CloseGuard.get();
@@ -76,6 +75,7 @@ public class FileInputStream extends InputStream implements Closeable {
             throw new NullPointerException("file == null");
         }
         this.fd = IoBridge.open(file.getAbsolutePath(), O_RDONLY);
+        getChannel(); // init channel
         this.shouldClose = true;
         //TODO(ramblurr) needed? guard.open("close");
     }
@@ -93,6 +93,7 @@ public class FileInputStream extends InputStream implements Closeable {
             throw new NullPointerException("fd == null");
         }
         this.fd = fd;
+        getChannel(); // init channel
         this.shouldClose = false;
         // Note that we do not call guard.open here because the
         // FileDescriptor is not owned by the stream.
@@ -159,7 +160,7 @@ public class FileInputStream extends InputStream implements Closeable {
     }
 
     /**
-     * Returns a read-only {@link FileChannel} that shares its position with
+     * Returns a read-only {@link IOCipherFileChannel} that shares its position with
      * this stream.
      */
     public IOCipherFileChannel getChannel() {
