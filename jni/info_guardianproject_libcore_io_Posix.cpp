@@ -24,7 +24,6 @@
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "StaticAssert.h"
-//#include "UniquePtr.h"
 #include "toStringArray.h"
 #include "sqlfs.h"
 
@@ -39,7 +38,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <sys/stat.h> // TODO eventually we can remove this?
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/uio.h>
@@ -82,13 +81,13 @@ static void throwException(JNIEnv* env, jclass exceptionClass, jmethodID ctor3, 
     env->Throw(reinterpret_cast<jthrowable>(exception));
 }
 
-static void throwErrnoException(JNIEnv* env, const char* functionName) {
-    int error = errno;
+static void throwErrnoException(JNIEnv* env, const char* functionName, int error) {
     static jmethodID ctor3 = env->GetMethodID(JniConstants::errnoExceptionClass,
             "<init>", "(Ljava/lang/String;ILjava/lang/Throwable;)V");
     static jmethodID ctor2 = env->GetMethodID(JniConstants::errnoExceptionClass,
             "<init>", "(Ljava/lang/String;I)V");
-    throwException(env, JniConstants::errnoExceptionClass, ctor3, ctor2, functionName, error);
+/* FUSE/sqlfs returns negative errno values, but throwException wants the positive ones */
+    throwException(env, JniConstants::errnoExceptionClass, ctor3, ctor2, functionName, -error);
 }
 
 /*
@@ -107,10 +106,11 @@ static void throwGaiException(JNIEnv* env, const char* functionName, int error) 
 }
 */
 
+// sqlfs/FUSE returns errno-style errors as negative values
 template <typename rc_t>
-static rc_t throwIfMinusOne(JNIEnv* env, const char* name, rc_t rc) {
-    if (rc == rc_t(-1)) {
-        throwErrnoException(env, name);
+static rc_t throwIfNegative(JNIEnv* env, const char* name, rc_t rc) {
+    if (rc < rc_t(0)) {
+        throwErrnoException(env, name, rc);
     }
     return rc;
 }
@@ -238,8 +238,8 @@ static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     if (isLstat)
         jniThrowRuntimeException(env, "lstat() is not implemented");
     int rc = TEMP_FAILURE_RETRY(sqlfs_proc_getattr(sqlfs, path.c_str(), &sb));
-    if (rc == -1) {
-        throwErrnoException(env, isLstat ? "lstat" : "stat");
+    if (rc < 0) {
+        throwErrnoException(env, isLstat ? "lstat" : "stat", rc);
         return NULL;
     }
     return makeStructStat(env, sb);
@@ -273,8 +273,7 @@ public:
 private:
     jobject process(const char* syscall, int error) {
         if (mResult == NULL) {
-            errno = error;
-            throwErrnoException(mEnv, syscall);
+            throwErrnoException(mEnv, syscall, error);
             return NULL;
         }
         return makeStructPasswd(mEnv, *mResult);
@@ -295,7 +294,7 @@ static jboolean Posix_access(JNIEnv* env, jobject, jstring javaPath, jint mode) 
     }
     int rc = TEMP_FAILURE_RETRY(sqlfs_proc_access(sqlfs, path.c_str(), mode));
     if (rc == -1) {
-        throwErrnoException(env, "access");
+        throwErrnoException(env, "access", rc);
     }
     return (rc == 0);
 }
@@ -305,7 +304,7 @@ static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     if (path.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "chmod", TEMP_FAILURE_RETRY(sqlfs_proc_chmod(sqlfs, path.c_str(), mode)));
+    throwIfNegative(env, "chmod", TEMP_FAILURE_RETRY(sqlfs_proc_chmod(sqlfs, path.c_str(), mode)));
 }
 
 static void Posix_close(JNIEnv* env, jobject, jobject javaFd) {
@@ -318,13 +317,13 @@ static void Posix_close(JNIEnv* env, jobject, jobject javaFd) {
 /*
 static jobject Posix_dup(JNIEnv* env, jobject, jobject javaOldFd) {
     int oldFd = jniGetFDFromFileDescriptor(env, javaOldFd);
-    int newFd = throwIfMinusOne(env, "dup", TEMP_FAILURE_RETRY(dup(oldFd)));
+    int newFd = throwIfNegative(env, "dup", TEMP_FAILURE_RETRY(dup(oldFd)));
     return (newFd != -1) ? jniCreateFileDescriptor(env, newFd) : NULL;
 }
 
 static jobject Posix_dup2(JNIEnv* env, jobject, jobject javaOldFd, jint newFd) {
     int oldFd = jniGetFDFromFileDescriptor(env, javaOldFd);
-    int fd = throwIfMinusOne(env, "dup2", TEMP_FAILURE_RETRY(dup2(oldFd, newFd)));
+    int fd = throwIfNegative(env, "dup2", TEMP_FAILURE_RETRY(dup2(oldFd, newFd)));
     return (fd != -1) ? jniCreateFileDescriptor(env, fd) : NULL;
 }
 
@@ -335,12 +334,12 @@ static jobjectArray Posix_environ(JNIEnv* env, jobject) {
 
 static jint Posix_fcntlVoid(JNIEnv* env, jobject, jobject javaFd, jint cmd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd)));
+    return throwIfNegative(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd)));
 }
 
 static jint Posix_fcntlLong(JNIEnv* env, jobject, jobject javaFd, jint cmd, jlong arg) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd, arg)));
+    return throwIfNegative(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd, arg)));
 }
 
 static jint Posix_fcntlFlock(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobject javaFlock) {
@@ -359,7 +358,7 @@ static jint Posix_fcntlFlock(JNIEnv* env, jobject, jobject javaFd, jint cmd, job
     lock.l_pid = env->GetIntField(javaFlock, pidFid);
 
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    int rc = throwIfMinusOne(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd, &lock)));
+    int rc = throwIfNegative(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd, &lock)));
     if (rc != -1) {
         env->SetShortField(javaFlock, typeFid, lock.l_type);
         env->SetShortField(javaFlock, whenceFid, lock.l_whence);
@@ -372,7 +371,7 @@ static jint Posix_fcntlFlock(JNIEnv* env, jobject, jobject javaFd, jint cmd, job
 
 static void Posix_fdatasync(JNIEnv* env, jobject, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    throwIfMinusOne(env, "fdatasync", TEMP_FAILURE_RETRY(fdatasync(fd)));
+    throwIfNegative(env, "fdatasync", TEMP_FAILURE_RETRY(fdatasync(fd)));
 }
 */
 
@@ -385,7 +384,7 @@ static jobject Posix_fstat(JNIEnv* env, jobject, jobject javaFd) {
 static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    throwIfMinusOne(env, "fsync", TEMP_FAILURE_RETRY(sqlfs_proc_fsync(sqlfs, path.c_str(), 0, NULL)));
+    throwIfNegative(env, "fsync", TEMP_FAILURE_RETRY(sqlfs_proc_fsync(sqlfs, path.c_str(), 0, NULL)));
 }
 
 /* in sqlfs, truncate() and ftruncate() do the same thing since there
@@ -393,7 +392,7 @@ static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
 static void Posix_ftruncate(JNIEnv* env, jobject, jobject javaFd, jlong length) {
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    throwIfMinusOne(env, "ftruncate", TEMP_FAILURE_RETRY(sqlfs_proc_truncate(sqlfs, path.c_str(), length)));
+    throwIfNegative(env, "ftruncate", TEMP_FAILURE_RETRY(sqlfs_proc_truncate(sqlfs, path.c_str(), length)));
 }
 
 /*
@@ -447,7 +446,7 @@ static jint Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobje
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     static jfieldID valueFid = env->GetFieldID(JniConstants::mutableIntClass, "value", "I");
     jint arg = env->GetIntField(javaArg, valueFid);
-    int rc = throwIfMinusOne(env, "ioctl", TEMP_FAILURE_RETRY(ioctl(fd, cmd, &arg)));
+    int rc = throwIfNegative(env, "ioctl", TEMP_FAILURE_RETRY(ioctl(fd, cmd, &arg)));
     if (!env->ExceptionCheck()) {
         env->SetIntField(javaArg, valueFid, arg);
     }
@@ -460,7 +459,7 @@ static jboolean Posix_isatty(JNIEnv* env, jobject, jobject javaFd) {
 }
 
 static void Posix_kill(JNIEnv* env, jobject, jint pid, jint sig) {
-    throwIfMinusOne(env, "kill", TEMP_FAILURE_RETRY(kill(pid, sig)));
+    throwIfNegative(env, "kill", TEMP_FAILURE_RETRY(kill(pid, sig)));
 }
 
 static jobject Posix_lstat(JNIEnv* env, jobject, jstring javaPath) {
@@ -474,7 +473,7 @@ static void Posix_mincore(JNIEnv* env, jobject, jlong address, jlong byteCount, 
     }
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
     unsigned char* vec = reinterpret_cast<unsigned char*>(vector.get());
-    throwIfMinusOne(env, "mincore", TEMP_FAILURE_RETRY(mincore(ptr, byteCount, vec)));
+    throwIfNegative(env, "mincore", TEMP_FAILURE_RETRY(mincore(ptr, byteCount, vec)));
 }
 */
 
@@ -484,7 +483,7 @@ static void Posix_link(JNIEnv* env, jobject, jstring javaFrom, jstring javaTo) {
     if (from.c_str() == NULL || from.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "link", TEMP_FAILURE_RETRY(sqlfs_proc_link(sqlfs, from.c_str(), from.c_str())));
+    throwIfNegative(env, "link", TEMP_FAILURE_RETRY(sqlfs_proc_link(sqlfs, from.c_str(), from.c_str())));
 }
 
 static void Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
@@ -497,13 +496,13 @@ static void Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
         LOGE("VirtualFileSystem is not open");
         return;
     }
-    throwIfMinusOne(env, "mkdir", TEMP_FAILURE_RETRY(sqlfs_proc_mkdir(sqlfs, path.c_str(), mode)));
+    throwIfNegative(env, "mkdir", TEMP_FAILURE_RETRY(sqlfs_proc_mkdir(sqlfs, path.c_str(), mode)));
 }
 
 /*
 static void Posix_mlock(JNIEnv* env, jobject, jlong address, jlong byteCount) {
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    throwIfMinusOne(env, "mlock", TEMP_FAILURE_RETRY(mlock(ptr, byteCount)));
+    throwIfNegative(env, "mlock", TEMP_FAILURE_RETRY(mlock(ptr, byteCount)));
 }
 
 static jlong Posix_mmap(JNIEnv* env, jobject, jlong address, jlong byteCount, jint prot, jint flags, jobject javaFd, jlong offset) {
@@ -518,17 +517,17 @@ static jlong Posix_mmap(JNIEnv* env, jobject, jlong address, jlong byteCount, ji
 
 static void Posix_msync(JNIEnv* env, jobject, jlong address, jlong byteCount, jint flags) {
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    throwIfMinusOne(env, "msync", TEMP_FAILURE_RETRY(msync(ptr, byteCount, flags)));
+    throwIfNegative(env, "msync", TEMP_FAILURE_RETRY(msync(ptr, byteCount, flags)));
 }
 
 static void Posix_munlock(JNIEnv* env, jobject, jlong address, jlong byteCount) {
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    throwIfMinusOne(env, "munlock", TEMP_FAILURE_RETRY(munlock(ptr, byteCount)));
+    throwIfNegative(env, "munlock", TEMP_FAILURE_RETRY(munlock(ptr, byteCount)));
 }
 
 static void Posix_munmap(JNIEnv* env, jobject, jlong address, jlong byteCount) {
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    throwIfMinusOne(env, "munmap", TEMP_FAILURE_RETRY(munmap(ptr, byteCount)));
+    throwIfNegative(env, "munmap", TEMP_FAILURE_RETRY(munmap(ptr, byteCount)));
 }
 */
 
@@ -552,8 +551,7 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
         result = sqlfs_proc_open(sqlfs, path.c_str(), &ffi);
     }
 	if (result < 0) {
-		errno = abs(result); // sqlfs/FUSE returns errno errors as negative values
-		throwErrnoException(env, "open");
+		throwErrnoException(env, "open", result);
 		return NULL;
 	} else {
 		sqlfs_proc_chmod(sqlfs, path.c_str(), mode);
@@ -564,7 +562,7 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
 /*
 static jobjectArray Posix_pipe(JNIEnv* env, jobject) {
     int fds[2];
-    throwIfMinusOne(env, "pipe", TEMP_FAILURE_RETRY(pipe(&fds[0])));
+    throwIfNegative(env, "pipe", TEMP_FAILURE_RETRY(pipe(&fds[0])));
     jobjectArray result = env->NewObjectArray(2, JniConstants::fileDescriptorClass, NULL);
     if (result == NULL) {
         return NULL;
@@ -608,7 +606,7 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
 
     int rc = TEMP_FAILURE_RETRY(poll(fds.get(), count, timeoutMs));
     if (rc == -1) {
-        throwErrnoException(env, "poll");
+        throwErrnoException(env, "poll", rc);
         return -1;
     }
 
@@ -634,8 +632,7 @@ static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaB
     int result = sqlfs_proc_read(sqlfs, path.c_str(), reinterpret_cast<char*>(bytes.get() + byteOffset), byteCount, (off_t)offset, NULL);
     if (result < 0) {
         if (result != -EIO) { // sqlfs_proc_open returns EIO on end-of-file
-            errno = abs(result); // sqlfs/FUSE returns errno errors as negative values
-            throwErrnoException(env, "pread");
+            throwErrnoException(env, "pread", result);
         }
         return -1;
     } else {
@@ -650,7 +647,7 @@ static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffe
         return -1;
     }
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "readv", TEMP_FAILURE_RETRY(readv(fd, ioVec.get(), ioVec.size())));
+    return throwIfNegative(env, "readv", TEMP_FAILURE_RETRY(readv(fd, ioVec.get(), ioVec.size())));
 }
 */
 
@@ -660,9 +657,9 @@ static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
         return;
     }
     if(sqlfs_is_dir(sqlfs, path.c_str()))
-        throwIfMinusOne(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(sqlfs, path.c_str())));
+        throwIfNegative(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(sqlfs, path.c_str())));
     else
-        throwIfMinusOne(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(sqlfs, path.c_str())));
+        throwIfNegative(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(sqlfs, path.c_str())));
 }
 
 static void Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
@@ -674,7 +671,7 @@ static void Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring java
     if (newPath.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "rename", TEMP_FAILURE_RETRY(sqlfs_proc_rename(sqlfs, oldPath.c_str(), newPath.c_str())));
+    throwIfNegative(env, "rename", TEMP_FAILURE_RETRY(sqlfs_proc_rename(sqlfs, oldPath.c_str(), newPath.c_str())));
 }
 
 static void Posix_rmdir(JNIEnv* env, jobject, jstring javaPath) {
@@ -682,29 +679,29 @@ static void Posix_rmdir(JNIEnv* env, jobject, jstring javaPath) {
     if (path.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "rmdir", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(sqlfs, path.c_str())));
+    throwIfNegative(env, "rmdir", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(sqlfs, path.c_str())));
 }
 
 /*
 static void Posix_setegid(JNIEnv* env, jobject, jint egid) {
-    throwIfMinusOne(env, "setegid", TEMP_FAILURE_RETRY(setegid(egid)));
+    throwIfNegative(env, "setegid", TEMP_FAILURE_RETRY(setegid(egid)));
 }
 
 static void Posix_seteuid(JNIEnv* env, jobject, jint euid) {
-    throwIfMinusOne(env, "seteuid", TEMP_FAILURE_RETRY(seteuid(euid)));
+    throwIfNegative(env, "seteuid", TEMP_FAILURE_RETRY(seteuid(euid)));
 }
 
 static void Posix_setgid(JNIEnv* env, jobject, jint gid) {
-    throwIfMinusOne(env, "setgid", TEMP_FAILURE_RETRY(setgid(gid)));
+    throwIfNegative(env, "setgid", TEMP_FAILURE_RETRY(setgid(gid)));
 }
 
 static void Posix_setuid(JNIEnv* env, jobject, jint uid) {
-    throwIfMinusOne(env, "setuid", TEMP_FAILURE_RETRY(setuid(uid)));
+    throwIfNegative(env, "setuid", TEMP_FAILURE_RETRY(setuid(uid)));
 }
 
 static void Posix_shutdown(JNIEnv* env, jobject, jobject javaFd, jint how) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    throwIfMinusOne(env, "shutdown", TEMP_FAILURE_RETRY(shutdown(fd, how)));
+    throwIfNegative(env, "shutdown", TEMP_FAILURE_RETRY(shutdown(fd, how)));
 }
 */
 
@@ -719,7 +716,7 @@ static jobject Posix_statfs(JNIEnv* env, jobject, jstring javaPath) {
     struct statfs sb;
     int rc = TEMP_FAILURE_RETRY(statfs(databaseFileName, &sb));
     if (rc == -1) {
-        throwErrnoException(env, "statfs");
+        throwErrnoException(env, "statfs", rc);
         return NULL;
     }
     /* some guesses at how things should be represented */
@@ -746,7 +743,7 @@ static void Posix_symlink(JNIEnv* env, jobject, jstring javaOldPath, jstring jav
     if (newPath.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "symlink", TEMP_FAILURE_RETRY(sqlfs_proc_symlink(sqlfs, oldPath.c_str(), newPath.c_str())));
+    throwIfNegative(env, "symlink", TEMP_FAILURE_RETRY(sqlfs_proc_symlink(sqlfs, oldPath.c_str(), newPath.c_str())));
 }
 
 static void Posix_unlink(JNIEnv* env, jobject, jstring javaPath) {
@@ -754,7 +751,7 @@ static void Posix_unlink(JNIEnv* env, jobject, jstring javaPath) {
     if (path.c_str() == NULL) {
         return;
     }
-    throwIfMinusOne(env, "unlink", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(sqlfs, path.c_str())));
+    throwIfNegative(env, "unlink", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(sqlfs, path.c_str())));
 }
 
 /*
@@ -778,7 +775,7 @@ static jobject Posix_uname(JNIEnv* env, jobject) {
 
 static jint Posix_waitpid(JNIEnv* env, jobject, jint pid, jobject javaStatus, jint options) {
     int status;
-    int rc = throwIfMinusOne(env, "waitpid", TEMP_FAILURE_RETRY(waitpid(pid, &status, options)));
+    int rc = throwIfNegative(env, "waitpid", TEMP_FAILURE_RETRY(waitpid(pid, &status, options)));
     if (rc != -1) {
         static jfieldID valueFid = env->GetFieldID(JniConstants::mutableIntClass, "value", "I");
         env->SetIntField(javaStatus, valueFid, status);
@@ -794,11 +791,10 @@ static jint Posix_writeBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray ja
     }
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    //return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
+    //return throwIfNegative(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
     int result = sqlfs_proc_write(sqlfs, path.c_str(), reinterpret_cast<const char*>(bytes.get()), byteCount, byteOffset, NULL);
     if (result < 0) {
-        errno = abs(result); // sqlfs/FUSE returns errno errors as negative values
-        throwErrnoException(env, "write");
+        throwErrnoException(env, "write", result);
         return -1;
     } else {
         // TODO make this stick the values into javaBytes
@@ -813,7 +809,7 @@ static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buff
         return -1;
     }
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "writev", TEMP_FAILURE_RETRY(writev(fd, ioVec.get(), ioVec.size())));
+    return throwIfNegative(env, "writev", TEMP_FAILURE_RETRY(writev(fd, ioVec.get(), ioVec.size())));
 }
 */
 
