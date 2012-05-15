@@ -17,22 +17,23 @@
 
 package info.guardianproject.iocipher;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import info.guardianproject.libcore.io.ErrnoException;
 import info.guardianproject.libcore.io.IoUtils;
 import info.guardianproject.libcore.io.Libcore;
 import info.guardianproject.libcore.io.StructStat;
 import info.guardianproject.libcore.io.StructStatFs;
 import static info.guardianproject.libcore.io.OsConstants.*;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * An "abstract" representation of a file system entity identified by a
@@ -922,7 +923,6 @@ public class File implements Serializable, Comparable<File> {
      *         already exists.
      * @throws IOException if it's not possible to create the file.
      */
-    // TODO implement createNewFile, currently it just crashes
     public boolean createNewFile() throws IOException {
         FileDescriptor fd = null;
         try {

@@ -17,18 +17,13 @@
 
 package info.guardianproject.iocipher;
 
-import static info.guardianproject.libcore.io.OsConstants.O_CREAT;
-import static info.guardianproject.libcore.io.OsConstants.O_RDONLY;
-import static info.guardianproject.libcore.io.OsConstants.O_RDWR;
-import static info.guardianproject.libcore.io.OsConstants.O_SYNC;
-import static info.guardianproject.libcore.io.OsConstants.SEEK_CUR;
-import static info.guardianproject.libcore.io.OsConstants.SEEK_SET;
 import info.guardianproject.libcore.io.ErrnoException;
 import info.guardianproject.libcore.io.IoBridge;
 import info.guardianproject.libcore.io.IoUtils;
 import info.guardianproject.libcore.io.Libcore;
 import info.guardianproject.libcore.io.Memory;
 import info.guardianproject.libcore.io.SizeOf;
+import static info.guardianproject.libcore.io.OsConstants.*;
 
 import java.io.Closeable;
 import java.io.DataInput;

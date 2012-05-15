@@ -17,7 +17,6 @@
 package info.guardianproject.libcore.io;
 
 import java.io.IOException;
-import java.net.SocketException;
 
 /**
  * A checked exception thrown when {@link Os} methods fail. This exception contains the native
@@ -25,7 +24,9 @@ import java.net.SocketException;
  * callers need to adjust their behavior based on the exact failure.
  */
 public final class ErrnoException extends Exception {
-    private final String functionName;
+
+	private static final long serialVersionUID = 1L;
+	private final String functionName;
     public final int errno;
 
     public ErrnoException(String functionName, int errno) {

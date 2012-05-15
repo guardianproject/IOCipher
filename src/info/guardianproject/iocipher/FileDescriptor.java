@@ -17,11 +17,10 @@
 
 package info.guardianproject.iocipher;
 
-import java.io.SyncFailedException;
-
 import info.guardianproject.libcore.io.ErrnoException;
 import info.guardianproject.libcore.io.Libcore;
-import static info.guardianproject.libcore.io.OsConstants.*;
+
+import java.io.SyncFailedException;
 
 /**
  * Wraps a Unix file descriptor. It's possible to get the file descriptor used

@@ -17,9 +17,6 @@
 
 package info.guardianproject.libcore.io;
 
-import java.io.FileDescriptor;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
