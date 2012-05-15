@@ -631,10 +631,12 @@ static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaB
     }
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    int result = sqlfs_proc_read(sqlfs, path.c_str(), reinterpret_cast<char*>(bytes.get() + byteOffset), byteCount, offset, NULL);
+    int result = sqlfs_proc_read(sqlfs, path.c_str(), reinterpret_cast<char*>(bytes.get() + byteOffset), byteCount, (off_t)offset, NULL);
     if (result < 0) {
-        errno = abs(result); // sqlfs/FUSE returns errno errors as negative values
-        throwErrnoException(env, "pread");
+        if (result != -EIO) { // sqlfs_proc_open returns EIO on end-of-file
+            errno = abs(result); // sqlfs/FUSE returns errno errors as negative values
+            throwErrnoException(env, "pread");
+        }
         return -1;
     } else {
         return result;
