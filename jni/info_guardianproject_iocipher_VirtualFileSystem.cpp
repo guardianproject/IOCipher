@@ -1,5 +1,5 @@
 
-#define LOG_TAG "VirtualFileSystem"
+#define LOG_TAG "VirtualFileSystem.cpp"
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
@@ -9,18 +9,18 @@
 
 #include <string.h>
 
+// yes, databaseFileName is a duplicate of default_db_file in sqlfs.c
 char databaseFileName[PATH_MAX] = { NULL };
 sqlfs_t *sqlfs = NULL;
 
 static jint VirtualFileSystem_init(JNIEnv *env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     const char *pathstr = path.c_str();
-    // TODO check if dirname exists for javaPath is dir and throw exception
     if (databaseFileName != NULL || (pathstr != NULL && strcmp(pathstr, databaseFileName) != 0)) {
         strncpy(databaseFileName, pathstr, PATH_MAX);
         sqlfs_init(databaseFileName);
     } else {
-        LOGI("%s already exists, not running sqlfs_init()", pathstr);
+        LOGI("%s already inited, not running sqlfs_init()", pathstr);
     }
 }
 
