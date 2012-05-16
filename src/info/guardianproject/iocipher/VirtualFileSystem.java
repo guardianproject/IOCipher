@@ -1,16 +1,18 @@
 package info.guardianproject.iocipher;
 
-public class VirtualFileSystem {
+public class VirtualFileSystem implements Comparable<VirtualFileSystem> {
+
+	private String dbFile = "";
 
 	static {
 		System.loadLibrary("iocipher");
 	}
 
-	public VirtualFileSystem (String file) {
+	public VirtualFileSystem(String file) {
 		init(file);
 	}
 
-	public VirtualFileSystem (java.io.File file) {
+	public VirtualFileSystem(java.io.File file) {
 		this(file.getAbsolutePath());
 	}
 
@@ -23,5 +25,10 @@ public class VirtualFileSystem {
 	public native int unmount();
 
 	public native boolean isOpen();
+
+	@Override
+	public int compareTo(VirtualFileSystem vfs) {
+		return this.dbFile.compareTo(vfs.dbFile);
+	}
 
 }
