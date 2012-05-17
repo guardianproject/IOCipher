@@ -10,6 +10,7 @@
 #include <string.h>
 
 // yes, databaseFileName is a duplicate of default_db_file in sqlfs.c
+// TODO get dbFile from VirtualFileSystem.java instance
 char databaseFileName[PATH_MAX] = { NULL };
 sqlfs_t *sqlfs = NULL;
 
@@ -26,14 +27,19 @@ static jint VirtualFileSystem_init(JNIEnv *env, jobject, jstring javaPath) {
 
 static jint VirtualFileSystem_mount(JNIEnv *env, jobject) {
     if(sqlfs != 0) {
-        LOGI("sqlfs_open: already open");
+        LOGI("Cannot mount %s, already open", databaseFileName);
         return 1;
     }
     sqlfs_open(databaseFileName, &sqlfs);
 }
 
-static jint VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring key) {
-    // TODO implement open_key
+static jint VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring javaKey) {
+    if(sqlfs != 0) {
+        LOGI("Cannot mount %s, already open", databaseFileName);
+        return 1;
+    }
+    ScopedUtfChars key(env, javaKey);
+    sqlfs_open_key(databaseFileName, key.c_str(), key.size(), &sqlfs);
 }
 
 static jint VirtualFileSystem_close(JNIEnv *env, jobject) {

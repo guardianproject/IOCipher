@@ -8,7 +8,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE     := libsqlfs
-LOCAL_CFLAGS     := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DWITH_SQLCIPHER
+LOCAL_CFLAGS     := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DHAVE_LIBSQLCIPHER
 LOCAL_C_INCLUDES := external/libsqlfs external/sqlcipher
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfs.c
 
@@ -23,10 +23,11 @@ include $(CLEAR_VARS)
 #   SQLITE_DEFAULT_AUTOVACUUM=1  causes the databases to be subject to auto-vacuum
 android_sqlite_cflags :=  -DHAVE_USLEEP=1 -DSQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=1048576 -DSQLITE_THREADSAFE=1 -DNDEBUG=1 -DSQLITE_ENABLE_MEMORY_MANAGEMENT=1 -DSQLITE_DEFAULT_AUTOVACUUM=1 -DSQLITE_TEMP_STORE=3 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_BACKWARDS -DSQLITE_ENABLE_LOAD_EXTENSION
 sqlcipher_cflags := -DSQLITE_HAS_CODEC -DHAVE_FDATASYNC=0 -Dfdatasync=fsync
+libsqlfs_cflags := -DHAVE_LIBSQLCIPHER
 
 LOCAL_MODULE    := libiocipher
 LOCAL_STATIC_LIBRARIES := libsqlfs
-LOCAL_CFLAGS += $(android_sqlite_cflags) $(sqlcipher_cflags)
+LOCAL_CFLAGS += $(android_sqlite_cflags) $(sqlcipher_cflags) $(libsqlfs_cflags)
 LOCAL_C_INCLUDES:= \
 	external/libsqlfs \
 	external/openssl/include \
