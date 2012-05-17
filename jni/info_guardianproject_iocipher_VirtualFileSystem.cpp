@@ -34,7 +34,7 @@ static void VirtualFileSystem_mount(JNIEnv *env, jobject) {
     char buf[256];
     snprintf(buf, 255, "Could not mount filesystem in %s", databaseFileName);
     if (!sqlfs_open(databaseFileName, &sqlfs))
-        jniThrowException(env, "java/io/IOException", buf);
+        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
 }
 
 static void VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring javaKey) {
@@ -44,9 +44,9 @@ static void VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring javaKey) {
     }
     ScopedUtfChars key(env, javaKey);
     char buf[256];
-    snprintf(buf, 255, "Could not mount filesystem in %s", databaseFileName);
+    snprintf(buf, 255, "Could not mount filesystem in %s, bad key given?", databaseFileName);
     if (!sqlfs_open_key(databaseFileName, key.c_str(), key.size(), &sqlfs))
-        jniThrowException(env, "java/io/IOException", buf);
+        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
 }
 
 static void VirtualFileSystem_unmount(JNIEnv *env, jobject) {
