@@ -30,15 +30,15 @@ public class VirtualFileSystem implements Comparable<VirtualFileSystem> {
 		this(file.getAbsolutePath());
 	}
 
-	private native int init(String dbFileName);
+	private native void init(String dbFileName);
 
-	public native int mount();
+	public native void mount();
 
-	public native int mount(String key);
+	public native void mount(String key);
 
-	public native int unmount();
+	public native void unmount();
 
-	public native boolean isOpen();
+	public native boolean isMounted();
 
 	@Override
 	public int compareTo(VirtualFileSystem vfs) {
