@@ -640,6 +640,28 @@ static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaB
     }
 }
 
+static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount, jlong offset) {
+    ScopedBytesRO bytes(env, javaBytes);
+    if (bytes.get() == NULL) {
+        return -1;
+    }
+    jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
+    ScopedUtfChars path(env, javaPath);
+    int result = sqlfs_proc_write(sqlfs,
+                                  path.c_str(),
+                                  reinterpret_cast<const char*>(bytes.get() + byteOffset),
+                                  byteCount,
+                                  offset,
+                                  NULL);
+    if (result < 0) {
+        throwErrnoException(env, "pwrite", result);
+        return -1;
+    } else {
+        // TODO make this stick the values into javaBytes
+        return result;
+    }
+}
+
 /*
 static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
     IoVec<ScopedBytesRW> ioVec(env, env->GetArrayLength(buffers));
@@ -784,24 +806,6 @@ static jint Posix_waitpid(JNIEnv* env, jobject, jint pid, jobject javaStatus, ji
 }
 */
 
-static jint Posix_writeBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount) {
-    ScopedBytesRO bytes(env, javaBytes);
-    if (bytes.get() == NULL) {
-        return -1;
-    }
-    jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
-    ScopedUtfChars path(env, javaPath);
-    //return throwIfNegative(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
-    int result = sqlfs_proc_write(sqlfs, path.c_str(), reinterpret_cast<const char*>(bytes.get()), byteCount, byteOffset, NULL);
-    if (result < 0) {
-        throwErrnoException(env, "write", result);
-        return -1;
-    } else {
-        // TODO make this stick the values into javaBytes
-        return result;
-    }
-}
-
 /*
 static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
     IoVec<ScopedBytesRO> ioVec(env, env->GetArrayLength(buffers));
@@ -856,7 +860,7 @@ static JNINativeMethod sMethods[] = {
 //    {"pipe", "()[Linfo/guardianproject/iocipher/FileDescriptor;", (void *)Posix_pipe},
 //    {"poll", "([Llibcore/io/StructPollfd;I)I", (void *)Posix_poll},
     {"preadBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)Posix_preadBytes},
-//    {"pwriteBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)Posix_pwriteBytes},
+    {"pwriteBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)Posix_pwriteBytes},
 //    {"readBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)Posix_readBytes},
 //    {"readv", "(Linfo/guardianproject/iocipher/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)Posix_readv},
     {"remove", "(Ljava/lang/String;)V", (void *)Posix_remove},
@@ -876,7 +880,7 @@ static JNINativeMethod sMethods[] = {
 //    {"sysconf", "(I)J", (void *)Posix_sysconf},
 //    {"uname", "()Llibcore/io/StructUtsname;", (void *)Posix_uname},
 //    {"waitpid", "(ILlibcore/util/MutableInt;I)I", (void *)Posix_waitpid},
-    {"writeBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)Posix_writeBytes},
+//    {"writeBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)Posix_writeBytes},
 //    {"writev", "(Linfo/guardianproject/iocipher/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)Posix_writev},
 };
 int register_info_guardianproject_libcore_io_Posix(JNIEnv* env) {

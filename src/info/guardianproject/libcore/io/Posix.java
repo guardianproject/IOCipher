@@ -106,24 +106,45 @@ public final class Posix implements Os {
 
 	public int write(FileDescriptor fd, ByteBuffer buffer)
 			throws ErrnoException {
+		int ret;
 		if (buffer.isDirect()) {
-			return writeBytes(fd, buffer, buffer.position(), buffer.remaining());
+			ret = pwriteBytes(fd, buffer, buffer.position(), buffer.remaining(), 0);
 		} else {
-			return writeBytes(fd, buffer.array(),
+			ret = pwriteBytes(fd, buffer.array(),
 					buffer.arrayOffset() + buffer.position(),
-					buffer.remaining());
+					buffer.remaining(), 0);
 		}
+		fd.position += ret;
+		return ret;
 	}
 
 	public int write(FileDescriptor fd, byte[] bytes, int byteOffset,
 			int byteCount) throws ErrnoException {
-		// This indirection isn't strictly necessary, but ensures that our
-		// public interface is type safe.
-		return writeBytes(fd, bytes, byteOffset, byteCount);
+		int ret = pwriteBytes(fd, bytes, byteOffset, byteCount, fd.position);
+		fd.position += byteCount;
+		return ret;
 	}
 
-	private native int writeBytes(FileDescriptor fd, Object buffer, int offset,
-			int byteCount) throws ErrnoException;
+	public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset)
+	throws ErrnoException {
+		if (buffer.isDirect()) {
+			return pwriteBytes(fd, buffer, buffer.position(), buffer.remaining(), offset);
+		} else {
+			return pwriteBytes(fd, buffer.array(),
+					buffer.arrayOffset() + buffer.position(),
+					buffer.remaining(), offset);
+		}
+	}
+
+	public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset,
+			int byteCount, long offset) throws ErrnoException {
+		// This indirection isn't strictly necessary, but ensures that our
+		// public interface is type safe.
+		return pwriteBytes(fd, bytes, byteOffset, byteCount, offset);
+	}
+
+	private native int pwriteBytes(FileDescriptor fd, Object buffer, int bufferOffset,
+			int byteCount, long offset) throws ErrnoException;
 	
 	public native StructStat stat(String path) throws ErrnoException;
 
@@ -267,21 +288,6 @@ public final class Posix implements Os {
 
 	public int poll(StructPollfd[] fds, int timeoutMs)
 			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset)
-	throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset,
-			int byteCount, long offset) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	private int pwriteBytes(FileDescriptor fd, Object buffer,
-			int bufferOffset, int byteCount, long offset) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
