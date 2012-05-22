@@ -27,7 +27,6 @@ import static info.guardianproject.libcore.io.OsConstants.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -56,7 +55,7 @@ import java.util.Random;
  * @see java.io.Serializable
  * @see java.lang.Comparable
  */
-public class File implements Serializable, Comparable<File> {
+public class File extends java.io.File {
 
     private static final long serialVersionUID = 301077366599181567L;
 
@@ -67,37 +66,6 @@ public class File implements Serializable, Comparable<File> {
     private static final Random tempFileRandom = new Random();
 
     /**
-     * The system-dependent character used to separate components in filenames ('/').
-     * Use of this (rather than hard-coding '/') helps portability to other operating systems.
-     *
-     * <p>This field is initialized from the system property "file.separator".
-     * Later changes to that property will have no effect on this field or this class.
-     */
-    public static final char separatorChar;
-
-    /**
-     * The system-dependent string used to separate components in filenames ('/').
-     * See {@link #separatorChar}.
-     */
-    public static final String separator;
-
-    /**
-     * The system-dependent character used to separate components in search paths (':').
-     * This is used to split such things as the PATH environment variable and classpath
-     * system properties into lists of directories to be searched.
-     *
-     * <p>This field is initialized from the system property "path.separator".
-     * Later changes to that property will have no effect on this field or this class.
-     */
-    public static final char pathSeparatorChar;
-
-    /**
-     * The system-dependent string used to separate components in search paths (":").
-     * See {@link #pathSeparatorChar}.
-     */
-    public static final String pathSeparator;
-
-    /**
      * The path we return from getPath. This is almost the path we were
      * given, but without duplicate adjacent slashes and without trailing
      * slashes (except for the special case of the root directory). This
@@ -106,13 +74,6 @@ public class File implements Serializable, Comparable<File> {
      * This can't be final because we override readObject.
      */
     private String path;
-
-    static {
-        separatorChar = System.getProperty("file.separator", "/").charAt(0);
-        pathSeparatorChar = System.getProperty("path.separator", ":").charAt(0);
-        separator = String.valueOf(separatorChar);
-        pathSeparator = String.valueOf(pathSeparatorChar);
-    }
 
     /**
      * Constructs a new file using the specified directory and name.
@@ -135,7 +96,8 @@ public class File implements Serializable, Comparable<File> {
      *            the path to be used for the file.
      */
     public File(String path) {
-        this.path = fixSlashes(path);
+        super(path);
+        this.path = super.getPath();
     }
 
     /**
@@ -150,16 +112,8 @@ public class File implements Serializable, Comparable<File> {
      *             if {@code name == null}.
      */
     public File(String dirPath, String name) {
-        if (name == null) {
-            throw new NullPointerException();
-        }
-        if (dirPath == null || dirPath.length() == 0) {
-            this.path = fixSlashes(name);
-        } else if (name.length() == 0) {
-            this.path = fixSlashes(dirPath);
-        } else {
-            this.path = fixSlashes(join(dirPath, name));
-        }
+        super(dirPath, name);
+        this.path = super.getPath();
     }
 
     /**
@@ -177,9 +131,8 @@ public class File implements Serializable, Comparable<File> {
      * @see java.net.URI
      */
     public File(URI uri) {
-        // check pre-conditions
-        checkURI(uri);
-        this.path = fixSlashes(uri.getPath());
+        super(uri);
+        this.path = super.getPath();
     }
 
     // Removes duplicate adjacent slashes and any trailing slash.
@@ -241,14 +194,6 @@ public class File implements Serializable, Comparable<File> {
         if (uri.getRawFragment() != null) {
             throw new IllegalArgumentException("Found fragment in URI: " + uri);
         }
-    }
-
-    /**
-     * Returns the file system roots. On Android and other Unix systems, there is
-     * a single root, {@code /}.
-     */
-    public static File[] listRoots() {
-        return new File[] { new File("/") };
     }
 
     /**
