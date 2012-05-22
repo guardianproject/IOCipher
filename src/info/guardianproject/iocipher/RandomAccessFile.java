@@ -223,7 +223,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             file.
      */
     public long getFilePointer() throws IOException {
-        return channel.position();
+        return fd.position;
     }
 
     /**
