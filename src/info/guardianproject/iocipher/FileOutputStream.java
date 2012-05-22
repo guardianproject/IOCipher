@@ -57,7 +57,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
     private FileDescriptor fd;
     private final boolean shouldClose;
 
-    /** The unique file channel. Lazily initialized because it's rarely needed. */
+    /** The unique file channel */
     private IOCipherFileChannel channel;
 
     /** File access mode */
@@ -88,6 +88,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         }
         this.mode = O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC);
         this.fd = IoBridge.open(file.getAbsolutePath(), mode);
+        this.channel = new IOCipherFileChannel(this, fd, mode);
         this.shouldClose = true;
         //TODO(ramblurr) needed? this.guard.open("close");
     }

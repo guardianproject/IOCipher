@@ -50,8 +50,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
 
     private boolean syncMetadata = false;
 
-    // The unique file channel associated with this FileInputStream (lazily
-    // initialized).
+    // The unique file channel associated with this FileInputStream
     private IOCipherFileChannel channel;
 
     private int mode;
@@ -119,6 +118,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         }
         this.mode = flags;
         this.fd = IoBridge.open(file.getAbsolutePath(), flags);
+        channel = new IOCipherFileChannel(this, this.fd, this.mode);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
