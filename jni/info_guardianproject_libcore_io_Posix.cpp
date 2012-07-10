@@ -28,7 +28,6 @@
 #include "sqlfs.h"
 
 // our replacements for missing things
-#include "stubs.h"
 
 #include <errno.h>
 #include <fcntl.h>
