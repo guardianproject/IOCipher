@@ -2,6 +2,8 @@ bin/
 gen/
 libs/
 obj/
+external/*/libs
+external/*/obj
 external/libsqlfs-build-stamp
 jni/TAGS
 # Mac OS X detritus
@@ -11,3 +13,4 @@ build.xml
 local.properties
 proguard-project.txt
 proguard.cfg
+*~
