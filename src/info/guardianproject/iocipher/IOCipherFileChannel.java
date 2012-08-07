@@ -234,8 +234,9 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	}
 
 	private int readImpl(ByteBuffer buffer, long position) throws IOException {
-		// buffer.checkWritable(); // TODO ByteBuffer.checkWritable() is
-		// protected
+		if(buffer.isReadOnly()) {
+			throw new IllegalArgumentException("read-only buffer");
+		}
 		checkOpen();
 		checkReadable();
 		if (!buffer.hasRemaining()) {
