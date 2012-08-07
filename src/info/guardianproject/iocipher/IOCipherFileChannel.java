@@ -16,10 +16,16 @@
 
 package info.guardianproject.iocipher;
 
+import static info.guardianproject.libcore.io.OsConstants.EAGAIN;
+import static info.guardianproject.libcore.io.OsConstants.O_ACCMODE;
+import static info.guardianproject.libcore.io.OsConstants.O_RDONLY;
+import static info.guardianproject.libcore.io.OsConstants.O_WRONLY;
+import static info.guardianproject.libcore.io.OsConstants.SEEK_CUR;
+import static info.guardianproject.libcore.io.OsConstants.SEEK_END;
+import static info.guardianproject.libcore.io.OsConstants.SEEK_SET;
 import info.guardianproject.libcore.io.ErrnoException;
 import info.guardianproject.libcore.io.Libcore;
 import info.guardianproject.libcore.io.StructStat;
-import static info.guardianproject.libcore.io.OsConstants.*;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -30,8 +36,20 @@ import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NonReadableChannelException;
 import java.nio.channels.NonWritableChannelException;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 
+/**
+ * Our implementation of the FileChannel class.
+ * It supports basic i/o operations, but not everything you
+ * might be accustomed to from the java NIO classes.
+ *
+ * Unsupported operations:
+ *  * mmap
+ *  * file locking
+ *  * scattered reads / gathered writes (io vectors, readv, writev)
+ */
 public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 		ByteChannel {
 
@@ -77,10 +95,11 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 * Any outstanding threads blocked on I/O operations on this channel must be
 	 * released with either a normal return code, or by throwing an
 	 * {@code AsynchronousCloseException}.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if a problem occurs while closing the channel.
 	 */
+	@Override
 	protected void implCloseChannel() throws IOException {
 		if (stream instanceof Closeable) {
 			((Closeable) stream).close();
@@ -106,7 +125,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 * time, etc. Note that passing <code>true</code> may invoke an underlying
 	 * write to the operating system (if the platform is maintaining metadata
 	 * such as last access time), even if the channel is opened read-only.
-	 * 
+	 *
 	 * @param metadata
 	 *            {@code true} if the file metadata should be flushed in
 	 *            addition to the file content, {@code false} otherwise.
@@ -131,7 +150,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 * track the position in open files for us, we do it inside of this class.
 	 * This class wraps a {@link FileDescriptor}, so you cannot specify one as
 	 * an argument.
-	 * 
+	 *
 	 * @param offset
 	 *            the new position to seek to.
 	 * @param whence
@@ -149,10 +168,10 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 *            SEEK_END} then file pointer is set to <i>file size +
 	 *            offset</i></li>
 	 *            </ul>
-	 * 
+	 *
 	 * @throws ClosedChannelException
 	 *             if this channel is already closed.
-	 * 
+	 *
 	 * @return new position of file pointer
 	 */
 	public long lseek(long offset, int whence) throws IOException {
@@ -176,7 +195,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 
 	/**
 	 * Returns the current value of the file position pointer.
-	 * 
+	 *
 	 * @return the current position as a positive integer number of bytes from
 	 *         the start of the file.
 	 * @throws ClosedChannelException
@@ -196,7 +215,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 * size, attempts to read will return end of file. Write operations will
 	 * succeed but they will fill the bytes between the current end of file and
 	 * the new position with the required number of (unspecified) byte values.
-	 * 
+	 *
 	 * @param newPosition
 	 *            the new file position, in bytes.
 	 * @return the receiver.
@@ -266,7 +285,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 * <p>
 	 * Upon completion, the buffer's position is set to the end of the bytes
 	 * that have been read. The buffer's limit is not changed.
-	 * 
+	 *
 	 * @param buffer
 	 *            the byte buffer to receive the bytes.
 	 * @return the number of bytes actually read.
@@ -283,6 +302,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 *             if the channel has not been opened in a mode that permits
 	 *             reading.
 	 */
+	@Override
 	public int read(ByteBuffer buffer) throws IOException {
 		return readImpl(buffer, -1);
 	}
@@ -299,7 +319,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 * read.
 	 * <p>
 	 * Note that the file position is unmodified by this method.
-	 * 
+	 *
 	 * @param buffer
 	 *            the buffer to receive the bytes.
 	 * @param position
@@ -331,7 +351,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 
 	/**
 	 * Returns the size of the file underlying this channel in bytes.
-	 * 
+	 *
 	 * @return the size of the file in bytes.
 	 * @throws ClosedChannelException
 	 *             if this channel is closed.
@@ -347,30 +367,37 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 		}
 	}
 
-	/**
-	 * Truncates the file underlying this channel to a given size. Any bytes
-	 * beyond the given size are removed from the file. If there are no bytes
-	 * beyond the given size then the file contents are unmodified.
-	 * <p>
-	 * If the file position is currently greater than the given size, then it is
-	 * set to the new size.
-	 * 
-	 * @param size
-	 *            the maximum size of the underlying file.
-	 * @throws IllegalArgumentException
-	 *             if the requested size is negative.
-	 * @throws ClosedChannelException
-	 *             if this channel is closed.
-	 * @throws NonWritableChannelException
-	 *             if the channel cannot be written to.
-	 * @throws IOException
-	 *             if another I/O error occurs.
-	 * @return this channel.
-	 */
-	/*
-	 * public IOCipherFileChannel truncate(long size) throws IOException { //
-	 * TODO implement IOCipherFileChannel truncate }
-	 */
+	private int writeImpl(ByteBuffer buffer, long position) throws IOException {
+        checkOpen();
+        checkWritable();
+        if (buffer == null) {
+            throw new NullPointerException("buffer == null");
+        }
+        if (!buffer.hasRemaining()) {
+            return 0;
+        }
+        int bytesWritten = 0;
+        boolean completed = false;
+        try {
+            begin();
+            try {
+                if (position == -1) {
+                    bytesWritten = Libcore.os.write(fd, buffer);
+                } else {
+                    bytesWritten = Libcore.os.pwrite(fd, buffer, position);
+                }
+            } catch (ErrnoException errnoException) {
+                throw errnoException.rethrowAsIOException();
+            }
+            completed = true;
+        } finally {
+            end(completed);
+        }
+        if (bytesWritten > 0) {
+            buffer.position(buffer.position() + bytesWritten);
+        }
+        return bytesWritten;
+    }
 
 	/**
 	 * Writes bytes from the given byte buffer to this file channel.
@@ -379,7 +406,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 * some number of bytes are written (up to the remaining number of bytes in
 	 * the buffer) the file position is increased by the number of bytes
 	 * actually written.
-	 * 
+	 *
 	 * @param src
 	 *            the byte buffer containing the bytes to be written.
 	 * @return the number of bytes actually written.
@@ -397,9 +424,165 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 *             if another I/O error occurs, details are in the message.
 	 * @see java.nio.channels.WritableByteChannel#write(java.nio.ByteBuffer)
 	 */
+	@Override
 	public int write(ByteBuffer src) throws IOException {
-		// TODO implement
-		return -1;
+		return writeImpl(src, -1);
+	}
+
+	/**
+     * Reads up to {@code count} bytes from {@code src} and stores them in this
+     * channel's file starting at {@code position}. No bytes are transferred if
+     * {@code position} is larger than the size of this channel's file. Less
+     * than {@code count} bytes are transferred if there are less bytes
+     * remaining in the source channel or if the source channel is non-blocking
+     * and has less than {@code count} bytes immediately available in its output
+     * buffer.
+     * <p>
+     * Note that this channel's position is not modified.
+     *
+     * @param src
+     *            the source channel to read bytes from.
+     * @param position
+     *            the non-negative start position.
+     * @param count
+     *            the non-negative number of bytes to transfer.
+     * @return the number of bytes that are transferred.
+     * @throws IllegalArgumentException
+     *             if the parameters are invalid.
+     * @throws NonReadableChannelException
+     *             if the source channel is not readable.
+     * @throws NonWritableChannelException
+     *             if this channel is not writable.
+     * @throws ClosedChannelException
+     *             if either channel has already been closed.
+     * @throws AsynchronousCloseException
+     *             if either channel is closed by other threads during this
+     *             operation.
+     * @throws ClosedByInterruptException
+     *             if the thread is interrupted during this operation.
+     * @throws IOException
+     *             if any I/O error occurs.
+     */
+	public long transferFrom(ReadableByteChannel src, long position, long count)
+			throws IOException {
+		checkOpen();
+        if (!src.isOpen()) {
+            throw new ClosedChannelException();
+        }
+        checkWritable();
+        if (position < 0 || count < 0 || count > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("position=" + position + " count=" + count);
+        }
+        if (position > size()) {
+            return 0;
+        }
+
+        // TODO investigate more performant write methods (mmap?)
+        // Right now all we can do is read and write via userspace.
+        ByteBuffer buffer = ByteBuffer.allocate((int) count);
+        src.read(buffer);
+        buffer.flip();
+        return write(buffer, position);
+	}
+
+	/**
+     * Reads up to {@code count} bytes from this channel's file starting at
+     * {@code position} and writes them to {@code target}. No bytes are
+     * transferred if {@code position} is larger than the size of this channel's
+     * file. Less than {@code count} bytes are transferred if there less bytes
+     * available from this channel's file or if the target channel is
+     * non-blocking and has less than {@code count} bytes free in its input
+     * buffer.
+     * <p>
+     * Note that this channel's position is not modified.
+     *
+     * @param position
+     *            the non-negative position to begin.
+     * @param count
+     *            the non-negative number of bytes to transfer.
+     * @param target
+     *            the target channel to write to.
+     * @return the number of bytes that were transferred.
+     * @throws IllegalArgumentException
+     *             if the parameters are invalid.
+     * @throws NonReadableChannelException
+     *             if this channel is not readable.
+     * @throws NonWritableChannelException
+     *             if the target channel is not writable.
+     * @throws ClosedChannelException
+     *             if either channel has already been closed.
+     * @throws AsynchronousCloseException
+     *             if either channel is closed by other threads during this
+     *             operation.
+     * @throws ClosedByInterruptException
+     *             if the thread is interrupted during this operation.
+     * @throws IOException
+     *             if any I/O error occurs.
+     */
+	public long transferTo(long position, long count, WritableByteChannel target)
+			throws IOException {
+		checkOpen();
+        if (!target.isOpen()) {
+            throw new ClosedChannelException();
+        }
+        checkReadable();
+        if (target instanceof IOCipherFileChannel) {
+            ((IOCipherFileChannel) target).checkWritable();
+        }
+        if (position < 0 || count < 0) {
+            throw new IllegalArgumentException("position=" + position + " count=" + count);
+        }
+
+        if (count == 0 || position >= size()) {
+            return 0;
+        }
+        count = Math.min(count, size() - position);
+
+
+        try {
+        	ByteBuffer buffer = ByteBuffer.allocate((int) count);
+            read(buffer, position);
+            buffer.flip();
+            return target.write(buffer);
+        } finally {
+            // TODO free buffer here? original android impl does.
+        }
+	}
+
+	/**
+	 * Truncates the file underlying this channel to a given size. Any bytes
+	 * beyond the given size are removed from the file. If there are no bytes
+	 * beyond the given size then the file contents are unmodified.
+	 * <p>
+	 * If the file position is currently greater than the given size, then it is
+	 * set to the new size.
+	 *
+	 * @param size
+	 *            the maximum size of the underlying file.
+	 * @throws IllegalArgumentException
+	 *             if the requested size is negative.
+	 * @throws ClosedChannelException
+	 *             if this channel is closed.
+	 * @throws NonWritableChannelException
+	 *             if the channel cannot be written to.
+	 * @throws IOException
+	 *             if another I/O error occurs.
+	 * @return this channel.
+	 */
+	public IOCipherFileChannel truncate(long size) throws IOException {
+		checkOpen();
+        if (size < 0) {
+            throw new IllegalArgumentException("size: " + size);
+        }
+        checkWritable();
+        if (size < size()) {
+            try {
+                Libcore.os.ftruncate(fd, size);
+            } catch (ErrnoException errnoException) {
+                throw errnoException.rethrowAsIOException();
+            }
+        }
+        return this;
 	}
 
 	/**
@@ -415,7 +598,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 * byte values.
 	 * <p>
 	 * Note that the file position is not modified by this method.
-	 * 
+	 *
 	 * @param buffer
 	 *            the buffer containing the bytes to be written.
 	 * @param position
@@ -437,9 +620,29 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 	 * @throws IOException
 	 *             if another I/O error occurs.
 	 */
-	/*
-	 * public int write(ByteBuffer buffer, long position) throws IOException {
-	 * // TODO implement }
-	 */
+	public int write(ByteBuffer buffer, long position) throws IOException {
+		if (position < 0) {
+            throw new IllegalArgumentException("position: " + position);
+        }
+        return writeImpl(buffer, position);
+	}
+
+
+
+	// TODO implement readv and writev ?
+
+	/*@Override
+	public long read(ByteBuffer[] buffers, int start, int number)
+			throws IOException {
+		Arrays.checkOffsetAndCount(buffers.length, offset, length);
+        checkOpen();
+        checkReadable();
+        return transferIoVec(new IoVec(buffers, offset, length, IoVec.Direction.READV));
+	}*/
+	/*@Override
+	public long write(ByteBuffer[] buffers, int offset, int length)
+			throws IOException {
+
+	}*/
 
 }
