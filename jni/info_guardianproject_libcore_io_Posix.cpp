@@ -540,8 +540,22 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     ffi.flags = flags;
     ffi.direct_io = 0; // don't use direct_io so this open() call will create a file
 
+
+    int do_create = 0;
+    // libsqfs' open() doesn't create.
+    if( (flags & O_CREAT) && (flags & O_EXCL) ) {
+    	// we must attempt a create
+    	do_create = 1;
+    } else if ( (flags & O_CREAT) ) {
+    	int rc = TEMP_FAILURE_RETRY(sqlfs_proc_access(sqlfs, path.c_str(), F_OK));
+		if (rc != 0) {
+			// file does not exist
+			do_create = 1;
+		}
+    }
+
     int result = 0;
-    if(flags & O_CREAT) {
+    if( do_create ) {
         LOGI("sqlfs_proc_create");
         char buf = 0;
         result = sqlfs_proc_create(sqlfs, path.c_str(), mode, &ffi);
