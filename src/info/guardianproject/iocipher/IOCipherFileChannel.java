@@ -42,8 +42,10 @@ import java.nio.channels.spi.AbstractInterruptibleChannel;
 
 /**
  * Our implementation of the FileChannel class.
- * It supports basic i/o operations, but not everything you
- * might be accustomed to from the java NIO classes.
+ * It supports basic I/O operations, but not everything you
+ * might be accustomed to from the Java NIO classes.
+ *
+ * It is not a drop in replacement for FileChannel.
  *
  * Unsupported operations:
  *  * mmap
