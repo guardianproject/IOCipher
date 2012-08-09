@@ -57,7 +57,7 @@ extern sqlfs_t *sqlfs;
         if (NAME == NULL) return NULL;
 
 static void throwException(JNIEnv* env, jclass exceptionClass, jmethodID ctor3, jmethodID ctor2,
-        const char* functionName, int error) {
+                           const char* functionName, int error) {
     jthrowable cause = NULL;
     if (env->ExceptionCheck()) {
         cause = env->ExceptionOccurred();
@@ -82,10 +82,10 @@ static void throwException(JNIEnv* env, jclass exceptionClass, jmethodID ctor3, 
 
 static void throwErrnoException(JNIEnv* env, const char* functionName, int error) {
     static jmethodID ctor3 = env->GetMethodID(JniConstants::errnoExceptionClass,
-            "<init>", "(Ljava/lang/String;ILjava/lang/Throwable;)V");
+                             "<init>", "(Ljava/lang/String;ILjava/lang/Throwable;)V");
     static jmethodID ctor2 = env->GetMethodID(JniConstants::errnoExceptionClass,
-            "<init>", "(Ljava/lang/String;I)V");
-/* FUSE/sqlfs returns negative errno values, but throwException wants the positive ones */
+                             "<init>", "(Ljava/lang/String;I)V");
+    /* FUSE/sqlfs returns negative errno values, but throwException wants the positive ones */
     throwException(env, JniConstants::errnoExceptionClass, ctor3, ctor2, functionName, -error);
 }
 
@@ -177,22 +177,22 @@ static jobject makeStructPasswd(JNIEnv* env, const struct passwd& pw) {
     TO_JAVA_STRING(pw_dir, pw.pw_dir);
     TO_JAVA_STRING(pw_shell, pw.pw_shell);
     static jmethodID ctor = env->GetMethodID(JniConstants::structPasswdClass, "<init>",
-            "(Ljava/lang/String;IILjava/lang/String;Ljava/lang/String;)V");
+                            "(Ljava/lang/String;IILjava/lang/String;Ljava/lang/String;)V");
     return env->NewObject(JniConstants::structPasswdClass, ctor,
-            pw_name, static_cast<jint>(pw.pw_uid), static_cast<jint>(pw.pw_gid), pw_dir, pw_shell);
+                          pw_name, static_cast<jint>(pw.pw_uid), static_cast<jint>(pw.pw_gid), pw_dir, pw_shell);
 }
 
 static jobject makeStructStat(JNIEnv* env, const struct stat& sb) {
     static jmethodID ctor = env->GetMethodID(JniConstants::structStatClass, "<init>",
-            "(JJIJIIJJJJJJJ)V");
+                            "(JJIJIIJJJJJJJ)V");
     return env->NewObject(JniConstants::structStatClass, ctor,
-            static_cast<jlong>(sb.st_dev), static_cast<jlong>(sb.st_ino),
-            static_cast<jint>(sb.st_mode), static_cast<jlong>(sb.st_nlink),
-            static_cast<jint>(sb.st_uid), static_cast<jint>(sb.st_gid),
-            static_cast<jlong>(sb.st_rdev), static_cast<jlong>(sb.st_size),
-            static_cast<jlong>(sb.st_atime), static_cast<jlong>(sb.st_mtime),
-            static_cast<jlong>(sb.st_ctime), static_cast<jlong>(sb.st_blksize),
-            static_cast<jlong>(sb.st_blocks));
+                          static_cast<jlong>(sb.st_dev), static_cast<jlong>(sb.st_ino),
+                          static_cast<jint>(sb.st_mode), static_cast<jlong>(sb.st_nlink),
+                          static_cast<jint>(sb.st_uid), static_cast<jint>(sb.st_gid),
+                          static_cast<jlong>(sb.st_rdev), static_cast<jlong>(sb.st_size),
+                          static_cast<jlong>(sb.st_atime), static_cast<jlong>(sb.st_mtime),
+                          static_cast<jlong>(sb.st_ctime), static_cast<jlong>(sb.st_blksize),
+                          static_cast<jlong>(sb.st_blocks));
 }
 
 static jobject makeStructStatFs(JNIEnv* env, const struct statfs& sb) {
@@ -201,18 +201,18 @@ static jobject makeStructStatFs(JNIEnv* env, const struct statfs& sb) {
     STATIC_ASSERT(sizeof(sb.f_blocks) == sizeof(jlong), statfs_not_64_bit);
 
     static jmethodID ctor = env->GetMethodID(JniConstants::structStatFsClass, "<init>",
-            "(JJJJJJJJ)V");
+                            "(JJJJJJJJ)V");
     return env->NewObject(JniConstants::structStatFsClass, ctor, static_cast<jlong>(sb.f_bsize),
-            static_cast<jlong>(sb.f_blocks), static_cast<jlong>(sb.f_bfree),
-            static_cast<jlong>(sb.f_bavail), static_cast<jlong>(sb.f_files),
-            static_cast<jlong>(sb.f_ffree), static_cast<jlong>(sb.f_namelen),
-            static_cast<jlong>(sb.f_frsize));
+                          static_cast<jlong>(sb.f_blocks), static_cast<jlong>(sb.f_bfree),
+                          static_cast<jlong>(sb.f_bavail), static_cast<jlong>(sb.f_files),
+                          static_cast<jlong>(sb.f_ffree), static_cast<jlong>(sb.f_namelen),
+                          static_cast<jlong>(sb.f_frsize));
 }
 
 static jobject makeStructTimeval(JNIEnv* env, const struct timeval& tv) {
     static jmethodID ctor = env->GetMethodID(JniConstants::structTimevalClass, "<init>", "(JJ)V");
     return env->NewObject(JniConstants::structTimevalClass, ctor,
-            static_cast<jlong>(tv.tv_sec), static_cast<jlong>(tv.tv_usec));
+                          static_cast<jlong>(tv.tv_sec), static_cast<jlong>(tv.tv_usec));
 }
 
 static jobject makeStructUtsname(JNIEnv* env, const struct utsname& buf) {
@@ -222,9 +222,9 @@ static jobject makeStructUtsname(JNIEnv* env, const struct utsname& buf) {
     TO_JAVA_STRING(version, buf.version);
     TO_JAVA_STRING(machine, buf.machine);
     static jmethodID ctor = env->GetMethodID(JniConstants::structUtsnameClass, "<init>",
-            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+                            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     return env->NewObject(JniConstants::structUtsnameClass, ctor,
-            sysname, nodename, release, version, machine);
+                          sysname, nodename, release, version, machine);
 };
 
 static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
@@ -544,14 +544,14 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     int do_create = 0;
     // libsqfs' open() doesn't create.
     if( (flags & O_CREAT) && (flags & O_EXCL) ) {
-    	// we must attempt a create
-    	do_create = 1;
+        // we must attempt a create
+        do_create = 1;
     } else if ( (flags & O_CREAT) ) {
-    	int rc = TEMP_FAILURE_RETRY(sqlfs_proc_access(sqlfs, path.c_str(), F_OK));
-		if (rc != 0) {
-			// file does not exist
-			do_create = 1;
-		}
+        int rc = TEMP_FAILURE_RETRY(sqlfs_proc_access(sqlfs, path.c_str(), F_OK));
+        if (rc != 0) {
+            // file does not exist
+            do_create = 1;
+        }
     }
 
     int result = 0;
@@ -563,13 +563,13 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
         LOGI("sqlfs_proc_open");
         result = sqlfs_proc_open(sqlfs, path.c_str(), &ffi);
     }
-	if (result < 0) {
-		throwErrnoException(env, "open", result);
-		return NULL;
-	} else {
-		sqlfs_proc_chmod(sqlfs, path.c_str(), mode);
-		return jniCreateFileDescriptor(env, javaPath);
-	}
+    if (result < 0) {
+        throwErrnoException(env, "open", result);
+        return NULL;
+    } else {
+        sqlfs_proc_chmod(sqlfs, path.c_str(), mode);
+        return jniCreateFileDescriptor(env, javaPath);
+    }
 }
 
 /*
