@@ -28,6 +28,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <dirent.h>
 #include <errno.h>
@@ -141,7 +142,10 @@ static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     DirEntries entries;
     // using FUSE readdir in old getdir() style which gives us the whole thing at once
     sqlfs_proc_readdir(sqlfs, path.c_str(), (void *)&entries, (fuse_fill_dir_t)fill_dir, 0, NULL);
+    // filter "." and ".." from list of entries
     // Translate the intermediate form into a Java String[].
+    entries.erase(std::remove(entries.begin(), entries.end(), std::string(".")), entries.end());
+    entries.erase(std::remove(entries.begin(), entries.end(), std::string("..")), entries.end());
     return toStringArray(env, entries);
 }
 
