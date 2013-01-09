@@ -87,7 +87,7 @@ static jlong File_lastModifiedImpl(JNIEnv* env, jclass, jstring javaPath) {
     }
 
     key_attr attr;
-    sqlfs_get_attr(sqlfs, "mtime", &attr);
+    sqlfs_get_attr(0, "mtime", &attr);
     return static_cast<jlong>(attr.mtime) * 1000L;
 }
 
@@ -100,15 +100,15 @@ static jboolean File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, 
 
     // We want to preserve the access time.
     key_attr atime;
-    sqlfs_get_attr(sqlfs, "atime", &atime);
+    sqlfs_get_attr(0, "atime", &atime);
 
     // TODO: we could get microsecond resolution with utimes(3), "legacy" though it is.
     utimbuf times;
     key_attr mtime;
     mtime.mtime = static_cast<time_t>(ms / 1000);
-    if(!sqlfs_set_attr(sqlfs, "mtime", &mtime))
+    if(!sqlfs_set_attr(0, "mtime", &mtime))
         return 0;
-    if(!sqlfs_set_attr(sqlfs, "atime", &atime))
+    if(!sqlfs_set_attr(0, "atime", &atime))
         return 0;
     return 1;
 }
@@ -134,14 +134,14 @@ static jboolean File_isDirectoryImpl(JNIEnv* env, jclass, jstring javaPath) {
     if (path.c_str() == NULL) {
         return JNI_FALSE;
     }
-    return sqlfs_is_dir(sqlfs, path.c_str());
+    return sqlfs_is_dir(0, path.c_str());
 }
 
 static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     DirEntries entries;
     // using FUSE readdir in old getdir() style which gives us the whole thing at once
-    sqlfs_proc_readdir(sqlfs, path.c_str(), (void *)&entries, (fuse_fill_dir_t)fill_dir, 0, NULL);
+    sqlfs_proc_readdir(0, path.c_str(), (void *)&entries, (fuse_fill_dir_t)fill_dir, 0, NULL);
     // filter "." and ".." from list of entries
     // Translate the intermediate form into a Java String[].
     entries.erase(std::remove(entries.begin(), entries.end(), std::string(".")), entries.end());

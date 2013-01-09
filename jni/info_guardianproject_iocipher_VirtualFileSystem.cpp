@@ -33,8 +33,8 @@ static void VirtualFileSystem_mount(JNIEnv *env, jobject) {
     }
     char buf[256];
     snprintf(buf, 255, "Could not mount filesystem in %s", databaseFileName);
-    if (!sqlfs_open(databaseFileName, &sqlfs))
-        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
+//     if (!sqlfs_open(databaseFileName, &sqlfs))
+//         jniThrowException(env, "java/lang/IllegalArgumentException", buf);
 }
 
 static void VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring javaKey) {

@@ -236,7 +236,7 @@ static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     // TODO implement lstat() once symlink support is added
     if (isLstat)
         jniThrowRuntimeException(env, "lstat() is not implemented");
-    int rc = TEMP_FAILURE_RETRY(sqlfs_proc_getattr(sqlfs, path.c_str(), &sb));
+    int rc = TEMP_FAILURE_RETRY(sqlfs_proc_getattr(0, path.c_str(), &sb));
     if (rc < 0) {
         throwErrnoException(env, isLstat ? "lstat" : "stat", rc);
         return NULL;
@@ -291,7 +291,7 @@ static jboolean Posix_access(JNIEnv* env, jobject, jstring javaPath, jint mode) 
     if (path.c_str() == NULL) {
         return JNI_FALSE;
     }
-    int rc = TEMP_FAILURE_RETRY(sqlfs_proc_access(sqlfs, path.c_str(), mode));
+    int rc = TEMP_FAILURE_RETRY(sqlfs_proc_access(0, path.c_str(), mode));
     if (rc == -1) {
         throwErrnoException(env, "access", rc);
     }
@@ -303,7 +303,7 @@ static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     if (path.c_str() == NULL) {
         return;
     }
-    throwIfNegative(env, "chmod", TEMP_FAILURE_RETRY(sqlfs_proc_chmod(sqlfs, path.c_str(), mode)));
+    throwIfNegative(env, "chmod", TEMP_FAILURE_RETRY(sqlfs_proc_chmod(0, path.c_str(), mode)));
 }
 
 static void Posix_close(JNIEnv* env, jobject, jobject javaFd) {
@@ -383,7 +383,7 @@ static jobject Posix_fstat(JNIEnv* env, jobject, jobject javaFd) {
 static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    throwIfNegative(env, "fsync", TEMP_FAILURE_RETRY(sqlfs_proc_fsync(sqlfs, path.c_str(), 0, NULL)));
+    throwIfNegative(env, "fsync", TEMP_FAILURE_RETRY(sqlfs_proc_fsync(0, path.c_str(), 0, NULL)));
 }
 
 /* in sqlfs, truncate() and ftruncate() do the same thing since there
@@ -391,7 +391,7 @@ static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
 static void Posix_ftruncate(JNIEnv* env, jobject, jobject javaFd, jlong length) {
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    throwIfNegative(env, "ftruncate", TEMP_FAILURE_RETRY(sqlfs_proc_truncate(sqlfs, path.c_str(), length)));
+    throwIfNegative(env, "ftruncate", TEMP_FAILURE_RETRY(sqlfs_proc_truncate(0, path.c_str(), length)));
 }
 
 /*
@@ -482,7 +482,7 @@ static void Posix_link(JNIEnv* env, jobject, jstring javaFrom, jstring javaTo) {
     if (from.c_str() == NULL || from.c_str() == NULL) {
         return;
     }
-    throwIfNegative(env, "link", TEMP_FAILURE_RETRY(sqlfs_proc_link(sqlfs, from.c_str(), from.c_str())));
+    throwIfNegative(env, "link", TEMP_FAILURE_RETRY(sqlfs_proc_link(0, from.c_str(), from.c_str())));
 }
 
 static void Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
@@ -495,7 +495,7 @@ static void Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
         LOGE("VirtualFileSystem is not open");
         return;
     }
-    throwIfNegative(env, "mkdir", TEMP_FAILURE_RETRY(sqlfs_proc_mkdir(sqlfs, path.c_str(), mode)));
+    throwIfNegative(env, "mkdir", TEMP_FAILURE_RETRY(sqlfs_proc_mkdir(0, path.c_str(), mode)));
 }
 
 /*
@@ -547,7 +547,7 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
         // we must attempt a create
         do_create = 1;
     } else if ( (flags & O_CREAT) ) {
-        int rc = TEMP_FAILURE_RETRY(sqlfs_proc_access(sqlfs, path.c_str(), F_OK));
+        int rc = TEMP_FAILURE_RETRY(sqlfs_proc_access(0, path.c_str(), F_OK));
         if (rc != 0) {
             // file does not exist
             do_create = 1;
@@ -558,16 +558,16 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     if( do_create ) {
         LOGI("sqlfs_proc_create");
         char buf = 0;
-        result = sqlfs_proc_create(sqlfs, path.c_str(), mode, &ffi);
+        result = sqlfs_proc_create(0, path.c_str(), mode, &ffi);
     } else {
         LOGI("sqlfs_proc_open");
-        result = sqlfs_proc_open(sqlfs, path.c_str(), &ffi);
+        result = sqlfs_proc_open(0, path.c_str(), &ffi);
     }
     if (result < 0) {
         throwErrnoException(env, "open", result);
         return NULL;
     } else {
-        sqlfs_proc_chmod(sqlfs, path.c_str(), mode);
+        sqlfs_proc_chmod(0, path.c_str(), mode);
         return jniCreateFileDescriptor(env, javaPath);
     }
 }
@@ -642,7 +642,7 @@ static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaB
     }
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    int result = sqlfs_proc_read(sqlfs, path.c_str(), reinterpret_cast<char*>(bytes.get() + byteOffset), byteCount, (off_t)offset, NULL);
+    int result = sqlfs_proc_read(0, path.c_str(), reinterpret_cast<char*>(bytes.get() + byteOffset), byteCount, (off_t)offset, NULL);
     if (result < 0) {
         if (result != -EIO) { // sqlfs_proc_open returns EIO on end-of-file
             throwErrnoException(env, "pread", result);
@@ -660,7 +660,7 @@ static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray j
     }
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    int result = sqlfs_proc_write(sqlfs,
+    int result = sqlfs_proc_write(0,
                                   path.c_str(),
                                   reinterpret_cast<const char*>(bytes.get() + byteOffset),
                                   byteCount,
@@ -691,10 +691,10 @@ static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
     if (path.c_str() == NULL) {
         return;
     }
-    if(sqlfs_is_dir(sqlfs, path.c_str()))
-        throwIfNegative(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(sqlfs, path.c_str())));
+    if(sqlfs_is_dir(0, path.c_str()))
+        throwIfNegative(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(0, path.c_str())));
     else
-        throwIfNegative(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(sqlfs, path.c_str())));
+        throwIfNegative(env, "remove", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(0, path.c_str())));
 }
 
 static void Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
@@ -706,7 +706,7 @@ static void Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring java
     if (newPath.c_str() == NULL) {
         return;
     }
-    throwIfNegative(env, "rename", TEMP_FAILURE_RETRY(sqlfs_proc_rename(sqlfs, oldPath.c_str(), newPath.c_str())));
+    throwIfNegative(env, "rename", TEMP_FAILURE_RETRY(sqlfs_proc_rename(0, oldPath.c_str(), newPath.c_str())));
 }
 
 static void Posix_rmdir(JNIEnv* env, jobject, jstring javaPath) {
@@ -714,7 +714,7 @@ static void Posix_rmdir(JNIEnv* env, jobject, jstring javaPath) {
     if (path.c_str() == NULL) {
         return;
     }
-    throwIfNegative(env, "rmdir", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(sqlfs, path.c_str())));
+    throwIfNegative(env, "rmdir", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(0, path.c_str())));
 }
 
 /*
@@ -778,7 +778,7 @@ static void Posix_symlink(JNIEnv* env, jobject, jstring javaOldPath, jstring jav
     if (newPath.c_str() == NULL) {
         return;
     }
-    throwIfNegative(env, "symlink", TEMP_FAILURE_RETRY(sqlfs_proc_symlink(sqlfs, oldPath.c_str(), newPath.c_str())));
+    throwIfNegative(env, "symlink", TEMP_FAILURE_RETRY(sqlfs_proc_symlink(0, oldPath.c_str(), newPath.c_str())));
 }
 
 static void Posix_unlink(JNIEnv* env, jobject, jstring javaPath) {
@@ -786,7 +786,7 @@ static void Posix_unlink(JNIEnv* env, jobject, jstring javaPath) {
     if (path.c_str() == NULL) {
         return;
     }
-    throwIfNegative(env, "unlink", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(sqlfs, path.c_str())));
+    throwIfNegative(env, "unlink", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(0, path.c_str())));
 }
 
 /*
