@@ -9,7 +9,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE     := libsqlfs
 LOCAL_CFLAGS     := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DHAVE_LIBSQLCIPHER
-LOCAL_C_INCLUDES := external/libsqlfs external/sqlcipher
+LOCAL_C_INCLUDES := external/libsqlfs external/sqlcipher external
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfs.c
 
 include $(BUILD_STATIC_LIBRARY)
