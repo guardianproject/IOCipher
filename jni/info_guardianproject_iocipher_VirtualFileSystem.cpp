@@ -36,7 +36,11 @@ static void VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring javaKey) {
     char buf[256];
     snprintf(buf, 255, "Could not mount filesystem in %s, bad key given?", databaseFileName);
 
-    // TODO detect wrong key and throw error
+    sqlfs_t *sqlfs = 0;
+    if(!sqlfs_open_key(databaseFileName, key.c_str(), &sqlfs)) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
+    }
+    sqlfs_close(sqlfs);
     sqlfs_init_key(databaseFileName, key.c_str());
 }
 
