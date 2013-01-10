@@ -49,8 +49,6 @@
 /* right now, we use a single global virtual file system so we don't
  * have to map the structs sqlfs_t and sqlite3 to Java code */
 extern char databaseFileName[PATH_MAX];
-extern sqlfs_t *sqlfs;
-
 
 #define TO_JAVA_STRING(NAME, EXP) \
         jstring NAME = env->NewStringUTF(EXP); \
@@ -490,11 +488,7 @@ static void Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     if (path.c_str() == NULL) {
         return;
     }
-    if (sqlfs == NULL) {
-        // TODO throw exception warning that VirtualFileSystem is not open
-        LOGE("VirtualFileSystem is not open");
-        return;
-    }
+    // TODO throw exception warning that VirtualFileSystem is not open
     throwIfNegative(env, "mkdir", TEMP_FAILURE_RETRY(sqlfs_proc_mkdir(0, path.c_str(), mode)));
 }
 

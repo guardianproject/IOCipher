@@ -12,53 +12,41 @@
 
 // yes, databaseFileName is a duplicate of default_db_file in sqlfs.c
 // TODO get dbFile from VirtualFileSystem.java instance
-char databaseFileName[PATH_MAX] = { NULL };
-sqlfs_t *sqlfs = NULL;
+char databaseFileName[PATH_MAX] = { 0 };
 
 static void VirtualFileSystem_init(JNIEnv *env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     const char *pathstr = path.c_str();
-    if (databaseFileName != NULL || (pathstr != NULL && strcmp(pathstr, databaseFileName) != 0)) {
+    if (databaseFileName != 0 || (pathstr != 0 && strcmp(pathstr, databaseFileName) != 0)) {
         strncpy(databaseFileName, pathstr, PATH_MAX);
-        sqlfs_init(databaseFileName);
     } else {
         LOGI("%s already inited, not running sqlfs_init()", pathstr);
     }
 }
 
 static void VirtualFileSystem_mount(JNIEnv *env, jobject) {
-    if(sqlfs != 0) {
-        LOGI("Cannot mount %s, already open", databaseFileName);
-        return;
-    }
     char buf[256];
     snprintf(buf, 255, "Could not mount filesystem in %s", databaseFileName);
-//     if (!sqlfs_open(databaseFileName, &sqlfs))
-//         jniThrowException(env, "java/lang/IllegalArgumentException", buf);
-}
-
-static void VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring javaKey) {
-    if(sqlfs != 0) {
-        LOGI("Cannot mount %s, already open", databaseFileName);
-        return;
-    }
-    ScopedUtfChars key(env, javaKey);
-    char buf[256];
-    snprintf(buf, 255, "Could not mount filesystem in %s, bad key given?", databaseFileName);
-    if (!sqlfs_open_key(databaseFileName, key.c_str(), key.size(), &sqlfs))
+    if (sqlfs_init(databaseFileName) != 0)
         jniThrowException(env, "java/lang/IllegalArgumentException", buf);
 }
 
+static void VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring javaKey) {
+    ScopedUtfChars key(env, javaKey);
+    char buf[256];
+    snprintf(buf, 255, "Could not mount filesystem in %s, bad key given?", databaseFileName);
+
+    // TODO detect wrong key and throw error
+    sqlfs_init_key(databaseFileName, key.c_str(), key.size());
+}
+
 static void VirtualFileSystem_unmount(JNIEnv *env, jobject) {
-    sqlfs_close(sqlfs);
-    sqlfs = 0;
+    // NOP
+    return;
 }
 
 static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject) {
-    if(sqlfs == 0)
-        return 0;
-    else
-        return 1;
+    return databaseFileName != 0;
 }
 
 static JNINativeMethod sMethods[] = {
