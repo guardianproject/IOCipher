@@ -37,7 +37,7 @@ static void VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring javaKey) {
     snprintf(buf, 255, "Could not mount filesystem in %s, bad key given?", databaseFileName);
 
     // TODO detect wrong key and throw error
-    sqlfs_init_key(databaseFileName, key.c_str(), key.size());
+    sqlfs_init_key(databaseFileName, key.c_str());
 }
 
 static void VirtualFileSystem_unmount(JNIEnv *env, jobject) {
