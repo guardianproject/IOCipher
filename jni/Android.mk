@@ -8,8 +8,9 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE     := libsqlfs
-LOCAL_CFLAGS     := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DHAVE_LIBSQLCIPHER
-LOCAL_C_INCLUDES := external/libsqlfs external/sqlcipher external
+LOCAL_CFLAGS     := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DHAVE_LIBSQLCIPHER -DSQLITE_HAS_CODEC=1 -D_GNU_SOURCE=1 -Wall -Werror -Wno-error=maybe-uninitialized
+LOCAL_C_INCLUDES := external/libsqlfs external jni
+LOCAL_LDLIBS     := -llog
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfs.c
 
 include $(BUILD_STATIC_LIBRARY)
@@ -31,7 +32,7 @@ LOCAL_CFLAGS += $(android_sqlite_cflags) $(sqlcipher_cflags) $(libsqlfs_cflags)
 LOCAL_C_INCLUDES:= \
 	external/libsqlfs \
 	external/openssl/include \
-	external/sqlcipher
+	external
 LOCAL_LDFLAGS   += \
 	-L$(LOCAL_PATH)/../external/openssl/obj/local/armeabi/
 LOCAL_LDLIBS    += -lcrypto -llog
