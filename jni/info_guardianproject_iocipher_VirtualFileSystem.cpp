@@ -53,12 +53,24 @@ static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject) {
     return databaseFileName != 0;
 }
 
+static void VirtualFileSystem_beginTransaction(JNIEnv *env, jobject) {
+    sqlfs_begin_transaction(0);
+    return;
+}
+
+static void VirtualFileSystem_completeTransaction(JNIEnv *env, jobject) {
+    sqlfs_complete_transaction(0,1);
+    return;
+}
+
 static JNINativeMethod sMethods[] = {
     {"init", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_init},
     {"mount", "()V", (void *)VirtualFileSystem_mount},
     {"mount", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_mount_key},
     {"unmount", "()V", (void *)VirtualFileSystem_unmount},
     {"isMounted", "()Z", (void *)VirtualFileSystem_isMounted},
+    {"beginTransaction", "()V", (void *)VirtualFileSystem_beginTransaction},
+    {"completeTransaction", "()V", (void *)VirtualFileSystem_completeTransaction},
 };
 int register_info_guardianproject_iocipher_VirtualFileSystem(JNIEnv* env) {
     jclass cls = env->FindClass("info/guardianproject/iocipher/VirtualFileSystem");

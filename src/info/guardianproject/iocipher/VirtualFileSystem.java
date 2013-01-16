@@ -39,6 +39,10 @@ public class VirtualFileSystem implements Comparable<VirtualFileSystem> {
 
 	public native boolean isMounted();
 
+	public native void beginTransaction();
+
+	public native void completeTransaction();
+
 	@Override
 	public int compareTo(VirtualFileSystem vfs) {
 		return this.dbFile.compareTo(vfs.dbFile);
