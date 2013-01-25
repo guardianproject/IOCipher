@@ -19,7 +19,7 @@ package info.guardianproject.libcore.io;
 /**
  * File information returned by fstatfs(2) and statfs(2).
  *
- * TODO: this should be {@code struct statvfs}, but Bionic doesn't support that yet.
+ * TODO: #569 this should be {@code struct statvfs}, but Bionic doesn't support that yet.
  * @hide until the TODO is fixed.
  */
 public final class StructStatFs {
