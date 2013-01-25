@@ -283,7 +283,7 @@ public class File extends java.io.File {
      */
     public void deleteOnExit() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Not implemented");
-    	//TODO(ramblurr) implement this for iocipher?
+    	//TODO implement this? #568
         //DeleteOnExit.getInstance().addFile(getAbsolutePath());
     }
 
@@ -365,12 +365,7 @@ public class File extends java.io.File {
         return realpath(getAbsolutePath());
     }
 
-    /**
-     * TODO: move this stuff to libcore.os.
-     * @hide
-     */
     private static native String realpath(String path);
-    // TODO implement readlink
     private static native String readlink(String path);
 
     /**
@@ -491,7 +486,7 @@ public class File extends java.io.File {
      * @return {@code true} if this file is a file, {@code false} otherwise.
      */
     public boolean isFile() {
-        // TODO currently we only have files and dirs, so file == !dir, that will change with symlinks
+        // currently we only have files and dirs, so file == !dir, that will change if we add symlinks
         return !isDirectoryImpl(path);
     }
 
@@ -881,7 +876,7 @@ public class File extends java.io.File {
             }
             throw errnoException.rethrowAsIOException();
         } finally {
-            IoUtils.close(fd); // TODO: should we suppress IOExceptions thrown here?
+            IoUtils.close(fd);
         }
     }
 
@@ -1033,7 +1028,6 @@ public class File extends java.io.File {
         return new URL("file", "", -1, name, null);
     }
 
-    // TODO: is this really necessary, or can it be replaced with getAbsolutePath?
     private String getAbsoluteName() {
         File f = getAbsoluteFile();
         String name = f.getPath();
