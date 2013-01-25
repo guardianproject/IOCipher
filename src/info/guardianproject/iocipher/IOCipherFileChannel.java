@@ -41,16 +41,17 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 
 /**
- * Our implementation of the FileChannel class.
+ * IOCipher's implementation of the FileChannel class.
+ *
  * It supports basic I/O operations, but not everything you
  * might be accustomed to from the Java NIO classes.
  *
  * It is not a drop in replacement for FileChannel.
  *
  * Unsupported operations:
- *  * mmap
- *  * file locking
- *  * scattered reads / gathered writes (io vectors, readv, writev)
+ *  <li>mmap</li>
+ *  <li>file locking</li>
+ *  <li>scattered reads / gathered writes (io vectors, readv, writev)</li>
  */
 public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 		ByteChannel {
@@ -480,8 +481,6 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
             return 0;
         }
 
-        // TODO investigate more performant write methods (mmap?)
-        // Right now all we can do is read and write via userspace.
         ByteBuffer buffer = ByteBuffer.allocate((int) count);
         src.read(buffer);
         buffer.flip();
@@ -548,7 +547,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
             buffer.flip();
             return target.write(buffer);
         } finally {
-            // TODO free buffer here? original android impl does.
+            //TODO determine whether we have memory leaking or perf issues here #567
         }
 	}
 
@@ -632,7 +631,7 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
 
 
 
-	// TODO implement readv and writev ?
+	// TODO implement vectored IO? #237
 
 	/*@Override
 	public long read(ByteBuffer[] buffers, int start, int number)
