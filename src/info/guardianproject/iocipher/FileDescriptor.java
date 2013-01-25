@@ -23,28 +23,9 @@ import info.guardianproject.libcore.io.Libcore;
 import java.io.SyncFailedException;
 
 /**
- * Wraps a Unix file descriptor. It's possible to get the file descriptor used
- * by some classes (such as {@link FileInputStream}, {@link FileOutputStream},
- * and {@link RandomAccessFile}), and then create new streams that point to the
- * same file descriptor.
+ * Represents a file descriptor, but does not have the same semantics as a POSIX fd.
  */
 public final class FileDescriptor {
-
-	/**
-	 * Corresponds to {@code stdin}.
-	 */
-	// public static final FileDescriptor in = new FileDescriptor();
-
-	/**
-	 * Corresponds to {@code stdout}.
-	 */
-	// public static final FileDescriptor out = new FileDescriptor();
-
-	/**
-	 * Corresponds to {@code stderr}.
-	 */
-	// public static final FileDescriptor err = new FileDescriptor();
-
 	/**
 	 * The sqlfs file descriptor backing this FileDescriptor. sqlfs uses the
 	 * full path as the token for accessing files rather than an int or long. A
@@ -55,13 +36,6 @@ public final class FileDescriptor {
 	private String path = invalid;
 
 	public long position = 0;
-
-	static {
-		// TODO do we need stdin, stdout, stderr on this?
-		// in.descriptor = STDIN_FILENO;
-		// out.descriptor = STDOUT_FILENO;
-		// err.descriptor = STDERR_FILENO;
-	}
 
 	/**
 	 * Constructs a new invalid FileDescriptor.
