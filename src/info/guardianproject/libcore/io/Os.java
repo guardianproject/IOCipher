@@ -59,7 +59,6 @@ public interface Os {
     public void munmap(long address, long byteCount) throws ErrnoException;
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public FileDescriptor[] pipe() throws ErrnoException;
-    /* TODO: if we used the non-standard ppoll(2) behind the scenes, we could take a long timeout. */
     public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException;
     public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException;
@@ -77,7 +76,7 @@ public interface Os {
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
-    /* TODO: replace statfs with statvfs. */
+    /* TODO: replace statfs with statvfs. #569 */
     public StructStatFs statfs(String path) throws ErrnoException;
     public String strerror(int errno);
     public void symlink(String oldPath, String newPath) throws ErrnoException;
