@@ -63,8 +63,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
     /** File access mode */
     private final int mode;
 
-    //TODO(ramblurr) needed? private final CloseGuard guard = CloseGuard.get();
-
     /**
      * Constructs a new {@code FileOutputStream} that writes to {@code file}. The file will be
      * truncated if it exists, and created if it doesn't exist.
@@ -90,7 +88,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
         this.fd = IoBridge.open(file.getAbsolutePath(), mode);
         this.channel = new IOCipherFileChannel(this, fd, mode);
         this.shouldClose = true;
-        //TODO(ramblurr) needed? this.guard.open("close");
     }
 
     /**
@@ -106,9 +103,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
         this.shouldClose = false;
         this.mode = O_WRONLY;
         this.channel = new IOCipherFileChannel(this, fd, mode);
-        // TODO comment below needed? we don't use the guard stuff
-        // Note that we do not call guard.open here because the
-        // FileDescriptor is not owned by the stream.
     }
 
     /**
@@ -134,7 +128,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     @Override
     public void close() throws IOException {
-    	//TODO(ramblurr) needed? guard.close();
         synchronized (this) {
             if (channel != null) {
                 channel.close();
@@ -151,10 +144,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     @Override protected void finalize() throws IOException {
         try {
-        	/* TODO(ramblurr) needed?
-            if (guard != null) {
-                guard.warnIfOpen();
-            }*/
             close();
         } finally {
             try {

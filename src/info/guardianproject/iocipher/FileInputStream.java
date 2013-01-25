@@ -60,8 +60,6 @@ public class FileInputStream extends InputStream implements Closeable {
 
     private IOCipherFileChannel channel;
 
-    //TODO(ramblurr) needed? private final CloseGuard guard = CloseGuard.get();
-
     /**
      * Constructs a new {@code FileInputStream} that reads from {@code file}.
      *
@@ -77,7 +75,6 @@ public class FileInputStream extends InputStream implements Closeable {
         this.fd = IoBridge.open(file.getAbsolutePath(), O_RDONLY);
         getChannel(); // init channel
         this.shouldClose = true;
-        //TODO(ramblurr) needed? guard.open("close");
     }
 
     /**
@@ -95,8 +92,6 @@ public class FileInputStream extends InputStream implements Closeable {
         this.fd = fd;
         getChannel(); // init channel
         this.shouldClose = false;
-        // Note that we do not call guard.open here because the
-        // FileDescriptor is not owned by the stream.
     }
 
     /**
@@ -110,7 +105,7 @@ public class FileInputStream extends InputStream implements Closeable {
     public int available() throws IOException {
     	long value = channel.size() - channel.position();
     	if (value < 0) {
-    		// The result is the difference between the file size and the file 
+    		// The result is the difference between the file size and the file
     		// position. This may be negative if the position is past the end
     		// of the file.
     		value = 0;
@@ -120,7 +115,6 @@ public class FileInputStream extends InputStream implements Closeable {
 
     @Override
     public void close() throws IOException {
-    	//TODO(ramblurr) needed? guard.close();
         synchronized (this) {
             if (channel != null) {
                 channel.close();
@@ -144,9 +138,6 @@ public class FileInputStream extends InputStream implements Closeable {
      */
     @Override protected void finalize() throws IOException {
         try {
-        	/*TODO(ramblurr) needed? if (guard != null) {
-                guard.warnIfOpen();
-            }*/
             close();
         } finally {
             try {

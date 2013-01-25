@@ -55,8 +55,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
 
     private int mode;
 
-    //TODO(ramblurr) needed? private final CloseGuard guard = CloseGuard.get();
-
     private final byte[] scratch = new byte[8];
 
     /**
@@ -128,7 +126,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
                 // Ignored
             }
         }
-      //TODO(ramblurr) needed? guard.open("close");
     }
 
     /**
@@ -160,7 +157,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if an error occurs while closing this file.
      */
     public void close() throws IOException {
-    	//TODO(ramblurr) needed? guard.close();
         synchronized (this) {
             if (channel != null && channel.isOpen()) {
                 channel.close();
@@ -170,12 +166,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         }
     }
 
-    @Override protected void finalize() throws Throwable {
+    @Override
+    protected void finalize() throws Throwable {
         try {
-        	/* TODO(ramblurr) needed?
-            if (guard != null) {
-                guard.warnIfOpen();
-            }*/
             close();
         } finally {
             super.finalize();
@@ -573,7 +566,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public final String readUTF() throws IOException {
     	throw new UnsupportedOperationException("not yet implemented");
-    	/*TODO(ramblurr) implement!
+    	/*TODO implement this #566
         int utfSize = readUnsignedShort();
         if (utfSize == 0) {
             return "";
@@ -877,7 +870,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public final void writeUTF(String str) throws IOException {
     	throw new UnsupportedOperationException("not yet implemented");
-    	/*TODO(ramblurr) implement!
+    	/*TODO implement #566
         write(ModifiedUtf8.encode(str));
         */
     }
