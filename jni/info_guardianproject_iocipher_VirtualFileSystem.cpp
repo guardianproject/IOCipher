@@ -24,7 +24,7 @@ static void VirtualFileSystem_init(JNIEnv *env, jobject, jstring javaPath) {
     }
 }
 
-static void VirtualFileSystem_mount(JNIEnv *env, jobject) {
+static void VirtualFileSystem_mount_unencrypted(JNIEnv *env, jobject) {
     char buf[256];
     snprintf(buf, 255, "Could not mount filesystem in %s", databaseFileName);
     if (sqlfs_init(databaseFileName) != 0)
@@ -65,7 +65,7 @@ static void VirtualFileSystem_completeTransaction(JNIEnv *env, jobject) {
 
 static JNINativeMethod sMethods[] = {
     {"init", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_init},
-    {"mount", "()V", (void *)VirtualFileSystem_mount},
+    {"mount_unencrypted", "()V", (void *)VirtualFileSystem_mount_unencrypted},
     {"mount", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_mount_key},
     {"unmount", "()V", (void *)VirtualFileSystem_unmount},
     {"isMounted", "()Z", (void *)VirtualFileSystem_isMounted},
