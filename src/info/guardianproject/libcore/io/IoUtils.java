@@ -19,9 +19,7 @@ package info.guardianproject.libcore.io;
 import java.io.File;
 import info.guardianproject.iocipher.FileDescriptor;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.Socket;
-//import java.nio.charset.Charsets; TODO(ramblurr) unneeded?
 import static info.guardianproject.libcore.io.OsConstants.*;
 
 public final class IoUtils {
@@ -41,21 +39,6 @@ public final class IoUtils {
             throw errnoException.rethrowAsIOException();
         }
     }
-
-    /**
-     * Closes 'closeable', ignoring any checked exceptions. Does nothing if 'closeable' is null.
-     */
-    /* TODO(ramblurr) unneeded?
-     public static void closeQuietly(AutoCloseable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (RuntimeException rethrown) {
-                throw rethrown;
-            } catch (Exception ignored) {
-            }
-        }
-    }*/
 
     /**
      * Closes 'fd', ignoring any exceptions. Does nothing if 'fd' is null or invalid.
@@ -97,44 +80,8 @@ public final class IoUtils {
     }
 
     /**
-     * Returns the contents of 'path' as a byte array.
-     */
-    /* TODO(ramblurr) unneeded?
-    public static byte[] readFileAsByteArray(String path) throws IOException {
-        return readFileAsBytes(path).toByteArray();
-    }*/
-
-    /**
-     * Returns the contents of 'path' as a string. The contents are assumed to be UTF-8.
-     */
-    /* TODO(ramblurr) unneeded?
-    public static String readFileAsString(String path) throws IOException {
-        return readFileAsBytes(path).toString(Charsets.UTF_8);
-    }*/
-
-    /* TODO(ramblurr) unneeded?
-    private static UnsafeByteSequence readFileAsBytes(String path) throws IOException {
-        RandomAccessFile f = null;
-        try {
-            f = new RandomAccessFile(path, "r");
-            UnsafeByteSequence bytes = new UnsafeByteSequence((int) f.length());
-            byte[] buffer = new byte[8192];
-            while (true) {
-                int byteCount = f.read(buffer);
-                if (byteCount == -1) {
-                    return bytes;
-                }
-                bytes.write(buffer, 0, byteCount);
-            }
-        } finally {
-            IoUtils.closeQuietly(f);
-        }
-    }*/
-
-    /**
      * Recursively delete everything in {@code dir}.
      */
-    // TODO: this should specify paths as Strings rather than as Files
     public static void deleteContents(File dir) throws IOException {
         File[] files = dir.listFiles();
         if (files == null) {
