@@ -14,3 +14,6 @@ local.properties
 proguard-project.txt
 proguard.cfg
 *~
+.settings
+#kdevelop files
+*.kdev4
