@@ -385,9 +385,9 @@ public class IOCipherFileChannel extends AbstractInterruptibleChannel implements
             begin();
             try {
                 if (position == -1) {
-                    bytesWritten = Libcore.os.write(fd, buffer);
+                    bytesWritten = Libcore.os.write(fd, buffer, this.mode);
                 } else {
-                    bytesWritten = Libcore.os.pwrite(fd, buffer, position);
+                    bytesWritten = Libcore.os.pwrite(fd, buffer, position, this.mode);
                 }
             } catch (ErrnoException errnoException) {
                 throw errnoException.rethrowAsIOException();

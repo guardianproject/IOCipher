@@ -21,7 +21,7 @@ import info.guardianproject.iocipher.FileDescriptor;
 import java.nio.ByteBuffer;
 
 public final class Posix implements Os {
-	
+
 	Posix() {
 	}
 
@@ -104,48 +104,48 @@ public final class Posix implements Os {
 
 	public native void unlink(String path) throws ErrnoException;
 
-	public int write(FileDescriptor fd, ByteBuffer buffer)
+	public int write(FileDescriptor fd, ByteBuffer buffer, int flags)
 			throws ErrnoException {
 		int ret;
 		if (buffer.isDirect()) {
-			ret = pwriteBytes(fd, buffer, buffer.position(), buffer.remaining(), 0);
+			ret = pwriteBytes(fd, buffer, buffer.position(), buffer.remaining(), 0, flags);
 		} else {
 			ret = pwriteBytes(fd, buffer.array(),
 					buffer.arrayOffset() + buffer.position(),
-					buffer.remaining(), 0);
+					buffer.remaining(), 0, flags);
 		}
 		fd.position += ret;
 		return ret;
 	}
 
 	public int write(FileDescriptor fd, byte[] bytes, int byteOffset,
-			int byteCount) throws ErrnoException {
-		int ret = pwriteBytes(fd, bytes, byteOffset, byteCount, fd.position);
+			int byteCount, int flags) throws ErrnoException {
+		int ret = pwriteBytes(fd, bytes, byteOffset, byteCount, fd.position, flags);
 		fd.position += byteCount;
 		return ret;
 	}
 
-	public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset)
+	public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset, int flags)
 	throws ErrnoException {
 		if (buffer.isDirect()) {
-			return pwriteBytes(fd, buffer, buffer.position(), buffer.remaining(), offset);
+			return pwriteBytes(fd, buffer, buffer.position(), buffer.remaining(), offset, flags);
 		} else {
 			return pwriteBytes(fd, buffer.array(),
 					buffer.arrayOffset() + buffer.position(),
-					buffer.remaining(), offset);
+					buffer.remaining(), offset, flags);
 		}
 	}
 
 	public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset,
-			int byteCount, long offset) throws ErrnoException {
+			int byteCount, long offset, int flags) throws ErrnoException {
 		// This indirection isn't strictly necessary, but ensures that our
 		// public interface is type safe.
-		return pwriteBytes(fd, bytes, byteOffset, byteCount, offset);
+		return pwriteBytes(fd, bytes, byteOffset, byteCount, offset, flags);
 	}
 
 	private native int pwriteBytes(FileDescriptor fd, Object buffer, int bufferOffset,
-			int byteCount, long offset) throws ErrnoException;
-	
+			int byteCount, long offset, int flags) throws ErrnoException;
+
 	public native StructStat stat(String path) throws ErrnoException;
 
 	public native StructStat fstat(FileDescriptor fd) throws ErrnoException;

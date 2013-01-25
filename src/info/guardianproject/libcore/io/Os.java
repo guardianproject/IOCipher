@@ -63,8 +63,8 @@ public interface Os {
     public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException;
     public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException;
-    public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException;
-    public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException;
+    public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset, int flags) throws ErrnoException;
+    public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset, int flags) throws ErrnoException;
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
@@ -84,7 +84,7 @@ public interface Os {
     public long sysconf(int name);
     public StructUtsname uname();
     public int waitpid(int pid, int status, int options) throws ErrnoException;
-    public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
-    public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
+    public int write(FileDescriptor fd, ByteBuffer buffer, int flags) throws ErrnoException;
+    public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags) throws ErrnoException;
     public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
 }

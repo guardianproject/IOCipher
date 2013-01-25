@@ -170,7 +170,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         }
     }
 
-    @Override protected void finalize() throws Throwable {  	
+    @Override protected void finalize() throws Throwable {
         try {
         	/* TODO(ramblurr) needed?
             if (guard != null) {
@@ -688,7 +688,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if an I/O error occurs while writing to this file.
      */
     public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        IoBridge.write(fd, buffer, byteOffset, byteCount);
+        IoBridge.write(fd, buffer, byteOffset, byteCount, this.mode );
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
             fd.sync();

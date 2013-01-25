@@ -35,7 +35,7 @@ public final class IoBridge {
      * This is from Android's java.util.Arrays.
      * @hide
      */
-    public static void checkOffsetAndCount(int arrayLength, int offset, int count) { 
+    public static void checkOffsetAndCount(int arrayLength, int offset, int count) {
     	if ((offset | count) < 0 || offset > arrayLength || arrayLength - offset     < count) {
     		throw new ArrayIndexOutOfBoundsException();
     	}
@@ -102,14 +102,14 @@ public final class IoBridge {
      * java.io always writes every byte it's asked to, or fails with an error. (That is, unlike
      * Unix it never just writes as many bytes as happens to be convenient.)
      */
-    public static void write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws IOException {
+    public static void write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags) throws IOException {
         checkOffsetAndCount(bytes.length, byteOffset, byteCount);
         if (byteCount == 0) {
             return;
         }
         try {
             while (byteCount > 0) {
-                int bytesWritten = Libcore.os.write(fd, bytes, byteOffset, byteCount);
+                int bytesWritten = Libcore.os.write(fd, bytes, byteOffset, byteCount, flags);
                 byteCount -= bytesWritten;
                 byteOffset += bytesWritten;
             }

@@ -647,19 +647,21 @@ static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaB
     }
 }
 
-static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount, jlong offset) {
+static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount, jlong offset, jint flags) {
     ScopedBytesRO bytes(env, javaBytes);
     if (bytes.get() == NULL) {
         return -1;
     }
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
+    struct fuse_file_info ffi;
+    ffi.flags = flags;
     int result = sqlfs_proc_write(0,
                                   path.c_str(),
                                   reinterpret_cast<const char*>(bytes.get() + byteOffset),
                                   byteCount,
                                   offset,
-                                  NULL);
+                                  &ffi);
     if (result < 0) {
         throwErrnoException(env, "pwrite", result);
         return -1;
@@ -867,7 +869,7 @@ static JNINativeMethod sMethods[] = {
 //    {"pipe", "()[Linfo/guardianproject/iocipher/FileDescriptor;", (void *)Posix_pipe},
 //    {"poll", "([Llibcore/io/StructPollfd;I)I", (void *)Posix_poll},
     {"preadBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)Posix_preadBytes},
-    {"pwriteBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)Posix_pwriteBytes},
+    {"pwriteBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJI)I", (void *)Posix_pwriteBytes},
 //    {"readBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)Posix_readBytes},
 //    {"readv", "(Linfo/guardianproject/iocipher/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)Posix_readv},
     {"remove", "(Ljava/lang/String;)V", (void *)Posix_remove},
