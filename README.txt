@@ -33,7 +33,7 @@ chunks.
 
 * OpenSSL License: It is linked to the OpenSSL that is provided with
   Android, so it should be covered under Android's handling of the
-  advertisment clause.
+  advertisement clause.
 
 * LGPL 2.1 (libsqlfs)
 
