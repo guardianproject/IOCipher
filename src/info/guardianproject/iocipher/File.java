@@ -85,7 +85,7 @@ public class File extends java.io.File {
      * @throws NullPointerException
      *             if {@code name} is {@code null}.
      */
-    public File(File dir, String name) {
+    public File(java.io.File dir, String name) {
         this(dir == null ? null : dir.getPath(), name);
     }
 
