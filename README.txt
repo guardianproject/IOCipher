@@ -1,4 +1,17 @@
 
+IOCipher: Encrypted Virtual Disk
+--------------------------------
+
+IOCipher is a virtual encrypted disk for apps without requiring the device to
+be rooted. It uses a clone of the standard java.io API for working with
+files. Just password handling & opening the virtual disk are what stand
+between developers and fully encrypted file storage. It is based on libsqlfs
+and SQLCipher.
+
+If you are using this in your app, we'd love to hear about it! Please send us
+an email at root@guardianproject.info
+
+
 Building Native Bits
 --------------------
 
