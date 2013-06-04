@@ -18,15 +18,18 @@ endif
 NDK_BASE ?= /opt/android-ndk
 NDK_PLATFORM_LEVEL ?= 5
 NDK_ABI=arm
-NDK_COMPILER_VERSION=4.6
+NDK_COMPILER_VERSION = 4.7
 NDK_SYSROOT=$(NDK_BASE)/platforms/android-$(NDK_PLATFORM_LEVEL)/arch-$(NDK_ABI)
 NDK_UNAME:=`uname -s | tr '[A-Z]' '[a-z]'`
-NDK_TOOLCHAIN=$(NDK_BASE)/toolchains/$(NDK_ABI)-linux-androideabi-$(NDK_COMPILER_VERSION)/prebuilt/$(NDK_UNAME)-$(NDK_PROCESSOR)
+ifeq ($(NDK_ABI),x86)
+ HOST = i686-linux-android
+ NDK_TOOLCHAIN = $(NDK_ABI)-$(NDK_COMPILER_VERSION)
+else
+ HOST = $(NDK_ABI)-linux-androideabi
+ NDK_TOOLCHAIN = $(HOST)-$(NDK_COMPILER_VERSION)
+endif
+NDK_TOOLCHAIN_BASE=$(NDK_BASE)/toolchains/$(NDK_TOOLCHAIN)/prebuilt/$(NDK_UNAME)-$(NDK_PROCESSOR)
 
-# to use the real HOST tag, you need the latest libtool files:
-# http://stackoverflow.com/questions/4594736/configure-does-not-recognize-androideabi
-#HOST := arm-none-linux-gnueabi
-HOST := arm-linux-androideabi
 
 all: openssl/libs/armeabi/libcrypto.so sqlcipher/sqlite3.c
 
