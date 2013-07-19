@@ -4,17 +4,17 @@
 
 LOCAL_PATH:= $(call my-dir)
 
+sqlfs_DEFS := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DHAVE_LIBSQLCIPHER -DSQLITE_HAS_CODEC=1 -D_GNU_SOURCE=1
 
 include $(CLEAR_VARS)
 
 LOCAL_MODULE     := libsqlfs
-LOCAL_CFLAGS     := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DHAVE_LIBSQLCIPHER -DSQLITE_HAS_CODEC=1 -D_GNU_SOURCE=1 -Wall -Werror -Wno-error=maybe-uninitialized
+LOCAL_CFLAGS     := $(sqlfs_DEFS) -Wall -Werror -Wno-error=maybe-uninitialized
 LOCAL_C_INCLUDES := external/libsqlfs external jni
 LOCAL_LDLIBS     := -llog
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfs.c
 
 include $(BUILD_STATIC_LIBRARY)
-
 
 include $(CLEAR_VARS)
 
@@ -51,6 +51,18 @@ LOCAL_SRC_FILES := \
 	../external/sqlcipher/sqlite3.c
 
 include $(BUILD_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE     := sqlfscat
+LOCAL_CFLAGS     := $(sqlfs_DEFS) -Wall -Werror
+LOCAL_C_INCLUDES := external/libsqlfs external
+LOCAL_SHARED_LIBRARIES := libiocipher
+LOCAL_LDLIBS     := -llog
+LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfscat.c
+
+include $(BUILD_EXECUTABLE)
 
 
 TAGS:
