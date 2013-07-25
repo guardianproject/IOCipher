@@ -59,7 +59,9 @@ LOCAL_MODULE     := sqlfscat
 LOCAL_CFLAGS     := $(sqlfs_DEFS) -Wall -Werror
 LOCAL_C_INCLUDES := external/libsqlfs external
 LOCAL_SHARED_LIBRARIES := libiocipher
-LOCAL_LDLIBS     := -llog
+LOCAL_LDFLAGS   += \
+	-L$(LOCAL_PATH)/../external/openssl/obj/local/armeabi/
+LOCAL_LDLIBS     := -lcrypto -llog
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfscat.c
 
 include $(BUILD_EXECUTABLE)
