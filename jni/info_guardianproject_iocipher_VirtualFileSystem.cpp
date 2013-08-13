@@ -31,17 +31,33 @@ static void VirtualFileSystem_mount_unencrypted(JNIEnv *env, jobject) {
         jniThrowException(env, "java/lang/IllegalArgumentException", buf);
 }
 
-static void VirtualFileSystem_mount_key(JNIEnv *env, jobject, jstring javaKey) {
-    ScopedUtfChars key(env, javaKey);
+static void VirtualFileSystem_mount(JNIEnv *env, jobject, jstring javaKey) {
     char buf[256];
     snprintf(buf, 255, "Could not mount filesystem in %s, bad key given?", databaseFileName);
 
     sqlfs_t *sqlfs = 0;
-    if(!sqlfs_open_key(databaseFileName, key.c_str(), &sqlfs)) {
+    char const * key = env->GetStringUTFChars(javaKey, 0);
+    jsize keyLen = env->GetStringUTFLength(javaKey);
+
+    /* 
+     * attempt to open the database with the key
+     * if it fails, then the key is likely wrong
+     */
+    if(!sqlfs_open_key(databaseFileName, key, &sqlfs)) {
+        LOGI("sqlfs_open_key FAILED");
         jniThrowException(env, "java/lang/IllegalArgumentException", buf);
     }
     sqlfs_close(sqlfs);
-    sqlfs_init_key(databaseFileName, key.c_str());
+
+    /*
+     * init the vfs by storing the key in memory
+     * sqlfs_init_key returns 0 for success in the unix fashion
+     */
+    if(sqlfs_init_key(databaseFileName, key) != 0) {
+        LOGI("sqlfs_init_key FAILED");
+        jniThrowException(env, "java/lang/IllegalArgumentException", "Initializing VFS failed.");
+    }
+    env->ReleaseStringUTFChars(javaKey, key);
 }
 
 static void VirtualFileSystem_unmount(JNIEnv *env, jobject) {
@@ -66,7 +82,7 @@ static void VirtualFileSystem_completeTransaction(JNIEnv *env, jobject) {
 static JNINativeMethod sMethods[] = {
     {"init", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_init},
     {"mount_unencrypted", "()V", (void *)VirtualFileSystem_mount_unencrypted},
-    {"mount", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_mount_key},
+    {"mount", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_mount},
     {"unmount", "()V", (void *)VirtualFileSystem_unmount},
     {"isMounted", "()Z", (void *)VirtualFileSystem_isMounted},
     {"beginTransaction", "()V", (void *)VirtualFileSystem_beginTransaction},
