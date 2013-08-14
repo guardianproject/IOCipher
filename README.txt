@@ -19,13 +19,12 @@ This app relies on OpenSSL libcrypto, sqlcipher, and libsqlfs, which
 are all "native" C code that needs to be built before working with the
 Java. First, make sure you have the prerequisites:
 
-  apt-get install tcl libtool automake autoconf gawk
+  apt-get install tcl libtool automake autoconf gawk libssl-dev
 
 Now build everything:
 
-  cd /path/to/guardianproject/iocipher
-  git submodule init
-  git submodule update
+  cd /path/to/guardianproject/IOCipher
+  git submodule update --init --recursive
   make -C external
   ndk-build
 

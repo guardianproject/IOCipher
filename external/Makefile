@@ -44,7 +44,11 @@ openssl-clean:
 	-cd openssl && ndk-build clean
 
 
-# this generates the sqlite3.c source file, which is built by jni/Android.mk
+# This target only generates the sqlite3.c source file, which is later built
+# by jni/Android.mk.  Therefore, we don't need it to have any of the actual
+# build flags.  We also rely on the build host system to provide the
+# dependencies, like openssl, rather than point it to the included sources
+# which are built for Android.
 sqlcipher/sqlite3.c:
 	cd sqlcipher && ./configure --enable-tempstore=yes \
 		CFLAGS="-DSQL_HAS_CODEC"
