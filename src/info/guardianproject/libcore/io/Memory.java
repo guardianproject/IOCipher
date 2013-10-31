@@ -148,9 +148,33 @@ public final class Memory {
     public static native void memmove(Object dstObject, int dstOffset, Object srcObject, int srcOffset, long byteCount);
 
     public static native byte peekByte(long address);
-    public static native int peekInt(long address, boolean swap);
-    public static native long peekLong(long address, boolean swap);
-    public static native short peekShort(long address, boolean swap);
+
+    public static int peekInt(long address, boolean swap) {
+        int result = peekIntNative(address);
+        if (swap) {
+            result = Integer.reverseBytes(result);
+        }
+        return result;
+    }
+    private static native int peekIntNative(long address);
+
+    public static long peekLong(long address, boolean swap) {
+        long result = peekLongNative(address);
+        if (swap) {
+            result = Long.reverseBytes(result);
+        }
+        return result;
+    }
+    private static native long peekLongNative(long address);
+
+    public static short peekShort(long address, boolean swap) {
+        short result = peekShortNative(address);
+        if (swap) {
+            result = Short.reverseBytes(result);
+        }
+        return result;
+    }
+    private static native short peekShortNative(long address);
 
     public static native void peekByteArray(long address, byte[] dst, int dstOffset, int byteCount);
     public static native void peekCharArray(long address, char[] dst, int dstOffset, int charCount, boolean swap);
@@ -161,9 +185,30 @@ public final class Memory {
     public static native void peekShortArray(long address, short[] dst, int dstOffset, int shortCount, boolean swap);
 
     public static native void pokeByte(long address, byte value);
-    public static native void pokeInt(long address, int value, boolean swap);
-    public static native void pokeLong(long address, long value, boolean swap);
-    public static native void pokeShort(long address, short value, boolean swap);
+
+    public static void pokeInt(long address, int value, boolean swap) {
+        if (swap) {
+            value = Integer.reverseBytes(value);
+        }
+        pokeIntNative(address, value);
+    }
+    private static native void pokeIntNative(long address, int value);
+
+    public static void pokeLong(long address, long value, boolean swap) {
+        if (swap) {
+            value = Long.reverseBytes(value);
+        }
+        pokeLongNative(address, value);
+    }
+    private static native void pokeLongNative(long address, long value);
+
+    public static void pokeShort(long address, short value, boolean swap) {
+        if (swap) {
+            value = Short.reverseBytes(value);
+        }
+        pokeShortNative(address, value);
+    }
+    private static native void pokeShortNative(long address, short value);
 
     public static native void pokeByteArray(long address, byte[] src, int offset, int count);
     public static native void pokeCharArray(long address, char[] src, int offset, int count, boolean swap);

@@ -258,37 +258,23 @@ static void Memory_pokeShortArray(JNIEnv* env, jclass, jlong dstAddress, jshortA
     POKER(jshort, Short, jshort, swapShorts);
 }
 
-static jshort Memory_peekShort(JNIEnv*, jclass, jlong srcAddress, jboolean swap) {
-    jshort result = *cast<const jshort*>(srcAddress);
-    if (swap) {
-        result = bswap_16(result);
-    }
-    return result;
+static jshort Memory_peekShortNative(JNIEnv*, jclass, jlong srcAddress) {
+    return *cast<const jshort*>(srcAddress);
 }
 
-static void Memory_pokeShort(JNIEnv*, jclass, jlong dstAddress, jshort value, jboolean swap) {
-    if (swap) {
-        value = bswap_16(value);
-    }
+static void Memory_pokeShortNative(JNIEnv*, jclass, jlong dstAddress, jshort value) {
     *cast<jshort*>(dstAddress) = value;
 }
 
-static jint Memory_peekInt(JNIEnv*, jclass, jlong srcAddress, jboolean swap) {
-    jint result = *cast<const jint*>(srcAddress);
-    if (swap) {
-        result = bswap_32(result);
-    }
-    return result;
+static jint Memory_peekIntNative(JNIEnv*, jclass, jlong srcAddress) {
+    return *cast<const jint*>(srcAddress);
 }
 
-static void Memory_pokeInt(JNIEnv*, jclass, jlong dstAddress, jint value, jboolean swap) {
-    if (swap) {
-        value = bswap_32(value);
-    }
+static void Memory_pokeIntNative(JNIEnv*, jclass, jlong dstAddress, jint value) {
     *cast<jint*>(dstAddress) = value;
 }
 
-static jlong Memory_peekLong(JNIEnv*, jclass, jlong srcAddress, jboolean swap) {
+static jlong Memory_peekLongNative(JNIEnv*, jclass, jlong srcAddress) {
     jlong result;
     const jlong* src = cast<const jlong*>(srcAddress);
     if ((srcAddress & LONG_ALIGNMENT_MASK) == 0) {
@@ -296,17 +282,11 @@ static jlong Memory_peekLong(JNIEnv*, jclass, jlong srcAddress, jboolean swap) {
     } else {
         result = get_unaligned<jlong>(src);
     }
-    if (swap) {
-        result = bswap_64(result);
-    }
     return result;
 }
 
-static void Memory_pokeLong(JNIEnv*, jclass, jlong dstAddress, jlong value, jboolean swap) {
+static void Memory_pokeLongNative(JNIEnv*, jclass, jlong dstAddress, jlong value) {
     jlong* dst = cast<jlong*>(dstAddress);
-    if (swap) {
-        value = bswap_64(value);
-    }
     if ((dstAddress & LONG_ALIGNMENT_MASK) == 0) {
         *dst = value;
     } else {
@@ -377,22 +357,22 @@ static JNINativeMethod sMethods[] = {
     {"peekCharArray", "(J[CIIZ)V", (void *)Memory_peekCharArray},
     {"peekDoubleArray", "(J[DIIZ)V", (void *)Memory_peekDoubleArray},
     {"peekFloatArray", "(J[FIIZ)V", (void *)Memory_peekFloatArray},
-    {"peekInt", "(JZ)I", (void *)Memory_peekInt},
+    {"peekIntNative", "(J)I", (void *)Memory_peekIntNative},
     {"peekIntArray", "(J[IIIZ)V", (void *)Memory_peekIntArray},
-    {"peekLong", "(JZ)J", (void *)Memory_peekLong},
+    {"peekLongNative", "(J)J", (void *)Memory_peekLongNative},
     {"peekLongArray", "(J[JIIZ)V", (void *)Memory_peekLongArray},
-    {"peekShort", "(JZ)S", (void *)Memory_peekShort},
+    {"peekShortNative", "(J)S", (void *)Memory_peekShortNative},
     {"peekShortArray", "(J[SIIZ)V", (void *)Memory_peekShortArray},
     {"pokeByte", "(JB)V", (void *)Memory_pokeByte},
     {"pokeByteArray", "(J[BII)V", (void *)Memory_pokeByteArray},
     {"pokeCharArray", "(J[CIIZ)V", (void *)Memory_pokeCharArray},
     {"pokeDoubleArray", "(J[DIIZ)V", (void *)Memory_pokeDoubleArray},
     {"pokeFloatArray", "(J[FIIZ)V", (void *)Memory_pokeFloatArray},
-    {"pokeInt", "(JIZ)V", (void *)Memory_pokeInt},
+    {"pokeIntNative", "(JI)V", (void *)Memory_pokeIntNative},
     {"pokeIntArray", "(J[IIIZ)V", (void *)Memory_pokeIntArray},
-    {"pokeLong", "(JJZ)V", (void *)Memory_pokeLong},
+    {"pokeLongNative", "(JJ)V", (void *)Memory_pokeLongNative},
     {"pokeLongArray", "(J[JIIZ)V", (void *)Memory_pokeLongArray},
-    {"pokeShort", "(JSZ)V", (void *)Memory_pokeShort},
+    {"pokeShortNative", "(JS)V", (void *)Memory_pokeShortNative},
     {"pokeShortArray", "(J[SIIZ)V", (void *)Memory_pokeShortArray},
     {"unsafeBulkGet", "(Ljava/lang/Object;II[BIIZ)V", (void *)Memory_unsafeBulkGet},
     {"unsafeBulkPut", "([BIILjava/lang/Object;IIZ)V", (void *)Memory_unsafeBulkPut},
