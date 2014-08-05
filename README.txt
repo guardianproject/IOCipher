@@ -49,6 +49,11 @@ Java. First, make sure you have the build prerequisites:
 
   apt-get install tcl libtool automake autoconf gawk libssl-dev
 
+Point `ant` to where your Android NDK is installed, either by setting
+`ndk.dir` in your local.properties or setting the environment variable:
+
+  export ANDROID_NDK=/opt/android-ndk
+
 Now build everything:
 
   git clone https://github.com/guardianproject/IOCipher
