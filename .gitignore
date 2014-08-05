@@ -1,6 +1,6 @@
 bin/
 gen/
-libs/
+/libs/
 obj/
 external/*/libs
 external/*/obj

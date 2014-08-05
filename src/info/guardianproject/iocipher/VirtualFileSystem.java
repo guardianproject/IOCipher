@@ -16,7 +16,9 @@ public class VirtualFileSystem implements Comparable<VirtualFileSystem> {
 	private String dbFile = "";
 
 	static {
-		System.loadLibrary("iocipher");
+        System.loadLibrary("stlport_shared");
+        System.loadLibrary("sqlcipher_android");
+        System.loadLibrary("iocipher");
 	}
 
 	/**

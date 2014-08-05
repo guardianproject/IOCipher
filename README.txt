@@ -12,24 +12,63 @@ If you are using this in your app, we'd love to hear about it! Please send us
 an email at root@guardianproject.info
 
 
-Building Native Bits
---------------------
+Getting Supporting Libraries
+----------------------------
+
+IOCipher is built upon SQLCipher, which is required in order to use this
+library.  You can get SQLCipher-for-Android here:
+
+http://sqlcipher.net/open-source
+
+For example, SQLCipher for Android v3.1.0 binary is available here:
+https://s3.amazonaws.com/sqlcipher/SQLCipher+for+Android+v3.1.0.zip
+
+And the signature is here:
+https://s3.amazonaws.com/sqlcipher/SQLCipher+for+Android+v3.1.0.zip.sig
+
+The releases should be signed by this key:
+
+```
+$ gpg --recv-keys D1FA3A2A97ED25C2
+$ gpg --fingerprint support@zetetic.net
+pub   4096R/97ED25C2 2014-04-22 [expires: 2017-04-21]
+      Key fingerprint = D83F 5F9E B811 D6E6 B4A0  D9C5 D1FA 3A2A 97ED 25C2
+uid                  Zetetic LLC <support@zetetic.net>
+sub   3072R/67FD0322 2014-04-22 [expires: 2015-04-22]
+sub   3072R/D4DFEDA7 2014-04-22 [expires: 2015-04-22]
+sub   3072R/B1C49DF6 2014-04-22 [expires: 2015-04-22]
+```
+
+
+Building
+--------
 
 This app relies on OpenSSL libcrypto, sqlcipher, and libsqlfs, which
 are all "native" C code that needs to be built before working with the
-Java. First, make sure you have the prerequisites:
+Java. First, make sure you have the build prerequisites:
 
   apt-get install tcl libtool automake autoconf gawk libssl-dev
 
 Now build everything:
 
-  cd /path/to/guardianproject/IOCipher
+  git clone https://github.com/guardianproject/IOCipher
   git submodule update --init --recursive
+  android update lib-project --path .
+  ant clean debug
+
+The iocipher.jar is in bin/.  The shared library .so files are in libs/armeabi
+and the libsqlfs.a static library is in external/libsqlfs/.libs/libsqlfs.a.
+
+
+Building Native Bits for Eclipse
+--------------------------------
+
+If you are using Eclipse with this library, be sure to build the native bits
+from the Terminal first:
+
   make -C external
   ndk-build
 
-The shared library .so files are in libs/armeabi and the libsqlfs.a
-static library is in external/libsqlfs/.libs/libsqlfs.a.
 
 License
 -------
@@ -51,3 +90,24 @@ chunks.
 
 * BSD-style (sqlcipher)
 
+
+Included shared library files
+-----------------------------
+
+In `external/libs` are some binary .so files, these are all binaries pulled
+from other sources so that the C code can have something link against.
+
+`libcrypto.so` comes from Android emulators.  They are included here
+so that the C code can link against openssl's libcrypto, which Android
+includes but does not expose in the NDK.  If you want to build this library
+from source, then do this:
+
+```
+git clone https://github.com/guardianproject/openssl-android
+cd openssl-android
+ndk-build -j4
+```
+
+These shared libraries _must_ not be included in any real app. Android
+provides `/system/lib/libcrypto.so` and you should get SQLCipher directly from
+the source, listed above.
