@@ -17,20 +17,18 @@
 
 package info.guardianproject.iocipher;
 
-
 /**
- * An interface for filtering {@link File} objects based on their names
- * or other information.
- *
+ * An interface for filtering {@link File} objects based on their names or other
+ * information.
+ * 
  * @see File#listFiles(FileFilter)
  */
 public interface FileFilter {
 
     /**
      * Indicating whether a specific file should be included in a pathname list.
-     *
-     * @param pathname
-     *            the abstract file to check.
+     * 
+     * @param pathname the abstract file to check.
      * @return {@code true} if the file should be included, {@code false}
      *         otherwise.
      */

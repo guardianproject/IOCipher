@@ -34,7 +34,9 @@ import java.io.OutputStream;
  * An output stream that writes bytes to a file. If the output file exists, it
  * can be replaced or appended to. If it does not exist, a new file will be
  * created.
- * <pre>   {@code
+ * 
+ * <pre>
+ * {@code
  *   File file = ...
  *   OutputStream out = null;
  *   try {
@@ -45,13 +47,14 @@ import java.io.OutputStream;
  *       out.close();
  *     }
  *   }
- * }</pre>
- *
- * <p>This stream is <strong>not buffered</strong>. Most callers should wrap
- * this stream with a {@link BufferedOutputStream}.
- *
- * <p>Use {@link FileWriter} to write characters, as opposed to bytes, to a file.
- *
+ * }
+ * </pre>
+ * <p>
+ * This stream is <strong>not buffered</strong>. Most callers should wrap this
+ * stream with a {@link BufferedOutputStream}.
+ * <p>
+ * Use {@link FileWriter} to write characters, as opposed to bytes, to a file.
+ * 
  * @see BufferedOutputStream
  * @see FileInputStream
  */
@@ -67,9 +70,9 @@ public class FileOutputStream extends OutputStream implements Closeable {
     private final int mode;
 
     /**
-     * Constructs a new {@code FileOutputStream} that writes to {@code file}. The file will be
-     * truncated if it exists, and created if it doesn't exist.
-     *
+     * Constructs a new {@code FileOutputStream} that writes to {@code file}.
+     * The file will be truncated if it exists, and created if it doesn't exist.
+     * 
      * @throws FileNotFoundException if file cannot be opened for writing.
      */
     public FileOutputStream(File file) throws FileNotFoundException {
@@ -77,10 +80,11 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     /**
-     * Constructs a new {@code FileOutputStream} that writes to {@code file}.
-     * If {@code append} is true and the file already exists, it will be appended to; otherwise
-     * it will be truncated. The file will be created if it does not exist.
-     *
+     * Constructs a new {@code FileOutputStream} that writes to {@code file}. If
+     * {@code append} is true and the file already exists, it will be appended
+     * to; otherwise it will be truncated. The file will be created if it does
+     * not exist.
+     * 
      * @throws FileNotFoundException if the file cannot be opened for writing.
      */
     public FileOutputStream(File file, boolean append) throws FileNotFoundException {
@@ -95,7 +99,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     /**
      * Constructs a new {@code FileOutputStream} that writes to {@code fd}.
-     *
+     * 
      * @throws NullPointerException if {@code fd} is null.
      */
     public FileOutputStream(FileDescriptor fd) {
@@ -109,9 +113,9 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     /**
-     * Constructs a new {@code FileOutputStream} that writes to {@code path}. The file will be
-     * truncated if it exists, and created if it doesn't exist.
-     *
+     * Constructs a new {@code FileOutputStream} that writes to {@code path}.
+     * The file will be truncated if it exists, and created if it doesn't exist.
+     * 
      * @throws FileNotFoundException if file cannot be opened for writing.
      */
     public FileOutputStream(String path) throws FileNotFoundException {
@@ -119,10 +123,11 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     /**
-     * Constructs a new {@code FileOutputStream} that writes to {@code path}.
-     * If {@code append} is true and the file already exists, it will be appended to; otherwise
-     * it will be truncated. The file will be created if it does not exist.
-     *
+     * Constructs a new {@code FileOutputStream} that writes to {@code path}. If
+     * {@code append} is true and the file already exists, it will be appended
+     * to; otherwise it will be truncated. The file will be created if it does
+     * not exist.
+     * 
      * @throws FileNotFoundException if the file cannot be opened for writing.
      */
     public FileOutputStream(String path, boolean append) throws FileNotFoundException {
@@ -139,20 +144,23 @@ public class FileOutputStream extends OutputStream implements Closeable {
                 IoUtils.close(fd);
             } else {
                 // An owned fd has been invalidated by IoUtils.close, but
-                // we need to explicitly stop using an unowned fd (http://b/4361076).
+                // we need to explicitly stop using an unowned fd
+                // (http://b/4361076).
                 fd = new FileDescriptor();
             }
         }
     }
 
-    @Override protected void finalize() throws IOException {
+    @Override
+    protected void finalize() throws IOException {
         try {
             close();
         } finally {
             try {
                 super.finalize();
             } catch (Throwable t) {
-                // for consistency with the RI, we must override Object.finalize() to
+                // for consistency with the RI, we must override
+                // Object.finalize() to
                 // remove the 'throws Throwable' clause.
                 throw new AssertionError(t);
             }
@@ -160,8 +168,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     /**
-     * Returns a write-only {@link IOCipherFileChannel} that shares its position with
-     * this stream.
+     * Returns a write-only {@link IOCipherFileChannel} that shares its position
+     * with this stream.
      */
     public IOCipherFileChannel getChannel() {
         synchronized (this) {
@@ -186,6 +194,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     @Override
     public void write(int oneByte) throws IOException {
-        write(new byte[] { (byte) oneByte }, 0, 1);
+        write(new byte[] {
+                (byte) oneByte
+        }, 0, 1);
     }
 }
