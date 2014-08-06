@@ -48,7 +48,7 @@
 
 /* right now, we use a single global virtual file system so we don't
  * have to map the structs sqlfs_t and sqlite3 to Java code */
-extern char databaseFileName[PATH_MAX];
+extern char dbFileName[PATH_MAX];
 
 #define TO_JAVA_STRING(NAME, EXP) \
         jstring NAME = env->NewStringUTF(EXP); \
@@ -742,10 +742,10 @@ static jobject Posix_stat(JNIEnv* env, jobject, jstring javaPath) {
 
 /* we are faking this somewhat by using the data from the underlying
  partition that the database file is stored on.  That means we ignore
- the javaPath passed in and just use the databaseFilename. */
+ the javaPath passed in and just use the dbFilename. */
 static jobject Posix_statfs(JNIEnv* env, jobject, jstring javaPath) {
     struct statfs sb;
-    int rc = TEMP_FAILURE_RETRY(statfs(databaseFileName, &sb));
+    int rc = TEMP_FAILURE_RETRY(statfs(dbFileName, &sb));
     if (rc == -1) {
         throwErrnoException(env, "statfs", rc);
         return NULL;
@@ -754,7 +754,7 @@ static jobject Posix_statfs(JNIEnv* env, jobject, jstring javaPath) {
     sb.f_bsize = 4096; // libsqlfs uses 4k page sizes in sqlite (I think)
 
     struct stat st;
-    stat(databaseFileName, &st);
+    stat(dbFileName, &st);
     sb.f_blocks = st.st_blocks;
     return makeStructStatFs(env, sb);
 }

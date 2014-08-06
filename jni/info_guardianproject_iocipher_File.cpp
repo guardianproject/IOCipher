@@ -44,7 +44,6 @@
 
 /* right now, we use a single global virtual file system so we don't
  * have to map the structs sqlfs_t and sqlite3 to Java code */
-extern char databaseFileName[PATH_MAX];
 extern sqlfs_t *sqlfs;
 
 // from fuse.h
