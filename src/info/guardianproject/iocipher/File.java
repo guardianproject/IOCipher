@@ -35,6 +35,9 @@ import static info.guardianproject.libcore.io.OsConstants.S_IXOTH;
 import static info.guardianproject.libcore.io.OsConstants.S_IXUSR;
 import static info.guardianproject.libcore.io.OsConstants.W_OK;
 import static info.guardianproject.libcore.io.OsConstants.X_OK;
+
+import android.annotation.SuppressLint;
+
 import info.guardianproject.libcore.io.ErrnoException;
 import info.guardianproject.libcore.io.IoUtils;
 import info.guardianproject.libcore.io.Libcore;
@@ -72,6 +75,7 @@ import java.util.Random;
  * @see java.io.Serializable
  * @see java.lang.Comparable
  */
+@SuppressLint("Override")
 public class File extends java.io.File {
 
     private static final long serialVersionUID = 301077366599181567L;
