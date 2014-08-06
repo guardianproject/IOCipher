@@ -1,6 +1,10 @@
 
 package info.guardianproject.iocipher;
 
+import android.text.TextUtils;
+
+import java.io.IOException;
+
 /**
  * A virtual file system container. Open and mount a virtual file system
  * container backed by a SQLCipher database for full encrypted file storage.
@@ -11,6 +15,7 @@ public class VirtualFileSystem {
      * Empty dbFile results in an in memory database
      */
     private static String dbFileName = "";
+    private static VirtualFileSystem vfs;
 
     static {
         System.loadLibrary("stlport_shared");
@@ -18,33 +23,47 @@ public class VirtualFileSystem {
         System.loadLibrary("iocipher");
     }
 
+    private VirtualFileSystem() {
+        // singleton!
+    }
+
     /**
-     * Create a virtual file system container
+     * Get the instance of the VirtualFileSystem.
      *
-     * @param file the physical disk file that will contain the container
+     * @return the single instance of VirtualFileSystem
+     */
+    public static VirtualFileSystem get() {
+        if (vfs == null)
+            vfs = new VirtualFileSystem();
+        return vfs;
+    }
+
+    /**
+     * Set the path to the container file that is the virtual file system. This
+     * is specified as a {@code String} to avoid confusion between
+     * {@link java.io.File} and {@link info.guardianproject.iocipher.File}.
+     *
+     * @param containerPath the physical disk file that serves as the VFS
+     *            container
      * @throws IllegalArgumentException
      */
-    public VirtualFileSystem(String file) throws IllegalArgumentException {
-        if (file.equals(""))
+    public void setContainerPath(String containerPath) {
+        if (TextUtils.isEmpty(containerPath))
             throw new IllegalArgumentException("blank file name not allowed!");
-        java.io.File dir = new java.io.File(file).getParentFile();
+        java.io.File file = new java.io.File(containerPath);
+        java.io.File dir = file.getParentFile();
         if (!dir.exists())
             throw new IllegalArgumentException(dir.getPath() + " does not exist!");
         if (!dir.isDirectory())
             throw new IllegalArgumentException(dir.getPath() + " is not a directory!");
         if (!dir.canWrite())
             throw new IllegalArgumentException("Cannot write to " + dir.getPath() + "!");
-        dbFileName = file;
-    }
-
-    /**
-     * Create a virtual file system container
-     *
-     * @param file the physical disk file that will contain the container
-     * @throws IllegalArgumentException
-     */
-    public VirtualFileSystem(java.io.File file) throws IllegalArgumentException {
-        this(file.getAbsolutePath());
+        try {
+            dbFileName = file.getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+            dbFileName = file.getAbsolutePath();
+        }
     }
 
     /**
