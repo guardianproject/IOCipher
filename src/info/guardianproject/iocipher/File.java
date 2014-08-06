@@ -17,12 +17,29 @@
 
 package info.guardianproject.iocipher;
 
+import static info.guardianproject.libcore.io.OsConstants.EEXIST;
+import static info.guardianproject.libcore.io.OsConstants.F_OK;
+import static info.guardianproject.libcore.io.OsConstants.O_CREAT;
+import static info.guardianproject.libcore.io.OsConstants.O_EXCL;
+import static info.guardianproject.libcore.io.OsConstants.O_RDWR;
+import static info.guardianproject.libcore.io.OsConstants.R_OK;
+import static info.guardianproject.libcore.io.OsConstants.S_IRGRP;
+import static info.guardianproject.libcore.io.OsConstants.S_IROTH;
+import static info.guardianproject.libcore.io.OsConstants.S_IRUSR;
+import static info.guardianproject.libcore.io.OsConstants.S_IRWXU;
+import static info.guardianproject.libcore.io.OsConstants.S_IWGRP;
+import static info.guardianproject.libcore.io.OsConstants.S_IWOTH;
+import static info.guardianproject.libcore.io.OsConstants.S_IWUSR;
+import static info.guardianproject.libcore.io.OsConstants.S_IXGRP;
+import static info.guardianproject.libcore.io.OsConstants.S_IXOTH;
+import static info.guardianproject.libcore.io.OsConstants.S_IXUSR;
+import static info.guardianproject.libcore.io.OsConstants.W_OK;
+import static info.guardianproject.libcore.io.OsConstants.X_OK;
 import info.guardianproject.libcore.io.ErrnoException;
 import info.guardianproject.libcore.io.IoUtils;
 import info.guardianproject.libcore.io.Libcore;
 import info.guardianproject.libcore.io.StructStat;
 import info.guardianproject.libcore.io.StructStatFs;
-import static info.guardianproject.libcore.io.OsConstants.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

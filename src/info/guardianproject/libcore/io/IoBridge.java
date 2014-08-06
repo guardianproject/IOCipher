@@ -16,8 +16,12 @@
 
 package info.guardianproject.libcore.io;
 
+import static info.guardianproject.libcore.io.OsConstants.EAGAIN;
+import static info.guardianproject.libcore.io.OsConstants.EISDIR;
+import static info.guardianproject.libcore.io.OsConstants.O_ACCMODE;
+import static info.guardianproject.libcore.io.OsConstants.O_RDONLY;
+import static info.guardianproject.libcore.io.OsConstants.S_ISDIR;
 import info.guardianproject.iocipher.FileDescriptor;
-import static info.guardianproject.libcore.io.OsConstants.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

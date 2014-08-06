@@ -17,9 +17,12 @@
 
 package info.guardianproject.iocipher;
 
+import static info.guardianproject.libcore.io.OsConstants.O_APPEND;
+import static info.guardianproject.libcore.io.OsConstants.O_CREAT;
+import static info.guardianproject.libcore.io.OsConstants.O_TRUNC;
+import static info.guardianproject.libcore.io.OsConstants.O_WRONLY;
 import info.guardianproject.libcore.io.IoBridge;
 import info.guardianproject.libcore.io.IoUtils;
-import static info.guardianproject.libcore.io.OsConstants.*;
 
 import java.io.BufferedOutputStream;
 import java.io.Closeable;

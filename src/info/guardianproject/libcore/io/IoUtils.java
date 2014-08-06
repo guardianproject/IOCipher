@@ -16,11 +16,14 @@
 
 package info.guardianproject.libcore.io;
 
-import java.io.File;
+import static info.guardianproject.libcore.io.OsConstants.F_GETFL;
+import static info.guardianproject.libcore.io.OsConstants.F_SETFL;
+import static info.guardianproject.libcore.io.OsConstants.O_NONBLOCK;
 import info.guardianproject.iocipher.FileDescriptor;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-import static info.guardianproject.libcore.io.OsConstants.*;
 
 public final class IoUtils {
     private IoUtils() {
