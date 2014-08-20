@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+
+    <!-- IOCipher is a library not an app, allowBackup goes in <application> -->
+
+    <issue
+        id="AllowBackup"
+        severity="ignore" />
+
+</lint>
