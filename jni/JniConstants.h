@@ -40,35 +40,22 @@
 struct JniConstants {
     static void init(JNIEnv* env);
 
-//    static jclass bidiRunClass;
     static jclass bigDecimalClass;
     static jclass booleanClass;
     static jclass byteArrayClass;
     static jclass byteClass;
-//    static jclass charsetICUClass;
     static jclass constructorClass;
     static jclass deflaterClass;
     static jclass doubleClass;
     static jclass errnoExceptionClass;
     static jclass fieldClass;
-//    static jclass fieldPositionIteratorClass;
     static jclass fileDescriptorClass;
-//    static jclass gaiExceptionClass;
-//    static jclass inet6AddressClass;
-//    static jclass inetAddressClass;
-//    static jclass inetSocketAddressClass;
     static jclass inflaterClass;
     static jclass integerClass;
-//    static jclass localeDataClass;
     static jclass longClass;
     static jclass methodClass;
-//    static jclass mutableIntClass;
-//    static jclass mutableLongClass;
     static jclass parsePositionClass;
     static jclass patternSyntaxExceptionClass;
-//    static jclass realToStringClass;
-//    static jclass socketClass;
-//    static jclass socketImplClass;
     static jclass stringArrayClass;
     static jclass stringClass;
     static jclass structAddrinfoClass;

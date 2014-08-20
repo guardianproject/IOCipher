@@ -64,29 +64,6 @@ static jclass findClass(C_JNIEnv* env, const char* className) {
     return (*env)->FindClass(e, className);
 }
 
-/* TODO should we use this instead of the standard JNI env->RegisterNatives?
-extern "C" int jniRegisterNativeMethods(C_JNIEnv* env, const char* className,
-    const JNINativeMethod* gMethods, int numMethods)
-{
-    JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
-
-    LOGV("Registering %s natives", className);
-
-    scoped_local_ref<jclass> c(env, findClass(env, className));
-    if (c.get() == NULL) {
-        LOGE("Native registration unable to find class '%s', aborting", className);
-        abort();
-    }
-
-    if ((*env)->RegisterNatives(e, c.get(), gMethods, numMethods) < 0) {
-        LOGE("RegisterNatives failed for '%s', aborting", className);
-        abort();
-    }
-
-    return 0;
-}
-*/
-
 /*
  * Returns a human-readable summary of an exception object.  The buffer will
  * be populated with the "binary" class name and, if present, the

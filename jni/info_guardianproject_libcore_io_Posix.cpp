@@ -87,22 +87,6 @@ static void throwErrnoException(JNIEnv* env, const char* functionName, int error
     throwException(env, JniConstants::errnoExceptionClass, ctor3, ctor2, functionName, -error);
 }
 
-/*
-static void throwGaiException(JNIEnv* env, const char* functionName, int error) {
-    if (error == EAI_SYSTEM) {
-        // EAI_SYSTEM means "look at errno instead", so we want our GaiException to have the
-        // relevant ErrnoException as its cause.
-        throwErrnoException(env, functionName);
-        // Deliberately fall through to throw another exception...
-    }
-    static jmethodID ctor3 = env->GetMethodID(JniConstants::gaiExceptionClass,
-            "<init>", "(Ljava/lang/String;ILjava/lang/Throwable;)V");
-    static jmethodID ctor2 = env->GetMethodID(JniConstants::gaiExceptionClass,
-            "<init>", "(Ljava/lang/String;I)V");
-    throwException(env, JniConstants::gaiExceptionClass, ctor3, ctor2, functionName, error);
-}
-*/
-
 // sqlfs/FUSE returns errno-style errors as negative values
 template <typename rc_t>
 static rc_t throwIfNegative(JNIEnv* env, const char* name, rc_t rc) {
@@ -242,48 +226,6 @@ static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     return makeStructStat(env, sb);
 }
 
-/*
-class Passwd {
-public:
-    Passwd(JNIEnv* env) : mEnv(env), mResult(NULL) {
-        mBufferSize = sysconf(_SC_GETPW_R_SIZE_MAX);
-        if (mBufferSize == -1UL) {
-            // We're probably on bionic, where 1KiB should be enough for anyone.
-            // TODO: fix bionic to return 1024 like glibc.
-            mBufferSize = 1024;
-        }
-        mBuffer.reset(new char[mBufferSize]);
-    }
-
-    jobject getpwnam(const char* name) {
-        return process("getpwnam_r", getpwnam_r(name, &mPwd, mBuffer.get(), mBufferSize, &mResult));
-    }
-
-    jobject getpwuid(uid_t uid) {
-        return process("getpwuid_r", getpwuid_r(uid, &mPwd, mBuffer.get(), mBufferSize, &mResult));
-    }
-
-    struct passwd* get() {
-        return mResult;
-    }
-
-private:
-    jobject process(const char* syscall, int error) {
-        if (mResult == NULL) {
-            throwErrnoException(mEnv, syscall, error);
-            return NULL;
-        }
-        return makeStructPasswd(mEnv, *mResult);
-    }
-
-    JNIEnv* mEnv;
-    UniquePtr<char[]> mBuffer;
-    size_t mBufferSize;
-    struct passwd mPwd;
-    struct passwd* mResult;
-};
-*/
-
 static jboolean Posix_access(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -311,67 +253,6 @@ static void Posix_close(JNIEnv* env, jobject, jobject javaFd) {
     jniSetFileDescriptorInvalid(env, javaFd);
 }
 
-/*
-static jobject Posix_dup(JNIEnv* env, jobject, jobject javaOldFd) {
-    int oldFd = jniGetFDFromFileDescriptor(env, javaOldFd);
-    int newFd = throwIfNegative(env, "dup", TEMP_FAILURE_RETRY(dup(oldFd)));
-    return (newFd != -1) ? jniCreateFileDescriptor(env, newFd) : NULL;
-}
-
-static jobject Posix_dup2(JNIEnv* env, jobject, jobject javaOldFd, jint newFd) {
-    int oldFd = jniGetFDFromFileDescriptor(env, javaOldFd);
-    int fd = throwIfNegative(env, "dup2", TEMP_FAILURE_RETRY(dup2(oldFd, newFd)));
-    return (fd != -1) ? jniCreateFileDescriptor(env, fd) : NULL;
-}
-
-static jobjectArray Posix_environ(JNIEnv* env, jobject) {
-    extern char** environ; // Standard, but not in any header file.
-    return toStringArray(env, environ);
-}
-
-static jint Posix_fcntlVoid(JNIEnv* env, jobject, jobject javaFd, jint cmd) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfNegative(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd)));
-}
-
-static jint Posix_fcntlLong(JNIEnv* env, jobject, jobject javaFd, jint cmd, jlong arg) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfNegative(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd, arg)));
-}
-
-static jint Posix_fcntlFlock(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobject javaFlock) {
-    static jfieldID typeFid = env->GetFieldID(JniConstants::structFlockClass, "l_type", "S");
-    static jfieldID whenceFid = env->GetFieldID(JniConstants::structFlockClass, "l_whence", "S");
-    static jfieldID startFid = env->GetFieldID(JniConstants::structFlockClass, "l_start", "J");
-    static jfieldID lenFid = env->GetFieldID(JniConstants::structFlockClass, "l_len", "J");
-    static jfieldID pidFid = env->GetFieldID(JniConstants::structFlockClass, "l_pid", "I");
-
-    struct flock64 lock;
-    memset(&lock, 0, sizeof(lock));
-    lock.l_type = env->GetShortField(javaFlock, typeFid);
-    lock.l_whence = env->GetShortField(javaFlock, whenceFid);
-    lock.l_start = env->GetLongField(javaFlock, startFid);
-    lock.l_len = env->GetLongField(javaFlock, lenFid);
-    lock.l_pid = env->GetIntField(javaFlock, pidFid);
-
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    int rc = throwIfNegative(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd, &lock)));
-    if (rc != -1) {
-        env->SetShortField(javaFlock, typeFid, lock.l_type);
-        env->SetShortField(javaFlock, whenceFid, lock.l_whence);
-        env->SetLongField(javaFlock, startFid, lock.l_start);
-        env->SetLongField(javaFlock, lenFid, lock.l_len);
-        env->SetIntField(javaFlock, pidFid, lock.l_pid);
-    }
-    return rc;
-}
-
-static void Posix_fdatasync(JNIEnv* env, jobject, jobject javaFd) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    throwIfNegative(env, "fdatasync", TEMP_FAILURE_RETRY(fdatasync(fd)));
-}
-*/
-
 static jobject Posix_fstat(JNIEnv* env, jobject, jobject javaFd) {
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     return doStat(env, javaPath, false);
@@ -392,88 +273,6 @@ static void Posix_ftruncate(JNIEnv* env, jobject, jobject javaFd, jlong length) 
     throwIfNegative(env, "ftruncate", TEMP_FAILURE_RETRY(sqlfs_proc_truncate(0, path.c_str(), length)));
 }
 
-/*
-static jstring Posix_gai_strerror(JNIEnv* env, jobject, jint error) {
-    return env->NewStringUTF(gai_strerror(error));
-}
-
-static jint Posix_getegid(JNIEnv*, jobject) {
-    return getegid();
-}
-
-static jint Posix_geteuid(JNIEnv*, jobject) {
-    return geteuid();
-}
-
-static jint Posix_getgid(JNIEnv*, jobject) {
-    return getgid();
-}
-
-static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
-    ScopedUtfChars name(env, javaName);
-    if (name.c_str() == NULL) {
-        return NULL;
-    }
-    return env->NewStringUTF(getenv(name.c_str()));
-}
-
-static jint Posix_getpid(JNIEnv*, jobject) {
-    return getpid();
-}
-
-static jint Posix_getppid(JNIEnv*, jobject) {
-    return getppid();
-}
-
-static jobject Posix_getpwnam(JNIEnv* env, jobject, jstring javaName) {
-    ScopedUtfChars name(env, javaName);
-    if (name.c_str() == NULL) {
-        return NULL;
-    }
-    return Passwd(env).getpwnam(name.c_str());
-}
-
-static jobject Posix_getpwuid(JNIEnv* env, jobject, jint uid) {
-    return Passwd(env).getpwuid(uid);
-}
-
-static jint Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobject javaArg) {
-    // This is complicated because ioctls may return their result by updating their argument
-    // or via their return value, so we need to support both.
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    static jfieldID valueFid = env->GetFieldID(JniConstants::mutableIntClass, "value", "I");
-    jint arg = env->GetIntField(javaArg, valueFid);
-    int rc = throwIfNegative(env, "ioctl", TEMP_FAILURE_RETRY(ioctl(fd, cmd, &arg)));
-    if (!env->ExceptionCheck()) {
-        env->SetIntField(javaArg, valueFid, arg);
-    }
-    return rc;
-}
-
-static jboolean Posix_isatty(JNIEnv* env, jobject, jobject javaFd) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return TEMP_FAILURE_RETRY(isatty(fd)) == 0;
-}
-
-static void Posix_kill(JNIEnv* env, jobject, jint pid, jint sig) {
-    throwIfNegative(env, "kill", TEMP_FAILURE_RETRY(kill(pid, sig)));
-}
-
-static jobject Posix_lstat(JNIEnv* env, jobject, jstring javaPath) {
-    return doStat(env, javaPath, true);
-}
-
-static void Posix_mincore(JNIEnv* env, jobject, jlong address, jlong byteCount, jbyteArray javaVector) {
-    ScopedByteArrayRW vector(env, javaVector);
-    if (vector.get() == NULL) {
-        return;
-    }
-    void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    unsigned char* vec = reinterpret_cast<unsigned char*>(vector.get());
-    throwIfNegative(env, "mincore", TEMP_FAILURE_RETRY(mincore(ptr, byteCount, vec)));
-}
-*/
-
 static void Posix_link(JNIEnv* env, jobject, jstring javaFrom, jstring javaTo) {
     ScopedUtfChars from(env, javaFrom);
     ScopedUtfChars to(env, javaTo);
@@ -491,38 +290,6 @@ static void Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     // TODO throw exception warning that VirtualFileSystem is not open
     throwIfNegative(env, "mkdir", TEMP_FAILURE_RETRY(sqlfs_proc_mkdir(0, path.c_str(), mode)));
 }
-
-/*
-static void Posix_mlock(JNIEnv* env, jobject, jlong address, jlong byteCount) {
-    void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    throwIfNegative(env, "mlock", TEMP_FAILURE_RETRY(mlock(ptr, byteCount)));
-}
-
-static jlong Posix_mmap(JNIEnv* env, jobject, jlong address, jlong byteCount, jint prot, jint flags, jobject javaFd, jlong offset) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    void* suggestedPtr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    void* ptr = mmap(suggestedPtr, byteCount, prot, flags, fd, offset);
-    if (ptr == MAP_FAILED) {
-        throwErrnoException(env, "mmap");
-    }
-    return static_cast<jlong>(reinterpret_cast<uintptr_t>(ptr));
-}
-
-static void Posix_msync(JNIEnv* env, jobject, jlong address, jlong byteCount, jint flags) {
-    void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    throwIfNegative(env, "msync", TEMP_FAILURE_RETRY(msync(ptr, byteCount, flags)));
-}
-
-static void Posix_munlock(JNIEnv* env, jobject, jlong address, jlong byteCount) {
-    void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    throwIfNegative(env, "munlock", TEMP_FAILURE_RETRY(munlock(ptr, byteCount)));
-}
-
-static void Posix_munmap(JNIEnv* env, jobject, jlong address, jlong byteCount) {
-    void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
-    throwIfNegative(env, "munmap", TEMP_FAILURE_RETRY(munmap(ptr, byteCount)));
-}
-*/
 
 static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, jint mode) {
     ScopedUtfChars path(env, javaPath);
@@ -566,69 +333,6 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     }
 }
 
-/*
-static jobjectArray Posix_pipe(JNIEnv* env, jobject) {
-    int fds[2];
-    throwIfNegative(env, "pipe", TEMP_FAILURE_RETRY(pipe(&fds[0])));
-    jobjectArray result = env->NewObjectArray(2, JniConstants::fileDescriptorClass, NULL);
-    if (result == NULL) {
-        return NULL;
-    }
-    for (int i = 0; i < 2; ++i) {
-        ScopedLocalRef<jobject> fd(env, jniCreateFileDescriptor(env, fds[i]));
-        if (fd.get() == NULL) {
-            return NULL;
-        }
-        env->SetObjectArrayElement(result, i, fd.get());
-        if (env->ExceptionCheck()) {
-            return NULL;
-        }
-    }
-    return result;
-}
-
-static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint timeoutMs) {
-    static jfieldID fdFid = env->GetFieldID(JniConstants::structPollfdClass, "fd", "Ljava/io/FileDescriptor;");
-    static jfieldID eventsFid = env->GetFieldID(JniConstants::structPollfdClass, "events", "S");
-    static jfieldID reventsFid = env->GetFieldID(JniConstants::structPollfdClass, "revents", "S");
-
-    // Turn the Java libcore.io.StructPollfd[] into a C++ struct pollfd[].
-    size_t arrayLength = env->GetArrayLength(javaStructs);
-    UniquePtr<struct pollfd[]> fds(new struct pollfd[arrayLength]);
-    memset(fds.get(), 0, sizeof(struct pollfd) * arrayLength);
-    size_t count = 0; // Some trailing array elements may be irrelevant. (See below.)
-    for (size_t i = 0; i < arrayLength; ++i) {
-        ScopedLocalRef<jobject> javaStruct(env, env->GetObjectArrayElement(javaStructs, i));
-        if (javaStruct.get() == NULL) {
-            break; // We allow trailing nulls in the array for caller convenience.
-        }
-        ScopedLocalRef<jobject> javaFd(env, env->GetObjectField(javaStruct.get(), fdFid));
-        if (javaFd.get() == NULL) {
-            break; // We also allow callers to just clear the fd field (this is what Selector does).
-        }
-        fds[count].fd = jniGetFDFromFileDescriptor(env, javaFd.get());
-        fds[count].events = env->GetShortField(javaStruct.get(), eventsFid);
-        ++count;
-    }
-
-    int rc = TEMP_FAILURE_RETRY(poll(fds.get(), count, timeoutMs));
-    if (rc == -1) {
-        throwErrnoException(env, "poll", rc);
-        return -1;
-    }
-
-    // Update the revents fields in the Java libcore.io.StructPollfd[].
-    for (size_t i = 0; i < count; ++i) {
-        ScopedLocalRef<jobject> javaStruct(env, env->GetObjectArrayElement(javaStructs, i));
-        if (javaStruct.get() == NULL) {
-            return -1;
-        }
-        env->SetShortField(javaStruct.get(), reventsFid, fds[i].revents);
-    }
-    return rc;
-}
-*/
-
 static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jlong offset) {
     ScopedBytesRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -671,17 +375,6 @@ static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray j
     }
 }
 
-/*
-static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
-    IoVec<ScopedBytesRW> ioVec(env, env->GetArrayLength(buffers));
-    if (!ioVec.init(buffers, offsets, byteCounts)) {
-        return -1;
-    }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfNegative(env, "readv", TEMP_FAILURE_RETRY(readv(fd, ioVec.get(), ioVec.size())));
-}
-*/
-
 static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -712,29 +405,6 @@ static void Posix_rmdir(JNIEnv* env, jobject, jstring javaPath) {
     }
     throwIfNegative(env, "rmdir", TEMP_FAILURE_RETRY(sqlfs_proc_rmdir(0, path.c_str())));
 }
-
-/*
-static void Posix_setegid(JNIEnv* env, jobject, jint egid) {
-    throwIfNegative(env, "setegid", TEMP_FAILURE_RETRY(setegid(egid)));
-}
-
-static void Posix_seteuid(JNIEnv* env, jobject, jint euid) {
-    throwIfNegative(env, "seteuid", TEMP_FAILURE_RETRY(seteuid(euid)));
-}
-
-static void Posix_setgid(JNIEnv* env, jobject, jint gid) {
-    throwIfNegative(env, "setgid", TEMP_FAILURE_RETRY(setgid(gid)));
-}
-
-static void Posix_setuid(JNIEnv* env, jobject, jint uid) {
-    throwIfNegative(env, "setuid", TEMP_FAILURE_RETRY(setuid(uid)));
-}
-
-static void Posix_shutdown(JNIEnv* env, jobject, jobject javaFd, jint how) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    throwIfNegative(env, "shutdown", TEMP_FAILURE_RETRY(shutdown(fd, how)));
-}
-*/
 
 static jobject Posix_stat(JNIEnv* env, jobject, jstring javaPath) {
     return doStat(env, javaPath, false);
@@ -785,112 +455,26 @@ static void Posix_unlink(JNIEnv* env, jobject, jstring javaPath) {
     throwIfNegative(env, "unlink", TEMP_FAILURE_RETRY(sqlfs_proc_unlink(0, path.c_str())));
 }
 
-/*
-static jlong Posix_sysconf(JNIEnv* env, jobject, jint name) {
-    // Since -1 is a valid result from sysconf(3), detecting failure is a little more awkward.
-    errno = 0;
-    long result = sysconf(name);
-    if (result == -1L && errno == EINVAL) {
-        throwErrnoException(env, "sysconf");
-    }
-    return result;
-}
-
-static jobject Posix_uname(JNIEnv* env, jobject) {
-    struct utsname buf;
-    if (TEMP_FAILURE_RETRY(uname(&buf)) == -1) {
-        return NULL; // Can't happen.
-    }
-    return makeStructUtsname(env, buf);
-}
-
-static jint Posix_waitpid(JNIEnv* env, jobject, jint pid, jobject javaStatus, jint options) {
-    int status;
-    int rc = throwIfNegative(env, "waitpid", TEMP_FAILURE_RETRY(waitpid(pid, &status, options)));
-    if (rc != -1) {
-        static jfieldID valueFid = env->GetFieldID(JniConstants::mutableIntClass, "value", "I");
-        env->SetIntField(javaStatus, valueFid, status);
-    }
-    return rc;
-}
-*/
-
-/*
-static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
-    IoVec<ScopedBytesRO> ioVec(env, env->GetArrayLength(buffers));
-    if (!ioVec.init(buffers, offsets, byteCounts)) {
-        return -1;
-    }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfNegative(env, "writev", TEMP_FAILURE_RETRY(writev(fd, ioVec.get(), ioVec.size())));
-}
-*/
-
 static JNINativeMethod sMethods[] = {
     {"access", "(Ljava/lang/String;I)Z", (void *)Posix_access},
     {"chmod", "(Ljava/lang/String;I)V", (void *)Posix_chmod},
     {"close", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)Posix_close},
-//    {"dup", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)Posix_dup},
-//    {"dup2", "(Linfo/guardianproject/iocipher/FileDescriptor;I)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)Posix_dup2},
-//    {"environ", "()[Ljava/lang/String;", (void *)Posix_environ},
-//    {"fcntlVoid", "(Linfo/guardianproject/iocipher/FileDescriptor;I)I", (void *)Posix_fcntlVoid},
-//    {"fcntlLong", "(Linfo/guardianproject/iocipher/FileDescriptor;IJ)I", (void *)Posix_fcntlLong},
-//    {"fcntlFlock", "(Linfo/guardianproject/iocipher/FileDescriptor;ILlibcore/io/StructFlock;)I", (void *)Posix_fcntlFlock},
-//    {"fdatasync", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)Posix_fdatasync},
     {"fstat", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/libcore/io/StructStat;", (void *)Posix_fstat},
-//    {"fstatfs", "(Linfo/guardianproject/iocipher/FileDescriptor;)Linfo/guardianproject/libcore/io/StructStatFs;", (void *)Posix_fstatfs},
     {"fsync", "(Linfo/guardianproject/iocipher/FileDescriptor;)V", (void *)Posix_fsync},
     {"ftruncate", "(Linfo/guardianproject/iocipher/FileDescriptor;J)V", (void *)Posix_ftruncate},
-//    {"gai_strerror", "(I)Ljava/lang/String;", (void *)Posix_gai_strerror},
-//    {"getegid", "()I", (void *)Posix_getegid},
-//    {"geteuid", "()I", (void *)Posix_geteuid},
-//    {"getgid", "()I", (void *)Posix_getgid},
-//    {"getenv", "(Ljava/lang/String;)Ljava/lang/String;", (void *)Posix_getenv},
-//    {"getpid", "()I", (void *)Posix_getpid},
-//    {"getppid", "()I", (void *)Posix_getppid},
-//    {"getpwnam", "(Ljava/lang/String;)Llibcore/io/StructPasswd;", (void *)Posix_getpwnam},
-//    {"getpwuid", "(I)Llibcore/io/StructPasswd;", (void *)Posix_getpwuid},
-//    {"getuid", "()I", (void *)Posix_getuid},
-//    {"if_indextoname", "(I)Ljava/lang/String;", (void *)Posix_if_indextoname},
-//    {"ioctlInt", "(Linfo/guardianproject/iocipher/FileDescriptor;ILlibcore/util/MutableInt;)I", (void *)Posix_ioctlInt},
-//    {"isatty", "(Linfo/guardianproject/iocipher/FileDescriptor;)Z", (void *)Posix_isatty},
-//    {"kill", "(II)V", (void *)Posix_kill},
-//    {"listen", "(Linfo/guardianproject/iocipher/FileDescriptor;I)V", (void *)Posix_listen},
-//    {"lstat", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStat;", (void *)Posix_lstat},
-//    {"mincore", "(JJ[B)V", (void *)Posix_mincore},
     {"link", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)Posix_link},
     {"mkdir", "(Ljava/lang/String;I)V", (void *)Posix_mkdir},
-//    {"mlock", "(JJ)V", (void *)Posix_mlock},
-//    {"mmap", "(JJIILinfo/guardianproject/iocipher/FileDescriptor;J)J", (void *)Posix_mmap},
-//    {"msync", "(JJI)V", (void *)Posix_msync},
-//    {"munlock", "(JJ)V", (void *)Posix_munlock},
-//    {"munmap", "(JJ)V", (void *)Posix_munmap},
     {"open", "(Ljava/lang/String;II)Linfo/guardianproject/iocipher/FileDescriptor;", (void *)Posix_open},
-//    {"pipe", "()[Linfo/guardianproject/iocipher/FileDescriptor;", (void *)Posix_pipe},
-//    {"poll", "([Llibcore/io/StructPollfd;I)I", (void *)Posix_poll},
     {"preadBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJ)I", (void *)Posix_preadBytes},
     {"pwriteBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;IIJI)I", (void *)Posix_pwriteBytes},
-//    {"readBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)Posix_readBytes},
-//    {"readv", "(Linfo/guardianproject/iocipher/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)Posix_readv},
     {"remove", "(Ljava/lang/String;)V", (void *)Posix_remove},
     {"rename", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)Posix_rename},
     {"rmdir", "(Ljava/lang/String;)V", (void *)Posix_rmdir},
-//    {"sendfile", "(Linfo/guardianproject/iocipher/FileDescriptor;Linfo/guardianproject/iocipher/FileDescriptor;Llibcore/util/MutableLong;J)J", (void *)Posix_sendfile},
-//    {"setegid", "(I)V", (void *)Posix_setegid},
-//    {"seteuid", "(I)V", (void *)Posix_seteuid},
-//    {"setgid", "(I)V", (void *)Posix_setgid},
-//    {"setuid", "(I)V", (void *)Posix_setuid},
-//    {"shutdown", "(Linfo/guardianproject/iocipher/FileDescriptor;I)V", (void *)Posix_shutdown},
     {"stat", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStat;", (void *)Posix_stat},
     {"statfs", "(Ljava/lang/String;)Linfo/guardianproject/libcore/io/StructStatFs;", (void *)Posix_statfs},
     {"strerror", "(I)Ljava/lang/String;", (void *)Posix_strerror},
     {"symlink", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)Posix_symlink},
     {"unlink", "(Ljava/lang/String;)V", (void *)Posix_unlink},
-//    {"sysconf", "(I)J", (void *)Posix_sysconf},
-//    {"uname", "()Llibcore/io/StructUtsname;", (void *)Posix_uname},
-//    {"waitpid", "(ILlibcore/util/MutableInt;I)I", (void *)Posix_waitpid},
-//    {"writeBytes", "(Linfo/guardianproject/iocipher/FileDescriptor;Ljava/lang/Object;II)I", (void *)Posix_writeBytes},
-//    {"writev", "(Linfo/guardianproject/iocipher/FileDescriptor;[Ljava/lang/Object;[I[I)I", (void *)Posix_writev},
 };
 int register_info_guardianproject_libcore_io_Posix(JNIEnv* env) {
     jclass cls;

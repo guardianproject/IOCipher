@@ -21,35 +21,22 @@
 
 #define LOG_TAG "JniConstants"
 
-//jclass JniConstants::bidiRunClass;
 jclass JniConstants::bigDecimalClass;
 jclass JniConstants::booleanClass;
 jclass JniConstants::byteArrayClass;
 jclass JniConstants::byteClass;
-//jclass JniConstants::charsetICUClass;
 jclass JniConstants::constructorClass;
 jclass JniConstants::deflaterClass;
 jclass JniConstants::doubleClass;
 jclass JniConstants::errnoExceptionClass;
 jclass JniConstants::fieldClass;
-//jclass JniConstants::fieldPositionIteratorClass;
 jclass JniConstants::fileDescriptorClass;
-//jclass JniConstants::gaiExceptionClass;
-//jclass JniConstants::inet6AddressClass;
-//jclass JniConstants::inetAddressClass;
-//jclass JniConstants::inetSocketAddressClass;
 jclass JniConstants::inflaterClass;
 jclass JniConstants::integerClass;
-//jclass JniConstants::localeDataClass;
 jclass JniConstants::longClass;
 jclass JniConstants::methodClass;
-//jclass JniConstants::mutableIntClass;
-//jclass JniConstants::mutableLongClass;
 jclass JniConstants::parsePositionClass;
 jclass JniConstants::patternSyntaxExceptionClass;
-//jclass JniConstants::realToStringClass;
-//jclass JniConstants::socketClass;
-//jclass JniConstants::socketImplClass;
 jclass JniConstants::stringArrayClass;
 jclass JniConstants::stringClass;
 jclass JniConstants::structAddrinfoClass;
@@ -74,35 +61,22 @@ static jclass findClass(JNIEnv* env, const char* name) {
 }
 
 void JniConstants::init(JNIEnv* env) {
-//    bidiRunClass = findClass(env, "java/text/Bidi$Run");
     bigDecimalClass = findClass(env, "java/math/BigDecimal");
     booleanClass = findClass(env, "java/lang/Boolean");
     byteClass = findClass(env, "java/lang/Byte");
     byteArrayClass = findClass(env, "[B");
-//    charsetICUClass = findClass(env, "java/nio/charset/CharsetICU");
     constructorClass = findClass(env, "java/lang/reflect/Constructor");
     deflaterClass = findClass(env, "java/util/zip/Deflater");
     doubleClass = findClass(env, "java/lang/Double");
     errnoExceptionClass = findClass(env, "info/guardianproject/libcore/io/ErrnoException");
     fieldClass = findClass(env, "java/lang/reflect/Field");
-//    fieldPositionIteratorClass = findClass(env, "libcore/icu/NativeDecimalFormat$FieldPositionIterator");
     fileDescriptorClass = findClass(env, "info/guardianproject/iocipher/FileDescriptor");
-//    gaiExceptionClass = findClass(env, "libcore/io/GaiException");
-//    inet6AddressClass = findClass(env, "java/net/Inet6Address");
-//    inetAddressClass = findClass(env, "java/net/InetAddress");
-//    inetSocketAddressClass = findClass(env, "java/net/InetSocketAddress");
     inflaterClass = findClass(env, "java/util/zip/Inflater");
     integerClass = findClass(env, "java/lang/Integer");
-//    localeDataClass = findClass(env, "libcore/icu/LocaleData");
     longClass = findClass(env, "java/lang/Long");
     methodClass = findClass(env, "java/lang/reflect/Method");
-//    mutableIntClass = findClass(env, "libcore/util/MutableInt");
-//    mutableLongClass = findClass(env, "libcore/util/MutableLong");
     parsePositionClass = findClass(env, "java/text/ParsePosition");
     patternSyntaxExceptionClass = findClass(env, "java/util/regex/PatternSyntaxException");
-//    realToStringClass = findClass(env, "java/lang/RealToString");
-//    socketClass = findClass(env, "java/net/Socket");
-//    socketImplClass = findClass(env, "java/net/SocketImpl");
     stringArrayClass = findClass(env, "[Ljava/lang/String;");
     stringClass = findClass(env, "java/lang/String");
     structAddrinfoClass = findClass(env, "info/guardianproject/libcore/io/StructAddrinfo");

@@ -23,10 +23,8 @@
 
 /* each class file includes its own register function */
 int registerJniHelp(JNIEnv* env);
-//int register_info_guardianproject_iocipher_Console(JNIEnv *env);
 int register_info_guardianproject_iocipher_File(JNIEnv *env);
 int register_info_guardianproject_iocipher_VirtualFileSystem(JNIEnv *env);
-//int register_info_guardianproject_iocipher_ObjectStreamClass(JNIEnv *env);
 int register_info_guardianproject_libcore_io_Memory(JNIEnv *env);
 int register_info_guardianproject_libcore_io_OsConstants(JNIEnv *env);
 int register_info_guardianproject_libcore_io_Posix(JNIEnv *env);
@@ -45,10 +43,8 @@ extern "C" jint JNI_OnLoad(JavaVM* vm, void* reserved)
 
     LOGI("JNI_OnLoad register methods:");
     registerJniHelp(env);
-//    register_info_guardianproject_iocipher_Console(env);
     register_info_guardianproject_iocipher_File(env);
     register_info_guardianproject_iocipher_VirtualFileSystem(env);
-//    register_info_guardianproject_iocipher_ObjectStreamClass(env);
     register_info_guardianproject_libcore_io_Memory(env);
     register_info_guardianproject_libcore_io_OsConstants(env);
     register_info_guardianproject_libcore_io_Posix(env);
