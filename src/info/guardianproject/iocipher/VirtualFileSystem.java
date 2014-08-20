@@ -5,6 +5,8 @@ import android.text.TextUtils;
 
 import java.io.IOException;
 
+import javax.crypto.SecretKey;
+
 /**
  * A virtual file system container. Open and mount a virtual file system
  * container backed by a SQLCipher database for full encrypted file storage.
@@ -75,12 +77,34 @@ public class VirtualFileSystem {
 
     /**
      * Open and mount a virtual file system container encrypted with the
-     * provided key
+     * provided key as a {@code String}
      *
      * @param key the container's password
      * @throws IllegalArgumentException
      */
     public native void mount(String key) throws IllegalArgumentException;
+
+    /**
+     * Open and mount a virtual file system container encrypted with the
+     * provided key. This method only accepts ASCII characters, if you need to
+     * send a Unicode string, use {@link #mount(String)}
+     *
+     * @param {@code key} the container's password as a {@code byte[]} so it can
+     *        be zeroed out when it is no longer needed
+     * @throws IllegalArgumentException
+     */
+    public native void mount(byte[] key) throws IllegalArgumentException;
+
+    /**
+     * Open and mount a virtual file system container encrypted with the
+     * provided key.
+     *
+     * @param {@code key} the container's password
+     * @throws IllegalArgumentException
+     */
+    public void mount(SecretKey key) {
+        mount(key.getEncoded());
+    }
 
     /**
      * Unmount the file system.

@@ -34,34 +34,70 @@ static void VirtualFileSystem_mount_unencrypted(JNIEnv *env, jobject obj) {
         jniThrowException(env, "java/lang/IllegalArgumentException", buf);
 }
 
-static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaKey) {
+static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaPassword) {
     char buf[256];
     setDatabaseFileName(env, obj);
-    snprintf(buf, 255, "Could not mount filesystem in %s, bad key given?", dbFileName);
+    snprintf(buf, 255, "Could not mount filesystem in %s, bad password given?", dbFileName);
 
     sqlfs_t *sqlfs = 0;
-    char const * key = env->GetStringUTFChars(javaKey, 0);
-    jsize keyLen = env->GetStringUTFLength(javaKey);
+    char const *password = env->GetStringUTFChars(javaPassword, 0);
+    jsize passwordLen = env->GetStringUTFLength(javaPassword);
+
+    /* Attempt to open the database with the password, then immediately close
+     * it. If it fails, then the password is likely wrong. */
+    if (!sqlfs_open_password(dbFileName, password, &sqlfs)) {
+        LOGI("sqlfs_open_password FAILED");
+        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
+    }
+    sqlfs_close(sqlfs);
+
+    /* init the vfs by caching the password in memory.  Then as threads are
+     * spawned, they will use that cached password to open a connection to the
+     * database.  sqlfs_init_password returns 0 for success in the unix fashion */
+    if (sqlfs_init_password(dbFileName, password) != 0) {
+        LOGI("sqlfs_init_password FAILED");
+        jniThrowException(env, "java/lang/IllegalArgumentException", "Initializing VFS failed.");
+    }
+    env->ReleaseStringUTFChars(javaPassword, password);
+}
+
+static void VirtualFileSystem_mount_byte(JNIEnv *env, jobject obj, jbyteArray javaKey) {
+    char buf[256];
+    sqlfs_t *sqlfs = 0;
+    jsize keyLen = env->GetArrayLength(javaKey);
+
+    if (keyLen != REQUIRED_KEY_LENGTH) {
+        snprintf(buf, 255, "Key length is not %i bytes (%i bytes)!",
+                 REQUIRED_KEY_LENGTH, keyLen);
+        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
+        return;
+    }
+
+    setDatabaseFileName(env, obj);
+    jbyte *key = env->GetByteArrayElements(javaKey, NULL); //direct mem ref
 
     /* 
      * attempt to open the database with the key
      * if it fails, then the key is likely wrong
      */
-    if(!sqlfs_open_key(dbFileName, key, &sqlfs)) {
+    snprintf(buf, 255, "Could not mount filesystem in %s, bad key given?", dbFileName);
+    // TODO create sqlfs_open_key() and sqlfs_open_password()
+    if (!sqlfs_open_key(dbFileName, (uint8_t*)key, keyLen, &sqlfs)) {
         LOGI("sqlfs_open_key FAILED");
         jniThrowException(env, "java/lang/IllegalArgumentException", buf);
     }
+    LOGE("sqlfs_close %p", sqlfs);
     sqlfs_close(sqlfs);
 
     /*
      * init the vfs by storing the key in memory
      * sqlfs_init_key returns 0 for success in the unix fashion
      */
-    if(sqlfs_init_key(dbFileName, key) != 0) {
+    if (sqlfs_init_key(dbFileName, (uint8_t*)key, keyLen) != 0) {
         LOGI("sqlfs_init_key FAILED");
         jniThrowException(env, "java/lang/IllegalArgumentException", "Initializing VFS failed.");
     }
-    env->ReleaseStringUTFChars(javaKey, key);
+    env->ReleaseByteArrayElements(javaKey, key, 0);
 }
 
 static void VirtualFileSystem_unmount(JNIEnv *env, jobject) {
@@ -85,6 +121,7 @@ static void VirtualFileSystem_completeTransaction(JNIEnv *env, jobject) {
 static JNINativeMethod sMethods[] = {
     {"mount_unencrypted", "()V", (void *)VirtualFileSystem_mount_unencrypted},
     {"mount", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_mount},
+    {"mount", "([B)V", (void *)VirtualFileSystem_mount_byte},
     {"unmount", "()V", (void *)VirtualFileSystem_unmount},
     {"isMounted", "()Z", (void *)VirtualFileSystem_isMounted},
     {"beginTransaction", "()V", (void *)VirtualFileSystem_beginTransaction},
