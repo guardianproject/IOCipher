@@ -85,34 +85,110 @@ public class VirtualFileSystem {
     public native void mount_unencrypted() throws IllegalArgumentException;
 
     /**
-     * Open and mount a virtual file system container encrypted with the
-     * provided key as a {@code String}
+     * Open and mount an UNENCRYPTED virtual file system
      *
-     * @param key the container's password
+     * @param containerPath the path to the file to mount
      * @throws IllegalArgumentException
      */
-    public native void mount(String key) throws IllegalArgumentException;
+    public void mount_unencrypted(String containerPath) {
+        setContainerPath(containerPath);
+        mount_unencrypted();
+    }
 
     /**
      * Open and mount a virtual file system container encrypted with the
-     * provided key. This method only accepts ASCII characters, if you need to
-     * send a Unicode string, use {@link #mount(String)}
+     * provided password as a {@code String}. This {@code String} is then used
+     * to derive the AES key using SQLCipher's key derivation method. This
+     * method is the least preferred option because it is not possible to clear
+     * the password from memory since {@code String} instances are immutable.
      *
-     * @param {@code key} the container's password as a {@code byte[]} so it can
-     *        be zeroed out when it is no longer needed
+     * @param password the password to unlock the VFS container
+     * @throws IllegalArgumentException
+     */
+    public native void mount(String password) throws IllegalArgumentException;
+
+    /**
+     * Open and mount a virtual file system container encrypted with the
+     * provided password as a {@code String}. This {@code String} is then used
+     * to derive the AES key using SQLCipher's key derivation method. This
+     * method is the least preferred option because it is not possible to clear
+     * the password from memory since {@code String} instances are immutable.
+     *
+     * @param containerPath the path to the file to mount
+     * @param password the password to unlock the VFS container
+     * @throws IllegalArgumentException
+     */
+    public void mount(String containerPath, String password) {
+        setContainerPath(containerPath);
+        mount(password);
+    }
+
+    /**
+     * Open and mount a virtual file system container encrypted with the
+     * provided key. This expects the raw AES key as a {@link SecretKey}
+     * instance here to be passed directly to the underlying database layer. It
+     * is not a password that will then be used to derive a key, like with
+     * {@link #mount(String)}. This method only accepts raw byte values, if you
+     * need to send a Unicode string, use {@link #mount(String)}. Also, a
+     * {@code byte[]} can be zeroed out when it is no longer needed. This method
+     * and {@link #mount(SecretKey)} were designed to be used with the CacheWord
+     * library.
+     *
+     * @param {@code key} the container's raw AES key
      * @throws IllegalArgumentException
      */
     public native void mount(byte[] key) throws IllegalArgumentException;
 
     /**
      * Open and mount a virtual file system container encrypted with the
-     * provided key.
+     * provided key. This expects the raw AES key as a {@link SecretKey}
+     * instance here to be passed directly to the underlying database layer. It
+     * is not a password that will then be used to derive a key, like with
+     * {@link #mount(String)}. This method only accepts raw byte values, if you
+     * need to send a Unicode string, use {@link #mount(String)}. Also, a
+     * {@code byte[]} can be zeroed out when it is no longer needed. This method
+     * and {@link #mount(SecretKey)} were designed to be used with the CacheWord
+     * library.
      *
-     * @param {@code key} the container's password
+     * @param containerPath the path to the file to mount
+     * @param {@code key} the container's raw AES key
+     * @throws IllegalArgumentException
+     */
+    public void mount(String containerPath, byte[] key) {
+        setContainerPath(containerPath);
+        mount(key);
+    }
+
+    /**
+     * Open and mount a virtual file system container encrypted with the
+     * provided key. This expects the raw AES key as a {@link SecretKey}
+     * instance here to be passed directly to the underlying database layer. It
+     * is not a password that will then be used to derive a key, like with
+     * {@link #mount(String)}. This method and {@link #mount(byte[])} were
+     * designed to be used with the CacheWord library.
+     *
+     * @param {@code key} the container's raw AES key
      * @throws IllegalArgumentException
      */
     public void mount(SecretKey key) {
         mount(key.getEncoded());
+    }
+
+    /**
+     * Open and mount a virtual file system container encrypted with the
+     * provided key. This expects the raw AES key as a {@link SecretKey}
+     * instance here to be passed directly to the underlying database layer. It
+     * is not a password that will then be used to derive a key, like with
+     * {@link #mount(String)}. This method and {@link #mount(byte[])} were
+     * designed to be used with the CacheWord library.
+     *
+     * @param containerPath the path to the file to mount
+     * @param {@code key} the container's raw AES key
+     * @throws IllegalArgumentException
+     */
+    public void mount(String containerPath, SecretKey key) {
+        setContainerPath(containerPath);
+        mount(key);
     }
 
     /**
