@@ -69,6 +69,15 @@ public class VirtualFileSystem {
     }
 
     /**
+     * Get the full path to the file used as the virtual file system container.
+     *
+     * @return the path to the VFS container file
+     */
+    public String getContainerPath() {
+        return dbFileName;
+    }
+
+    /**
      * Open and mount an UNENCRYPTED virtual file system
      *
      * @throws IllegalArgumentException
