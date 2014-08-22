@@ -68,8 +68,11 @@ and the libsqlfs.a static library is in external/libsqlfs/.libs/libsqlfs.a.
 Building Native Bits for Eclipse
 --------------------------------
 
-If you are using Eclipse with this library, be sure to build the native bits
-from the Terminal first:
+If you are using Eclipse with this library, you can have the NDK parts built
+as part of the Eclipse build process.  You just need to set ANDROID_NDK in the
+"String Substitution" section of your Eclipse's workspace preferences.
+
+Otherwise, you can build the native bits from the Terminal using:
 
   make -C external
   ndk-build
