@@ -10,6 +10,7 @@ jni/TAGS
 .DS_Store
 # products of "android create project" or "android update project"
 build.xml
+ant.properties
 local.properties
 proguard.cfg
 *~
