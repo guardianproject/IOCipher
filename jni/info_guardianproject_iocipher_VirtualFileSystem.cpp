@@ -28,6 +28,10 @@ void setDatabaseFileName(JNIEnv *env, jobject obj) {
     env->ReleaseStringUTFChars(javaDbFileName, name);
 }
 
+static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject obj) {
+    return sqlfs != NULL || sqlfs_instance_count() > 0;
+}
+
 static void VirtualFileSystem_mount_unencrypted(JNIEnv *env, jobject obj) {
     setDatabaseFileName(env, obj);
     if (!sqlfs_open(dbFileName, &sqlfs)) {
@@ -39,7 +43,7 @@ static void VirtualFileSystem_mount_unencrypted(JNIEnv *env, jobject obj) {
 
 static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaPassword) {
     char msg[256];
-    if (sqlfs) {
+    if (VirtualFileSystem_isMounted(env, obj)) {
         snprintf(msg, 255, "Filesystem in '%s' already mounted!", dbFileName);
         jniThrowException(env, "java/lang/IllegalStateException", msg);
         return;
@@ -62,7 +66,7 @@ static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaPasswo
 
 static void VirtualFileSystem_mount_byte(JNIEnv *env, jobject obj, jbyteArray javaKey) {
     char msg[256];
-    if (sqlfs) {
+    if (VirtualFileSystem_isMounted(env, obj)) {
         snprintf(msg, 255, "Filesystem in '%s' already mounted!", dbFileName);
         jniThrowException(env, "java/lang/IllegalStateException", msg);
         return;
@@ -90,9 +94,9 @@ static void VirtualFileSystem_mount_byte(JNIEnv *env, jobject obj, jbyteArray ja
     env->ReleaseByteArrayElements(javaKey, key, 0);
 }
 
-static void VirtualFileSystem_unmount(JNIEnv *env, jobject) {
+static void VirtualFileSystem_unmount(JNIEnv *env, jobject obj) {
     char msg[256];
-    if (!sqlfs) {
+    if (!VirtualFileSystem_isMounted(env, obj)) {
         snprintf(msg, 255, "Filesystem in '%s' not mounted!", dbFileName);
         jniThrowException(env, "java/lang/IllegalStateException", msg);
         return;
@@ -111,10 +115,6 @@ static void VirtualFileSystem_unmount(JNIEnv *env, jobject) {
     sqlfs_close(sqlfs);
     sqlfs = NULL;
     memset(dbFileName, 0, PATH_MAX);
-}
-
-static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject obj) {
-    return sqlfs != NULL || sqlfs_instance_count() > 0;
 }
 
 static void VirtualFileSystem_beginTransaction(JNIEnv *env, jobject) {
