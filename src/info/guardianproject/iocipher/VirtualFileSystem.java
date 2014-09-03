@@ -79,16 +79,24 @@ public class VirtualFileSystem {
 
     /**
      * Open and mount an UNENCRYPTED virtual file system
+     * <p>
+     * If the vfs is already mounted, it will throw an
+     * {@link IllegalStateException}. If the file does not exist, it will throw
+     * an {@link IllegalArgumentException}.
      *
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException, IllegalStateException
      */
     public native void mount_unencrypted() throws IllegalArgumentException;
 
     /**
      * Open and mount an UNENCRYPTED virtual file system
+     * <p>
+     * If the vfs is already mounted, it will throw an
+     * {@link IllegalStateException}. If the file does not exist, it will throw
+     * an {@link IllegalArgumentException}.
      *
      * @param containerPath the path to the file to mount
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException, IllegalStateException
      */
     public void mount_unencrypted(String containerPath) {
         setContainerPath(containerPath);
@@ -101,9 +109,13 @@ public class VirtualFileSystem {
      * to derive the AES key using SQLCipher's key derivation method. This
      * method is the least preferred option because it is not possible to clear
      * the password from memory since {@code String} instances are immutable.
+     * <p>
+     * If the vfs is already mounted, it will throw an
+     * {@link IllegalStateException}. If the file does not exist or the password
+     * is wrong, it will throw an {@link IllegalArgumentException}.
      *
      * @param password the password to unlock the VFS container
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException, IllegalStateException
      */
     public native void mount(String password) throws IllegalArgumentException;
 
@@ -113,10 +125,14 @@ public class VirtualFileSystem {
      * to derive the AES key using SQLCipher's key derivation method. This
      * method is the least preferred option because it is not possible to clear
      * the password from memory since {@code String} instances are immutable.
+     * <p>
+     * If the vfs is already mounted, it will throw an
+     * {@link IllegalStateException}. If the file does not exist or the password
+     * is wrong, it will throw an {@link IllegalArgumentException}.
      *
      * @param containerPath the path to the file to mount
      * @param password the password to unlock the VFS container
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException, IllegalStateException
      */
     public void mount(String containerPath, String password) {
         setContainerPath(containerPath);
@@ -133,9 +149,13 @@ public class VirtualFileSystem {
      * {@code byte[]} can be zeroed out when it is no longer needed. This method
      * and {@link #mount(SecretKey)} were designed to be used with the CacheWord
      * library.
+     * <p>
+     * If the vfs is already mounted, it will throw an
+     * {@link IllegalStateException}. If the file does not exist or the key is
+     * wrong, it will throw an {@link IllegalArgumentException}.
      *
      * @param {@code key} the container's raw AES key
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException, IllegalStateException
      */
     public native void mount(byte[] key) throws IllegalArgumentException;
 
@@ -149,10 +169,14 @@ public class VirtualFileSystem {
      * {@code byte[]} can be zeroed out when it is no longer needed. This method
      * and {@link #mount(SecretKey)} were designed to be used with the CacheWord
      * library.
+     * <p>
+     * If the vfs is already mounted, it will throw an
+     * {@link IllegalStateException}. If the file does not exist or the key is
+     * wrong, it will throw an {@link IllegalArgumentException}.
      *
      * @param containerPath the path to the file to mount
      * @param {@code key} the container's raw AES key
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException, IllegalStateException
      */
     public void mount(String containerPath, byte[] key) {
         setContainerPath(containerPath);
@@ -166,9 +190,13 @@ public class VirtualFileSystem {
      * is not a password that will then be used to derive a key, like with
      * {@link #mount(String)}. This method and {@link #mount(byte[])} were
      * designed to be used with the CacheWord library.
+     * <p>
+     * If the vfs is already mounted, it will throw an
+     * {@link IllegalStateException}. If the file does not exist or the key is
+     * wrong, it will throw an {@link IllegalArgumentException}.
      *
      * @param {@code key} the container's raw AES key
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException, IllegalStateException
      */
     public void mount(SecretKey key) {
         mount(key.getEncoded());
@@ -181,10 +209,14 @@ public class VirtualFileSystem {
      * is not a password that will then be used to derive a key, like with
      * {@link #mount(String)}. This method and {@link #mount(byte[])} were
      * designed to be used with the CacheWord library.
+     * <p>
+     * If the vfs is already mounted, it will throw an
+     * {@link IllegalStateException}. If the file does not exist or the key is
+     * wrong, it will throw an {@link IllegalArgumentException}.
      *
      * @param containerPath the path to the file to mount
      * @param {@code key} the container's raw AES key
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException, IllegalStateException
      */
     public void mount(String containerPath, SecretKey key) {
         setContainerPath(containerPath);
@@ -192,9 +224,13 @@ public class VirtualFileSystem {
     }
 
     /**
-     * Unmount the file system.
+     * Unmount the file system. It will throw an {@link IllegalStateException}
+     * if the vfs is not mounted, or if it cannot be unmounted because it is
+     * busy (some threads are still active on it).
+     *
+     * @throws IllegalStateException
      */
-    public native void unmount();
+    public native void unmount() throws IllegalStateException;
 
     /**
      * @return whether the VFS is mounted or not
