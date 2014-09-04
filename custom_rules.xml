@@ -75,13 +75,14 @@
         <property name="zip.name" value="${ant.project.name}-${git.describe}-debug.zip" />
       </then>
       <else>
+        <property name="release.jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}.jar" />
         <property name="zip.name" value="${ant.project.name}-${git.describe}.zip" />
         <signjar jar="${jar.name}"
                  keystore="${key.store}"
                  alias="${key.alias}"
                  storepass="${key.store.password}"
                  keypass="${key.store.password}"
-                 signedjar="${jar.dir}/${ant.project.name}-${git.describe}.jar"></signjar>
+                 signedjar="${release.jar.name}"/>
         <delete file="${jar.name}"/>
       </else>
     </if>
@@ -90,6 +91,9 @@
     <zip destfile="${zip.name}" level="9">
       <zipfileset dir="libs" />
     </zip>
+    <!-- don't leave this jar in libs/ since it confuses Eclipse -->
+    <delete file="${jar.name}"/>
+    <delete file="${release.jar.name}"/>
     <if condition="${build.is.debug}">
       <else>
         <exec executable="gpg" failonerror="true">
