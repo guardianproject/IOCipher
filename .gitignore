@@ -17,3 +17,7 @@ proguard.cfg
 .settings
 #kdevelop files
 *.kdev4
+
+# release files
+IOCipher-v*.zip
+IOCipher-v*.zip.sig

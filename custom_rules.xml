@@ -33,6 +33,12 @@
       <arg value="-j8" />
       <arg value="clean" />
     </exec>
+    <delete>
+      <fileset dir=".">
+        <include name="IOCipher-v*.zip" />
+        <include name="IOCipher-v*.zip.sig" />
+      </fileset>
+    </delete>
   </target>
 
   <target name="-getgitdetails" >
@@ -80,9 +86,18 @@
       </else>
     </if>
     <delete file="${zip.name}"/>
+    <delete file="${zip.name}.sig"/>
     <zip destfile="${zip.name}" level="9">
       <zipfileset dir="libs" />
     </zip>
+    <if condition="${build.is.debug}">
+      <else>
+        <exec executable="gpg" failonerror="true">
+          <arg value="--detach-sign" />
+          <arg value="${zip.name}" />
+        </exec>
+      </else>
+    </if>
   </target>
 
 </project>
