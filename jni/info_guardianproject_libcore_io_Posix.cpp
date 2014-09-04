@@ -296,7 +296,6 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     if (path.c_str() == NULL) {
         return NULL;
     }
-    LOGI("path: %s %x %o", path.c_str(), flags, mode);
     struct fuse_file_info ffi;
     ffi.flags = flags;
     ffi.direct_io = 0; // don't use direct_io so this open() call will create a file
@@ -317,11 +316,9 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
 
     int result = 0;
     if( do_create ) {
-        LOGI("sqlfs_proc_create");
         char buf = 0;
         result = sqlfs_proc_create(0, path.c_str(), mode, &ffi);
     } else {
-        LOGI("sqlfs_proc_open");
         result = sqlfs_proc_open(0, path.c_str(), &ffi);
     }
     if (result < 0) {
