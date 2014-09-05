@@ -54,6 +54,10 @@
   <target name="-post-build" depends="-getgitdetails">
     <property name="jar.dir" value="libs" />
     <property name="jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}-debug.jar" />
+    <property file="${sdk.dir}/tools/source.properties" />
+    <exec executable="cat" outputproperty="ndk.release">
+      <arg value="${ndk.dir}/RELEASE.TXT"/>
+    </exec>
     <delete file="${jar.name}"/>
     <mkdir dir="${jar.dir}" />
     <jar destfile="${jar.name}"
@@ -65,6 +69,9 @@
         <attribute name="Implementation-URL" value="https://dev.guardianproject.info/projects/iocipher"/>
         <attribute name="Implementation-Version" value="${git.describe}"/>
         <attribute name="Git-Revision" value="${git.revision}"/>
+        <attribute name="Android-SDK-Release" value="${Pkg.Revision}"/>
+        <attribute name="Android-SDK-Host-OS" value="${Archive.HostOs}"/>
+        <attribute name="Android-NDK-Release" value="${ndk.release}"/>
       </manifest>
     </jar>
     <condition property="build.is.debug" value="true" else="false">
