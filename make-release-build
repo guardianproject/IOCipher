@@ -27,14 +27,15 @@ git submodule update --init --recursive
 
 android update lib-project --path .
 
-if [ -e ~/.android/ant.properties ]; then
-    cp ~/.android/ant.properties $projectroot/
-else
-    echo "skipping release ant.properties"
-fi
-
 faketime -f "$TIMESTAMP" make -C external/
 faketime -f "$TIMESTAMP" ndk-build
-faketime "$TIMESTAMP" ant release
+
+if [ -e ~/.android/ant.properties ]; then
+    cp ~/.android/ant.properties $projectroot/
+    faketime "$TIMESTAMP" ant release
+else
+    echo "skipping release ant.properties, making debug build"
+    faketime "$TIMESTAMP" ant debug
+fi
 
 # `ant release` handles the gpg signing
