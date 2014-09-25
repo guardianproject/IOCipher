@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+# bash is required because we need bash's printf to guarantee a cross-platform
+# timestamp format.
 
 set -e
 set -x
@@ -15,7 +17,11 @@ fi
 projectroot=`pwd`
 # standardize timezone to reduce build differences
 export TZ=UTC
-TIMESTAMP=`git log -n1 --format=format:%ai`
+TIMESTAMP=`printf '%(%Y-%m-%d %H:%M:%S)T' \
+    $(git log -n1 --format=format:%at)`
+# run the clock at 5% speed, ant requires a moving clock
+TIMESTAMP_5=`printf '@%(%Y-%m-%d %H:%M:%S)T x0.05' \
+    $(git log -n1 --format=format:%at)`
 
 git reset --hard
 git clean -fdx
@@ -32,10 +38,10 @@ faketime -f "$TIMESTAMP" ndk-build
 
 if [ -e ~/.android/ant.properties ]; then
     cp ~/.android/ant.properties $projectroot/
-    faketime "$TIMESTAMP" ant release
+    faketime -f "$TIMESTAMP_5" ant release
 else
     echo "skipping release ant.properties, making debug build"
-    faketime "$TIMESTAMP" ant debug
+    faketime -f "$TIMESTAMP_5" ant debug
 fi
 
 # `ant release` handles the gpg signing
