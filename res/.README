@@ -1,0 +1,3 @@
+
+Android ADT Eclipse seems to require a res/ folder, that's the only reason why
+this is folder is here.
