@@ -1,10 +1,6 @@
 
 package info.guardianproject.iocipher;
 
-import android.text.TextUtils;
-
-import java.io.IOException;
-
 import javax.crypto.SecretKey;
 
 /**
@@ -16,7 +12,6 @@ public class VirtualFileSystem {
     /**
      * Empty dbFile results in an in memory database
      */
-    private static String dbFileName = "";
     private static VirtualFileSystem vfs;
 
     static {
@@ -45,37 +40,19 @@ public class VirtualFileSystem {
      * is specified as a {@code String} to avoid confusion between
      * {@link java.io.File} and {@link info.guardianproject.iocipher.File}.
      *
-     * @param containerPath the physical disk file that serves as the VFS
-     *            container
-     * @throws IllegalArgumentException
+     * @param {@code containerPath} the physical disk file that serves as the
+     *        VFS container
+     * @throws {@link IllegalArgumentException} if the containing directory does
+     *         not exist or is not readable
      */
-    public void setContainerPath(String containerPath) {
-        if (TextUtils.isEmpty(containerPath))
-            throw new IllegalArgumentException("blank file name not allowed!");
-        java.io.File file = new java.io.File(containerPath);
-        java.io.File dir = file.getParentFile();
-        if (!dir.exists())
-            throw new IllegalArgumentException(dir.getPath() + " does not exist!");
-        if (!dir.isDirectory())
-            throw new IllegalArgumentException(dir.getPath() + " is not a directory!");
-        if (!dir.canWrite())
-            throw new IllegalArgumentException("Cannot write to " + dir.getPath() + "!");
-        try {
-            dbFileName = file.getCanonicalPath();
-        } catch (IOException e) {
-            e.printStackTrace();
-            dbFileName = file.getAbsolutePath();
-        }
-    }
+    public native void setContainerPath(String containerPath) throws IllegalArgumentException;
 
     /**
      * Get the full path to the file used as the virtual file system container.
      *
      * @return the path to the VFS container file
      */
-    public String getContainerPath() {
-        return dbFileName;
-    }
+    public native String getContainerPath();
 
     /**
      * Open and mount a virtual file system container encrypted with the

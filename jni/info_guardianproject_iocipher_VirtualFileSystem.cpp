@@ -11,24 +11,12 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <libgen.h>
 
 // yes, dbFileName is a duplicate of default_db_file in sqlfs.c
 char dbFileName[PATH_MAX] = { 0 };
 // store first sqlfs instance as marker for mounted state
 static sqlfs_t *sqlfs = NULL;
-
-void setDatabaseFileName(JNIEnv *env, jobject obj) {
-    jclass cls = env->GetObjectClass(obj);
-    jfieldID fid = env->GetStaticFieldID(cls, "dbFileName", "Ljava/lang/String;");
-    jstring javaDbFileName = (jstring) env->GetStaticObjectField(cls, fid);
-    const char *name = env->GetStringUTFChars(javaDbFileName, 0);
-    memset(dbFileName, 0, PATH_MAX);
-    if (name == NULL)
-        return;
-    strncpy(dbFileName, name, PATH_MAX-2);
-    dbFileName[PATH_MAX-1] = '\0';
-    env->ReleaseStringUTFChars(javaDbFileName, name);
-}
 
 void checkMountProblem(JNIEnv *env, char* dbFileName) {
     char msg[256];
@@ -47,6 +35,52 @@ void checkMountProblem(JNIEnv *env, char* dbFileName) {
     jniThrowException(env, "java/lang/IllegalArgumentException", msg);
 }
 
+static jstring VirtualFileSystem_getContainerPath(JNIEnv *env, jobject obj) {
+    return env->NewStringUTF(dbFileName);
+}
+
+static void VirtualFileSystem_setContainerPath(JNIEnv *env, jobject obj, jstring javaFileName) {
+    char const *name = env->GetStringUTFChars(javaFileName, 0);
+    jsize nameLen = env->GetStringUTFLength(javaFileName);
+    memset(dbFileName, 0, PATH_MAX);
+    if (name == NULL || nameLen < 1) {
+        jniThrowException(env, "java/lang/IllegalArgumentException",
+                          "blank file name not allowed!");
+        env->ReleaseStringUTFChars(javaFileName, name);
+        return;
+    }
+
+    char msg[256];
+    int validFileName = 1;
+    struct stat sb;
+    const char *dir = dirname(name);
+
+    if (access(dir, R_OK) != 0) {
+        validFileName = 0;
+        snprintf(msg, 255,
+                 "Base directory %s, does not exist or is not readable (%d)!",
+                 dir, errno);
+    } else if (access(dir, W_OK) != 0) {
+        validFileName = 0;
+        snprintf(msg, 255, "Could not write to base directory %s (%d)!",
+                 dir, errno);
+    } else if (stat(dir, &sb) == -1) {
+        validFileName = 0;
+        snprintf(msg, 255, "Cannot stat %s (%d)!", dir, errno);
+    } else if (!sb.st_mode & S_IFDIR) {
+        validFileName = 0;
+        snprintf(msg, 255, "Base path %s is not a directory!", dir);
+    }
+
+    if (validFileName) {
+        strncpy(dbFileName, name, PATH_MAX-2);
+        dbFileName[PATH_MAX-1] = '\0';
+    } else {
+        jniThrowException(env, "java/lang/IllegalArgumentException", msg);
+    }
+    env->ReleaseStringUTFChars(javaFileName, name);
+}
+
 static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject obj) {
     return sqlfs != NULL || sqlfs_instance_count() > 0;
 }
@@ -58,8 +92,6 @@ static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaPasswo
         jniThrowException(env, "java/lang/IllegalStateException", msg);
         return;
     }
-
-    setDatabaseFileName(env, obj);
 
     char const *password = env->GetStringUTFChars(javaPassword, 0);
     jsize passwordLen = env->GetStringUTFLength(javaPassword);
@@ -88,7 +120,6 @@ static void VirtualFileSystem_mount_byte(JNIEnv *env, jobject obj, jbyteArray ja
         return;
     }
 
-    setDatabaseFileName(env, obj);
     jbyte *key = env->GetByteArrayElements(javaKey, NULL); //direct mem ref
 
     /* attempt to open the database with the key if it fails, most likely the
@@ -134,6 +165,8 @@ static void VirtualFileSystem_completeTransaction(JNIEnv *env, jobject) {
 }
 
 static JNINativeMethod sMethods[] = {
+    {"getContainerPath", "()Ljava/lang/String;", (void *)VirtualFileSystem_getContainerPath},
+    {"setContainerPath", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_setContainerPath},
     {"mount", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_mount},
     {"mount", "([B)V", (void *)VirtualFileSystem_mount_byte},
     {"unmount", "()V", (void *)VirtualFileSystem_unmount},
