@@ -9,6 +9,8 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
 
 // yes, dbFileName is a duplicate of default_db_file in sqlfs.c
 char dbFileName[PATH_MAX] = { 0 };
@@ -26,6 +28,23 @@ void setDatabaseFileName(JNIEnv *env, jobject obj) {
     strncpy(dbFileName, name, PATH_MAX-2);
     dbFileName[PATH_MAX-1] = '\0';
     env->ReleaseStringUTFChars(javaDbFileName, name);
+}
+
+void checkMountProblem(JNIEnv *env, char* dbFileName) {
+    char msg[256];
+    if (access(dbFileName, R_OK) != 0) {
+        snprintf(msg, 255,
+                 "Could not mount %s does not exist or is not readable (%d)!",
+                 dbFileName, errno);
+    } else if (access(dbFileName, W_OK) != 0) {
+        snprintf(msg, 255,
+                 "Could not mount %s is not writable (%d)!",
+                 dbFileName, errno);
+    } else {
+        snprintf(msg, 255,
+                 "Could not mount filesystem in %s, bad password given?", dbFileName);
+    }
+    jniThrowException(env, "java/lang/IllegalArgumentException", msg);
 }
 
 static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject obj) {
@@ -57,9 +76,7 @@ static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaPasswo
     /* Attempt to open the database with the password, then immediately close
      * it. If it fails, then the password is likely wrong. */
     if (!sqlfs_open_password(dbFileName, password, &sqlfs)) {
-        snprintf(msg, 255,
-                 "Could not mount filesystem in %s, bad password given?", dbFileName);
-        jniThrowException(env, "java/lang/IllegalArgumentException", msg);
+        checkMountProblem(env, dbFileName);
     }
     env->ReleaseStringUTFChars(javaPassword, password);
 }
@@ -86,9 +103,7 @@ static void VirtualFileSystem_mount_byte(JNIEnv *env, jobject obj, jbyteArray ja
     /* attempt to open the database with the key if it fails, most likely the
      * db file does not exist or the key is wrong */
     if (!sqlfs_open_key(dbFileName, (uint8_t*)key, keyLen, &sqlfs)) {
-        snprintf(msg, 255,
-                 "Could not mount filesystem in %s, bad key given?", dbFileName);
-        jniThrowException(env, "java/lang/IllegalArgumentException", msg);
+        checkMountProblem(env, dbFileName);
     }
 
     env->ReleaseByteArrayElements(javaKey, key, 0);
