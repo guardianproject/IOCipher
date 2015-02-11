@@ -18,21 +18,57 @@ char dbFileName[PATH_MAX] = { 0 };
 // store first sqlfs instance as marker for mounted state
 static sqlfs_t *sqlfs = NULL;
 
-void checkMountProblem(JNIEnv *env, char* dbFileName) {
+static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject obj);
+
+bool throwContainerReadWriteError(JNIEnv *env) {
     char msg[256];
+    bool error = false;
     if (access(dbFileName, R_OK) != 0) {
-        snprintf(msg, 255,
+        error = true;
+        snprintf(msg, MAX_MSG_LEN,
                  "Could not mount %s does not exist or is not readable (%d)!",
                  dbFileName, errno);
     } else if (access(dbFileName, W_OK) != 0) {
-        snprintf(msg, 255,
+        error = true;
+        snprintf(msg, MAX_MSG_LEN,
                  "Could not mount %s is not writable (%d)!",
                  dbFileName, errno);
-    } else {
-        snprintf(msg, 255,
-                 "Could not mount filesystem in %s, bad password given?", dbFileName);
     }
-    jniThrowException(env, "java/lang/IllegalArgumentException", msg);
+    if (error)
+        jniThrowException(env, "java/lang/IllegalArgumentException", msg);
+    return error;
+}
+
+void handleMountError(JNIEnv *env) {
+    if (!throwContainerReadWriteError(env)) {
+        char msg[256];
+        snprintf(msg, MAX_MSG_LEN,
+                 "Could not mount filesystem in %s, bad password given?", dbFileName);
+        jniThrowException(env, "java/lang/IllegalArgumentException", msg);
+    }
+}
+
+bool throwKeyLengthException(JNIEnv *env, jsize keyLen) {
+    if (keyLen != REQUIRED_KEY_LENGTH) {
+        char msg[256];
+        snprintf(msg, 255, "Key length is not %i bytes (%i bytes)!",
+                 REQUIRED_KEY_LENGTH, keyLen);
+        jniThrowException(env, "java/lang/IllegalArgumentException", msg);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool throwMountedException(JNIEnv *env, jobject obj) {
+    if (VirtualFileSystem_isMounted(env, obj)) {
+        char msg[256];
+        snprintf(msg, 255, "Filesystem in '%s' already mounted!", dbFileName);
+        jniThrowException(env, "java/lang/IllegalStateException", msg);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 static jstring VirtualFileSystem_getContainerPath(JNIEnv *env, jobject obj) {
@@ -86,12 +122,10 @@ static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject obj) {
 }
 
 static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaPassword) {
-    char msg[256];
-    if (VirtualFileSystem_isMounted(env, obj)) {
-        snprintf(msg, 255, "Filesystem in '%s' already mounted!", dbFileName);
-        jniThrowException(env, "java/lang/IllegalStateException", msg);
+    if (throwMountedException(env, obj))
         return;
-    }
+
+    // TODO check if dbFileName exists here
 
     char const *password = env->GetStringUTFChars(javaPassword, 0);
     jsize passwordLen = env->GetStringUTFLength(javaPassword);
@@ -99,33 +133,27 @@ static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaPasswo
     /* Attempt to open the database with the password, then immediately close
      * it. If it fails, then the password is likely wrong. */
     if (!sqlfs_open_password(dbFileName, password, &sqlfs)) {
-        checkMountProblem(env, dbFileName);
+        handleMountError(env);
     }
     env->ReleaseStringUTFChars(javaPassword, password);
 }
 
 static void VirtualFileSystem_mount_byte(JNIEnv *env, jobject obj, jbyteArray javaKey) {
-    char msg[256];
-    if (VirtualFileSystem_isMounted(env, obj)) {
-        snprintf(msg, 255, "Filesystem in '%s' already mounted!", dbFileName);
-        jniThrowException(env, "java/lang/IllegalStateException", msg);
+    if (throwMountedException(env, obj))
         return;
-    }
+
+    // TODO check if dbFileName exists here
 
     jsize keyLen = env->GetArrayLength(javaKey);
-    if (keyLen != REQUIRED_KEY_LENGTH) {
-        snprintf(msg, 255, "Key length is not %i bytes (%i bytes)!",
-                 REQUIRED_KEY_LENGTH, keyLen);
-        jniThrowException(env, "java/lang/IllegalArgumentException", msg);
+    if (throwKeyLengthException(env, keyLen))
         return;
-    }
 
     jbyte *key = env->GetByteArrayElements(javaKey, NULL); //direct mem ref
 
     /* attempt to open the database with the key if it fails, most likely the
      * db file does not exist or the key is wrong */
     if (!sqlfs_open_key(dbFileName, (uint8_t*)key, keyLen, &sqlfs)) {
-        checkMountProblem(env, dbFileName);
+        handleMountError(env);
     }
 
     env->ReleaseByteArrayElements(javaKey, key, 0);
