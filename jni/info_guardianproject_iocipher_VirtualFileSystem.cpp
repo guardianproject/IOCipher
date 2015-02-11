@@ -41,6 +41,13 @@ bool throwContainerReadWriteError(JNIEnv *env) {
     return error;
 }
 
+void handleCreateError(JNIEnv *env) {
+    if (!throwContainerReadWriteError(env)) {
+        snprintf(msg, MAX_MSG_LEN, "Unknown error creating %s", dbFileName);
+        jniThrowException(env, "java/lang/IllegalStateException", msg);
+    }
+}
+
 void handleMountError(JNIEnv *env) {
     if (!throwContainerReadWriteError(env)) {
         snprintf(msg, MAX_MSG_LEN,
@@ -119,11 +126,52 @@ static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject obj) {
     return sqlfs != NULL || sqlfs_instance_count() > 0;
 }
 
+static void VirtualFileSystem_createNewContainer(JNIEnv *env, jobject obj, jstring javaPassword) {
+    if (throwMountedException(env, obj))
+        return;
+
+    char const *password = env->GetStringUTFChars(javaPassword, 0);
+    jsize passwordLen = env->GetStringUTFLength(javaPassword);
+
+    /* Attempt to open the database with the password, then immediately close
+     * it. If it fails, then the password is likely wrong. */
+    if (sqlfs_open_password(dbFileName, password, &sqlfs)) {
+        sqlfs_close(sqlfs);
+        sqlfs = NULL;
+    } else {
+        handleCreateError(env);
+    }
+    env->ReleaseStringUTFChars(javaPassword, password);
+}
+
+static void VirtualFileSystem_createNewContainer_byte(JNIEnv *env, jobject obj, jbyteArray javaKey) {
+    if (throwMountedException(env, obj))
+        return;
+
+    jsize keyLen = env->GetArrayLength(javaKey);
+    if (throwKeyLengthException(env, keyLen))
+        return;
+
+    jbyte *key = env->GetByteArrayElements(javaKey, NULL); //direct mem ref
+
+    /* attempt to open the database with the key if it fails, most likely the
+     * db file does not exist or the key is wrong */
+    if (sqlfs_open_key(dbFileName, (uint8_t*)key, keyLen, &sqlfs)) {
+        sqlfs_close(sqlfs);
+        sqlfs = NULL;
+    } else {
+        handleMountError(env);
+    }
+
+    env->ReleaseByteArrayElements(javaKey, key, 0);
+}
+
 static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaPassword) {
     if (throwMountedException(env, obj))
         return;
 
-    // TODO check if dbFileName exists here
+    if (throwContainerReadWriteError(env))
+        return;
 
     char const *password = env->GetStringUTFChars(javaPassword, 0);
     jsize passwordLen = env->GetStringUTFLength(javaPassword);
@@ -140,7 +188,8 @@ static void VirtualFileSystem_mount_byte(JNIEnv *env, jobject obj, jbyteArray ja
     if (throwMountedException(env, obj))
         return;
 
-    // TODO check if dbFileName exists here
+    if (throwContainerReadWriteError(env))
+        return;
 
     jsize keyLen = env->GetArrayLength(javaKey);
     if (throwKeyLengthException(env, keyLen))
@@ -176,7 +225,6 @@ static void VirtualFileSystem_unmount(JNIEnv *env, jobject obj) {
     }
     sqlfs_close(sqlfs);
     sqlfs = NULL;
-    memset(dbFileName, 0, PATH_MAX);
 }
 
 static void VirtualFileSystem_beginTransaction(JNIEnv *env, jobject) {
@@ -192,6 +240,8 @@ static void VirtualFileSystem_completeTransaction(JNIEnv *env, jobject) {
 static JNINativeMethod sMethods[] = {
     {"getContainerPath", "()Ljava/lang/String;", (void *)VirtualFileSystem_getContainerPath},
     {"setContainerPath", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_setContainerPath},
+    {"createNewContainer", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_createNewContainer},
+    {"createNewContainer", "([B)V", (void *)VirtualFileSystem_createNewContainer_byte},
     {"mount", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_mount},
     {"mount", "([B)V", (void *)VirtualFileSystem_mount_byte},
     {"unmount", "()V", (void *)VirtualFileSystem_unmount},

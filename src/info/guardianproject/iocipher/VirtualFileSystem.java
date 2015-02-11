@@ -55,6 +55,97 @@ public class VirtualFileSystem {
     public native String getContainerPath();
 
     /**
+     * Create a new VFS container file at the path given from
+     * {@link #setContainerPath(String)} and {@code password}.
+     * <p>
+     * If the container path was not set does not exist, it will throw an
+     * {@link IllegalArgumentException}.
+     *
+     * @param {@code password} the password to set in the new VFS container
+     * @throws {@link IllegalArgumentException}
+     */
+    public native void createNewContainer(String password) throws IllegalArgumentException;
+
+    /**
+     * Create a new VFS container file at the path given in
+     * {@link #setContainerPath(String)} and {@code key}.
+     * <p>
+     * If the container path was not set does not exist, it will throw an
+     * {@link IllegalArgumentException}.
+     *
+     * @param {@code key} the raw AES key to set in the new VFS container
+     * @throws {@link IllegalArgumentException}
+     */
+    public native void createNewContainer(byte[] key) throws IllegalArgumentException;
+
+    /**
+     * Create a new VFS container file at the path given in
+     * {@link #setContainerPath(String)} and {@code key}.
+     * <p>
+     * If the container path was not set does not exist, it will throw an
+     * {@link IllegalArgumentException}.
+     *
+     * @param {@code key} the raw AES key to set in the new VFS container
+     * @throws {@link IllegalArgumentException}
+     */
+    public void createNewContainer(SecretKey key) throws IllegalArgumentException {
+        createNewContainer(key.getEncoded());
+    }
+
+    /**
+     * Create a new VFS container file using the path and password given.
+     * <p>
+     * If the container path given does not exist or is not read/write, it will
+     * throw an {@link IllegalArgumentException}.
+     *
+     * @param {@code containerPath} the physical disk file that serves as the
+     *        VFS container
+     * @throws {@link IllegalArgumentException} if the containing directory does
+     *         not exist or is not readable
+     */
+    public void createNewContainer(String containerPath, String password)
+            throws IllegalArgumentException {
+        setContainerPath(containerPath);
+        createNewContainer(password);
+    }
+
+    /**
+     * Create a new VFS container file using the path and key given.
+     * <p>
+     * If the container path given does not exist or is not read/write, it will
+     * throw an {@link IllegalArgumentException}.
+     *
+     * @param {@code containerPath} the physical disk file that serves as the
+     *        VFS container
+     * @param {@code key} the raw AES key to set in the new VFS container
+     * @throws {@link IllegalArgumentException} if the containing directory does
+     *         not exist or is not readable
+     */
+    public void createNewContainer(String containerPath, byte[] key)
+            throws IllegalArgumentException {
+        setContainerPath(containerPath);
+        createNewContainer(key);
+    }
+
+    /**
+     * Create a new VFS container file using the path and key given.
+     * <p>
+     * If the container path given does not exist or is not read/write, it will
+     * throw an {@link IllegalArgumentException}.
+     *
+     * @param {@code containerPath} the physical disk file that serves as the
+     *        VFS container
+     * @param {@code key} the raw AES key to set in the new VFS container
+     * @throws {@link IllegalArgumentException} if the containing directory does
+     *         not exist or is not readable
+     */
+    public void createNewContainer(String containerPath, SecretKey key)
+            throws IllegalArgumentException {
+        setContainerPath(containerPath);
+        createNewContainer(key);
+    }
+
+    /**
      * Open and mount a virtual file system container encrypted with the
      * provided password as a {@code String}. This {@code String} is then used
      * to derive the AES key using SQLCipher's key derivation method. This
