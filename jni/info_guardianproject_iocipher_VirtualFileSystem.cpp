@@ -51,15 +51,6 @@ static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject obj) {
     return sqlfs != NULL || sqlfs_instance_count() > 0;
 }
 
-static void VirtualFileSystem_mount_unencrypted(JNIEnv *env, jobject obj) {
-    setDatabaseFileName(env, obj);
-    if (!sqlfs_open(dbFileName, &sqlfs)) {
-        char msg[256];
-        snprintf(msg, 255, "Could not mount filesystem in '%s'", dbFileName);
-        jniThrowException(env, "java/lang/IllegalArgumentException", msg);
-    }
-}
-
 static void VirtualFileSystem_mount(JNIEnv *env, jobject obj, jstring javaPassword) {
     char msg[256];
     if (VirtualFileSystem_isMounted(env, obj)) {
@@ -143,7 +134,6 @@ static void VirtualFileSystem_completeTransaction(JNIEnv *env, jobject) {
 }
 
 static JNINativeMethod sMethods[] = {
-    {"mount_unencrypted", "()V", (void *)VirtualFileSystem_mount_unencrypted},
     {"mount", "(Ljava/lang/String;)V", (void *)VirtualFileSystem_mount},
     {"mount", "([B)V", (void *)VirtualFileSystem_mount_byte},
     {"unmount", "()V", (void *)VirtualFileSystem_unmount},

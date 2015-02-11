@@ -78,32 +78,6 @@ public class VirtualFileSystem {
     }
 
     /**
-     * Open and mount an UNENCRYPTED virtual file system
-     * <p>
-     * If the vfs is already mounted, it will throw an
-     * {@link IllegalStateException}. If the file does not exist, it will throw
-     * an {@link IllegalArgumentException}.
-     *
-     * @throws IllegalArgumentException, IllegalStateException
-     */
-    public native void mount_unencrypted() throws IllegalArgumentException;
-
-    /**
-     * Open and mount an UNENCRYPTED virtual file system
-     * <p>
-     * If the vfs is already mounted, it will throw an
-     * {@link IllegalStateException}. If the file does not exist, it will throw
-     * an {@link IllegalArgumentException}.
-     *
-     * @param containerPath the path to the file to mount
-     * @throws IllegalArgumentException, IllegalStateException
-     */
-    public void mount_unencrypted(String containerPath) {
-        setContainerPath(containerPath);
-        mount_unencrypted();
-    }
-
-    /**
      * Open and mount a virtual file system container encrypted with the
      * provided password as a {@code String}. This {@code String} is then used
      * to derive the AES key using SQLCipher's key derivation method. This
