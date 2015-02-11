@@ -17,11 +17,13 @@
 char dbFileName[PATH_MAX] = { 0 };
 // store first sqlfs instance as marker for mounted state
 static sqlfs_t *sqlfs = NULL;
+// memory blob for error messages
+static char msg[256];
+#define MAX_MSG_LEN 255
 
 static jboolean VirtualFileSystem_isMounted(JNIEnv *env, jobject obj);
 
 bool throwContainerReadWriteError(JNIEnv *env) {
-    char msg[256];
     bool error = false;
     if (access(dbFileName, R_OK) != 0) {
         error = true;
@@ -41,7 +43,6 @@ bool throwContainerReadWriteError(JNIEnv *env) {
 
 void handleMountError(JNIEnv *env) {
     if (!throwContainerReadWriteError(env)) {
-        char msg[256];
         snprintf(msg, MAX_MSG_LEN,
                  "Could not mount filesystem in %s, bad password given?", dbFileName);
         jniThrowException(env, "java/lang/IllegalArgumentException", msg);
@@ -50,8 +51,7 @@ void handleMountError(JNIEnv *env) {
 
 bool throwKeyLengthException(JNIEnv *env, jsize keyLen) {
     if (keyLen != REQUIRED_KEY_LENGTH) {
-        char msg[256];
-        snprintf(msg, 255, "Key length is not %i bytes (%i bytes)!",
+        snprintf(msg, MAX_MSG_LEN, "Key length is not %i bytes (%i bytes)!",
                  REQUIRED_KEY_LENGTH, keyLen);
         jniThrowException(env, "java/lang/IllegalArgumentException", msg);
         return true;
@@ -62,8 +62,7 @@ bool throwKeyLengthException(JNIEnv *env, jsize keyLen) {
 
 bool throwMountedException(JNIEnv *env, jobject obj) {
     if (VirtualFileSystem_isMounted(env, obj)) {
-        char msg[256];
-        snprintf(msg, 255, "Filesystem in '%s' already mounted!", dbFileName);
+        snprintf(msg, MAX_MSG_LEN, "Filesystem in '%s' already mounted!", dbFileName);
         jniThrowException(env, "java/lang/IllegalStateException", msg);
         return true;
     } else {
@@ -86,26 +85,25 @@ static void VirtualFileSystem_setContainerPath(JNIEnv *env, jobject obj, jstring
         return;
     }
 
-    char msg[256];
     int validFileName = 1;
     struct stat sb;
     const char *dir = dirname(name);
 
     if (access(dir, R_OK) != 0) {
         validFileName = 0;
-        snprintf(msg, 255,
+        snprintf(msg, MAX_MSG_LEN,
                  "Base directory %s, does not exist or is not readable (%d)!",
                  dir, errno);
     } else if (access(dir, W_OK) != 0) {
         validFileName = 0;
-        snprintf(msg, 255, "Could not write to base directory %s (%d)!",
+        snprintf(msg, MAX_MSG_LEN, "Could not write to base directory %s (%d)!",
                  dir, errno);
     } else if (stat(dir, &sb) == -1) {
         validFileName = 0;
-        snprintf(msg, 255, "Cannot stat %s (%d)!", dir, errno);
+        snprintf(msg, MAX_MSG_LEN, "Cannot stat %s (%d)!", dir, errno);
     } else if (!sb.st_mode & S_IFDIR) {
         validFileName = 0;
-        snprintf(msg, 255, "Base path %s is not a directory!", dir);
+        snprintf(msg, MAX_MSG_LEN, "Base path %s is not a directory!", dir);
     }
 
     if (validFileName) {
@@ -160,9 +158,8 @@ static void VirtualFileSystem_mount_byte(JNIEnv *env, jobject obj, jbyteArray ja
 }
 
 static void VirtualFileSystem_unmount(JNIEnv *env, jobject obj) {
-    char msg[256];
     if (!VirtualFileSystem_isMounted(env, obj)) {
-        snprintf(msg, 255, "Filesystem in '%s' not mounted!", dbFileName);
+        snprintf(msg, MAX_MSG_LEN, "Filesystem in '%s' not mounted!", dbFileName);
         jniThrowException(env, "java/lang/IllegalStateException", msg);
         return;
     }
