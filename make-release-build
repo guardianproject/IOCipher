@@ -35,13 +35,6 @@ android update lib-project --path .
 
 faketime -f "$TIMESTAMP" make -C external/
 faketime -f "$TIMESTAMP" ndk-build
-
-if [ -e ~/.android/ant.properties ]; then
-    cp ~/.android/ant.properties $projectroot/
-    faketime -f "$TIMESTAMP_5" ant release
-else
-    echo "skipping release ant.properties, making debug build"
-    faketime -f "$TIMESTAMP_5" ant debug
-fi
+faketime -f "$TIMESTAMP_5" ant release
 
 # `ant release` handles the gpg signing

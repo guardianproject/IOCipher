@@ -106,15 +106,7 @@
         <property name="zip.name" value="${ant.project.name}-${git.describe}-debug.zip" />
       </then>
       <else>
-        <property name="release.jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}.jar" />
         <property name="zip.name" value="${ant.project.name}-${git.describe}.zip" />
-        <signjar jar="${jar.name}"
-                 keystore="${key.store}"
-                 alias="${key.alias}"
-                 storepass="${key.store.password}"
-                 keypass="${key.store.password}"
-                 signedjar="${release.jar.name}"/>
-        <delete file="${jar.name}"/>
       </else>
     </if>
     <delete file="${zip.name}"/>
