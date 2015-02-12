@@ -14,6 +14,14 @@ if [ -z $ANDROID_HOME ]; then
     fi
 fi
 
+if [ -z $ANDROID_NDK ]; then
+    if which ndk-build 2>&1 /dev/null; then
+        ANDROID_NDK=`which ndk-build |  sed 's,/ndk-build,,'`
+    else
+        echo "ANDROID_NDK not set and 'ndk-build' not in PATH"
+        exit
+    fi
+fi
 projectroot=`pwd`
 # standardize timezone to reduce build differences
 export TZ=UTC
@@ -34,7 +42,7 @@ git submodule update --init --recursive
 android update lib-project --path .
 
 faketime -f "$TIMESTAMP" make -C external/
-faketime -f "$TIMESTAMP" ndk-build
+faketime -f "$TIMESTAMP" $ANDROID_NDK/ndk-build
 faketime -f "$TIMESTAMP_5" ant release
 
 # `ant release` handles the gpg signing
