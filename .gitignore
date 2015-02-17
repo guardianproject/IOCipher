@@ -22,3 +22,7 @@ proguard-project.txt
 # release files
 IOCipher-v*.zip
 IOCipher-v*.zip.sig
+
+# gradle build products
+.gradle
+build/
