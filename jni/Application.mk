@@ -1,5 +1,4 @@
 APP_ABI := armeabi armeabi-v7a x86
-NDK_TOOLCHAIN_VERSION=4.6
 APP_PROJECT_PATH := $(shell pwd)
 APP_BUILD_SCRIPT := $(APP_PROJECT_PATH)/jni/Android.mk
 APP_STL := stlport_shared

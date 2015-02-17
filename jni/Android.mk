@@ -9,7 +9,7 @@ sqlfs_DEFS := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DHAVE_L
 include $(CLEAR_VARS)
 LOCAL_MODULE     := libsqlfs
 LOCAL_SHARED_LIBRARIES := libsqlcipher_android
-LOCAL_CFLAGS     := $(sqlfs_DEFS) -Wall -Werror -Wno-error=maybe-uninitialized
+LOCAL_CFLAGS     := $(sqlfs_DEFS) -Wall -Werror
 LOCAL_C_INCLUDES := external/libsqlfs jni
 LOCAL_EXPORT_C_INCLUDES:= external/libsqlfs
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfs.c
