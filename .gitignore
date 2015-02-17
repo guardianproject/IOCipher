@@ -6,6 +6,8 @@ external/*/libs
 external/*/obj
 external/libsqlfs-build-stamp
 jni/TAGS
+.gradle
+build/
 # Mac OS X detritus
 .DS_Store
 # products of "android create project" or "android update project"
