@@ -20,6 +20,10 @@ LOCAL_MODULE    := libiocipher
 LOCAL_STATIC_LIBRARIES := libsqlfs
 LOCAL_SHARED_LIBRARIES := libsqlcipher_android
 LOCAL_CFLAGS += -DHAVE_LIBSQLCIPHER
+# Google's gold linker has bugs, so use good ol' binutils
+# https://code.google.com/p/android/issues/detail?id=109071
+# http://osdir.com/ml/android-ndk/2013-02/msg00107.html
+LOCAL_LDFLAGS   += -fuse-ld=bfd
 LOCAL_LDLIBS    += -llog
 LOCAL_SRC_FILES := \
 	JniConstants.cpp \
