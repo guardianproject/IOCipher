@@ -146,6 +146,41 @@ public class VirtualFileSystem {
     }
 
     /**
+     * Delete all files associated with the container itself, i.e. the sqlfs
+     * database, the SQLite WAL log file, and the SQLite SHM file.
+     *
+     * @return {@code true} if all related files were deleted, {@code false}
+     *         otherwise
+     */
+    public boolean deleteContainer() {
+        String containerPath = getContainerPath();
+        if (containerPath == null || containerPath.equals(""))
+            throw new IllegalArgumentException("Container path is null or empty!");
+        return deleteContainer(containerPath);
+    }
+
+    /**
+     * Delete all files associated with the container itself, i.e. the sqlfs
+     * database, the SQLite WAL log file, and the SQLite SHM file.
+     *
+     * @param containerPath the path to the sqlfs database file
+     * @return {@code true} if all related files were deleted, {@code false}
+     *         otherwise
+     */
+    public boolean deleteContainer(String containerPath) {
+        boolean result;
+        java.io.File container = new java.io.File(containerPath);
+        java.io.File shm = new java.io.File(containerPath + "-shm");
+        java.io.File wal = new java.io.File(containerPath + "-wal");
+        result = container.delete();
+        if (shm.exists())
+            result = result && shm.delete();
+        if (wal.exists())
+            result = result && wal.delete();
+        return result;
+    }
+
+    /**
      * Open and mount a virtual file system container encrypted with the
      * provided password as a {@code String}. This {@code String} is then used
      * to derive the AES key using SQLCipher's key derivation method. This
