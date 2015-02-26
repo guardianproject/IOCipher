@@ -77,7 +77,19 @@
 
   <target name="-post-build" depends="-getgitdetails">
     <property name="jar.dir" value="libs" />
-    <property name="jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}-debug.jar" />
+    <condition property="build.is.debug" value="true" else="false">
+      <equals arg1="${build.target}" arg2="debug" />
+    </condition>
+    <if condition="${build.is.debug}">
+      <then>
+        <property name="jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}-debug.jar" />
+        <property name="zip.name" value="${ant.project.name}-${git.describe}-debug.zip" />
+      </then>
+      <else>
+        <property name="jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}.jar" />
+        <property name="zip.name" value="${ant.project.name}-${git.describe}.zip" />
+      </else>
+    </if>
     <property file="${sdk.dir}/tools/source.properties" />
     <exec executable="cat" outputproperty="ndk.release">
       <arg value="${ndk.dir}/RELEASE.TXT"/>
@@ -98,17 +110,6 @@
         <attribute name="Android-NDK-Release" value="${ndk.release}"/>
       </manifest>
     </jar>
-    <condition property="build.is.debug" value="true" else="false">
-      <equals arg1="${build.target}" arg2="debug" />
-    </condition>
-    <if condition="${build.is.debug}">
-      <then>
-        <property name="zip.name" value="${ant.project.name}-${git.describe}-debug.zip" />
-      </then>
-      <else>
-        <property name="zip.name" value="${ant.project.name}-${git.describe}.zip" />
-      </else>
-    </if>
     <delete file="${zip.name}"/>
     <delete file="${zip.name}.sig"/>
     <zip destfile="${zip.name}" level="9">
