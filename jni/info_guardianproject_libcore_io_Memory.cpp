@@ -27,25 +27,6 @@
 #include <string.h>
 #include <sys/mman.h>
 
-#if defined(__arm__)
-// 32-bit ARM has load/store alignment restrictions for longs.
-#define LONG_ALIGNMENT_MASK 0x3
-#define INT_ALIGNMENT_MASK 0x0
-#define SHORT_ALIGNMENT_MASK 0x0
-#elif defined(__mips__)
-// MIPS has load/store alignment restrictions for longs, ints and shorts.
-#define LONG_ALIGNMENT_MASK 0x7
-#define INT_ALIGNMENT_MASK 0x3
-#define SHORT_ALIGNMENT_MASK 0x1
-#elif defined(__aarch64__) || defined(__i386__) || defined(__x86_64__)
-// These architectures can load anything at any alignment.
-#define LONG_ALIGNMENT_MASK 0x0
-#define INT_ALIGNMENT_MASK 0x0
-#define SHORT_ALIGNMENT_MASK 0x0
-#else
-#error unknown load/store alignment restrictions for this architecture
-#endif
-
 // Use packed structures for access to unaligned data on targets with alignment restrictions.
 // The compiler will generate appropriate code to access these structures without
 // generating alignment exceptions.
@@ -81,63 +62,31 @@ static inline void swapShorts(jshort* dstShorts, const jshort* srcShorts, size_t
     // Do 32-bit swaps as long as possible...
     jint* dst = reinterpret_cast<jint*>(dstShorts);
     const jint* src = reinterpret_cast<const jint*>(srcShorts);
-
-    if ((reinterpret_cast<uintptr_t>(dst) & INT_ALIGNMENT_MASK) == 0 &&
-        (reinterpret_cast<uintptr_t>(src) & INT_ALIGNMENT_MASK) == 0) {
-        for (size_t i = 0; i < count / 2; ++i) {
-            jint v = *src++;
-            *dst++ = bswap_2x16(v);
-        }
-        // ...with one last 16-bit swap if necessary.
-        if ((count % 2) != 0) {
-            jshort v = *reinterpret_cast<const jshort*>(src);
-            *reinterpret_cast<jshort*>(dst) = bswap_16(v);
-        }
-    } else {
-        for (size_t i = 0; i < count / 2; ++i) {
-            jint v = get_unaligned<jint>(src++);
-            put_unaligned<jint>(dst++, bswap_2x16(v));
-        }
-        if ((count % 2) != 0) {
-          jshort v = get_unaligned<jshort>(reinterpret_cast<const jshort*>(src));
-          put_unaligned<jshort>(reinterpret_cast<jshort*>(dst), bswap_16(v));
-        }
+    for (size_t i = 0; i < count / 2; ++i) {
+        jint v = get_unaligned<jint>(src++);
+        put_unaligned<jint>(dst++, bswap_2x16(v));
+    }
+    if ((count % 2) != 0) {
+      jshort v = get_unaligned<jshort>(reinterpret_cast<const jshort*>(src));
+      put_unaligned<jshort>(reinterpret_cast<jshort*>(dst), bswap_16(v));
     }
 }
 
 static inline void swapInts(jint* dstInts, const jint* srcInts, size_t count) {
-    if ((reinterpret_cast<uintptr_t>(dstInts) & INT_ALIGNMENT_MASK) == 0 &&
-        (reinterpret_cast<uintptr_t>(srcInts) & INT_ALIGNMENT_MASK) == 0) {
-        for (size_t i = 0; i < count; ++i) {
-            jint v = *srcInts++;
-            *dstInts++ = bswap_32(v);
-        }
-    } else {
-        for (size_t i = 0; i < count; ++i) {
-            jint v = get_unaligned<int>(srcInts++);
-            put_unaligned<jint>(dstInts++, bswap_32(v));
-        }
+    for (size_t i = 0; i < count; ++i) {
+        jint v = get_unaligned<int>(srcInts++);
+        put_unaligned<jint>(dstInts++, bswap_32(v));
     }
 }
 
 static inline void swapLongs(jlong* dstLongs, const jlong* srcLongs, size_t count) {
     jint* dst = reinterpret_cast<jint*>(dstLongs);
     const jint* src = reinterpret_cast<const jint*>(srcLongs);
-    if ((reinterpret_cast<uintptr_t>(dstLongs) & INT_ALIGNMENT_MASK) == 0 &&
-        (reinterpret_cast<uintptr_t>(srcLongs) & INT_ALIGNMENT_MASK) == 0) {
-        for (size_t i = 0; i < count; ++i) {
-          jint v1 = *src++;
-          jint v2 = *src++;
-          *dst++ = bswap_32(v2);
-          *dst++ = bswap_32(v1);
-        }
-    } else {
-        for (size_t i = 0; i < count; ++i) {
-            jint v1 = get_unaligned<jint>(src++);
-            jint v2 = get_unaligned<jint>(src++);
-            put_unaligned<jint>(dst++, bswap_32(v2));
-            put_unaligned<jint>(dst++, bswap_32(v1));
-        }
+    for (size_t i = 0; i < count; ++i) {
+        jint v1 = get_unaligned<jint>(src++);
+        jint v2 = get_unaligned<jint>(src++);
+        put_unaligned<jint>(dst++, bswap_32(v2));
+        put_unaligned<jint>(dst++, bswap_32(v1));
     }
 }
 
@@ -259,39 +208,27 @@ static void Memory_pokeShortArray(JNIEnv* env, jclass, jlong dstAddress, jshortA
 }
 
 static jshort Memory_peekShortNative(JNIEnv*, jclass, jlong srcAddress) {
-    return *cast<const jshort*>(srcAddress);
+    return get_unaligned<jshort>(cast<const jshort*>(srcAddress));
 }
 
 static void Memory_pokeShortNative(JNIEnv*, jclass, jlong dstAddress, jshort value) {
-    *cast<jshort*>(dstAddress) = value;
+    put_unaligned<jshort>(cast<jshort*>(dstAddress), value);
 }
 
 static jint Memory_peekIntNative(JNIEnv*, jclass, jlong srcAddress) {
-    return *cast<const jint*>(srcAddress);
+    return get_unaligned<jint>(cast<const jint*>(srcAddress));
 }
 
 static void Memory_pokeIntNative(JNIEnv*, jclass, jlong dstAddress, jint value) {
-    *cast<jint*>(dstAddress) = value;
+    put_unaligned<jint>(cast<jint*>(dstAddress), value);
 }
 
 static jlong Memory_peekLongNative(JNIEnv*, jclass, jlong srcAddress) {
-    jlong result;
-    const jlong* src = cast<const jlong*>(srcAddress);
-    if ((srcAddress & LONG_ALIGNMENT_MASK) == 0) {
-        result = *src;
-    } else {
-        result = get_unaligned<jlong>(src);
-    }
-    return result;
+    return get_unaligned<jlong>(cast<const jlong*>(srcAddress));
 }
 
 static void Memory_pokeLongNative(JNIEnv*, jclass, jlong dstAddress, jlong value) {
-    jlong* dst = cast<jlong*>(dstAddress);
-    if ((dstAddress & LONG_ALIGNMENT_MASK) == 0) {
-        *dst = value;
-    } else {
-        put_unaligned<jlong>(dst, value);
-    }
+    put_unaligned<jlong>(cast<jlong*>(dstAddress), value);
 }
 
 static void unsafeBulkCopy(jbyte* dst, const jbyte* src, jint byteCount,
