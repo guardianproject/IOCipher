@@ -174,9 +174,9 @@ public class VirtualFileSystem {
         java.io.File wal = new java.io.File(containerPath + "-wal");
         result = container.delete();
         if (shm.exists())
-            result = result && shm.delete();
+            result = shm.delete() && result;
         if (wal.exists())
-            result = result && wal.delete();
+            result = wal.delete() && result;
         return result;
     }
 
