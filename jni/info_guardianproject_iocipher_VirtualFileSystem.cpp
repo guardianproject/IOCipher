@@ -227,6 +227,11 @@ static void VirtualFileSystem_unmount(JNIEnv *env, jobject obj) {
     sqlfs = NULL;
 }
 
+static void VirtualFileSystem_detachThread(JNIEnv *env, jobject) {
+    sqlfs_detach_thread();
+    return;
+}
+
 static void VirtualFileSystem_beginTransaction(JNIEnv *env, jobject) {
     sqlfs_begin_transaction(0);
     return;
@@ -246,6 +251,7 @@ static JNINativeMethod sMethods[] = {
     {"mount", "([B)V", (void *)VirtualFileSystem_mount_byte},
     {"unmount", "()V", (void *)VirtualFileSystem_unmount},
     {"isMounted", "()Z", (void *)VirtualFileSystem_isMounted},
+    {"detachThread", "()V", (void *)VirtualFileSystem_detachThread},
     {"beginTransaction", "()V", (void *)VirtualFileSystem_beginTransaction},
     {"completeTransaction", "()V", (void *)VirtualFileSystem_completeTransaction},
 };

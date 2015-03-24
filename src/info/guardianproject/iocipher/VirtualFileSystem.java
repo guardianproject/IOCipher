@@ -315,6 +315,17 @@ public class VirtualFileSystem {
     public native boolean isMounted();
 
     /**
+     * If accessing an IOCipher container in any thread separate from where
+     * {@link #mount(byte[])} was called, that thread will have its own IOCipher
+     * state. For threads that do not quit when complete or are reused, like
+     * Android's {@code AsyncTask} or any "thread pool" model, this method must
+     * be called when each thread is finished using the container. Otherwise,
+     * that thread will keep its connection to the container open, and it will
+     * not be possible to {@link #unmount()} successfully.
+     */
+    public native void detachThread();
+
+    /**
      * Call this function before performance sensitive write operations to
      * increase performance
      */
