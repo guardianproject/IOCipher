@@ -20,8 +20,11 @@ proguard-project.txt
 *.kdev4
 
 # release files
+R.txt
 IOCipher-*.zip
 IOCipher-*.zip.asc
+IOCipher-*.aar
+IOCipher-*.aar.asc
 
 # gradle build products
 .gradle

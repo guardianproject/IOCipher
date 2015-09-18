@@ -61,6 +61,8 @@
       <fileset dir=".">
         <include name="IOCipher-*.zip" />
         <include name="IOCipher-*.zip.asc" />
+        <include name="IOCipher-*.aar" />
+        <include name="IOCipher-*.aar.asc" />
       </fileset>
     </delete>
   </target>
@@ -84,10 +86,12 @@
       <then>
         <property name="jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}-debug.jar" />
         <property name="zip.name" value="${ant.project.name}-${git.describe}-debug.zip" />
+        <property name="aar.name" value="${ant.project.name}-${git.describe}-debug.aar" />
       </then>
       <else>
         <property name="jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}.jar" />
         <property name="zip.name" value="${ant.project.name}-${git.describe}.zip" />
+        <property name="aar.name" value="${ant.project.name}-${git.describe}.aar" />
       </else>
     </if>
     <property file="${sdk.dir}/tools/source.properties" />
@@ -115,6 +119,23 @@
     <zip destfile="${zip.name}" level="9">
       <zipfileset dir="libs" />
     </zip>
+    <!-- AARs require R.txt and res/ even if they are empty -->
+    <delete file="R.txt"/>
+    <touch file="R.txt"/>
+    <!-- reset timestamp for reproducibility -->
+    <touch>
+      <fileset file="AndroidManifest.xml"/>
+      <fileset file="bin/classes.jar"/>
+      <fileset dir="res"/>
+      <fileset dir="libs"/>
+    </touch>
+    <zip destfile="${aar.name}" level="9">
+      <zipfileset dir="." includes="AndroidManifest.xml"/>
+      <zipfileset dir="bin" includes="classes.jar"/>
+      <zipfileset dir="." includes="R.txt"/>
+      <zipfileset dir="res" excludes=".README" prefix="res"/>
+      <zipfileset dir="libs" includes="**/*.so" prefix="jni"/>
+    </zip>
     <!-- don't leave this jar in libs/ since it confuses Eclipse -->
     <delete file="${jar.name}"/>
     <delete file="${release.jar.name}"/>
@@ -124,6 +145,11 @@
           <arg value="--armor" />
           <arg value="--detach-sign" />
           <arg value="${zip.name}" />
+        </exec>
+        <exec executable="gpg" failonerror="true">
+          <arg value="--armor" />
+          <arg value="--detach-sign" />
+          <arg value="${aar.name}" />
         </exec>
       </else>
     </if>
