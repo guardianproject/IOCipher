@@ -63,6 +63,8 @@
         <include name="IOCipher-*.zip.asc" />
         <include name="IOCipher-*.aar" />
         <include name="IOCipher-*.aar.asc" />
+        <include name="IOCipher-*.pom" />
+        <include name="IOCipher-*.pom.asc" />
       </fileset>
     </delete>
   </target>
@@ -87,11 +89,13 @@
         <property name="jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}-debug.jar" />
         <property name="zip.name" value="${ant.project.name}-${git.describe}-debug.zip" />
         <property name="aar.name" value="${ant.project.name}-${git.describe}-debug.aar" />
+        <property name="pom.name" value="${ant.project.name}-${git.describe}-debug.pom" />
       </then>
       <else>
         <property name="jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}.jar" />
         <property name="zip.name" value="${ant.project.name}-${git.describe}.zip" />
         <property name="aar.name" value="${ant.project.name}-${git.describe}.aar" />
+        <property name="pom.name" value="${ant.project.name}-${git.describe}.pom" />
       </else>
     </if>
     <property file="${sdk.dir}/tools/source.properties" />
@@ -136,6 +140,12 @@
       <zipfileset dir="res" excludes=".README" prefix="res"/>
       <zipfileset dir="libs" includes="**/*.so" prefix="jni"/>
     </zip>
+    <!-- generate .pom for maven repos -->
+    <copy file="IOCipher.pom" tofile="${pom.name}"/>
+    <replaceregexp file="${pom.name}"
+                   match="VERSION"
+                   replace="${git.describe}"
+                   flags="m"/>
     <!-- don't leave this jar in libs/ since it confuses Eclipse -->
     <delete file="${jar.name}"/>
     <delete file="${release.jar.name}"/>
@@ -150,6 +160,11 @@
           <arg value="--armor" />
           <arg value="--detach-sign" />
           <arg value="${aar.name}" />
+        </exec>
+        <exec executable="gpg" failonerror="true">
+          <arg value="--armor" />
+          <arg value="--detach-sign" />
+          <arg value="${pom.name}" />
         </exec>
       </else>
     </if>

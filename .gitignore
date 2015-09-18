@@ -25,6 +25,8 @@ IOCipher-*.zip
 IOCipher-*.zip.asc
 IOCipher-*.aar
 IOCipher-*.aar.asc
+IOCipher-0.3.pom
+IOCipher-0.3.pom.asc
 
 # gradle build products
 .gradle
