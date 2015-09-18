@@ -111,7 +111,7 @@
       </manifest>
     </jar>
     <delete file="${zip.name}"/>
-    <delete file="${zip.name}.sig"/>
+    <delete file="${zip.name}.asc"/>
     <zip destfile="${zip.name}" level="9">
       <zipfileset dir="libs" />
     </zip>
@@ -121,6 +121,7 @@
     <if condition="${build.is.debug}">
       <else>
         <exec executable="gpg" failonerror="true">
+          <arg value="--armor" />
           <arg value="--detach-sign" />
           <arg value="${zip.name}" />
         </exec>
