@@ -98,6 +98,12 @@ chunks.
 
 * BSD-style (sqlcipher)
 
+We believe the LGPLv3 is compatible with all reasonable uses, including
+proprietary software, but let us know if it provides difficulties for you.
+For more info on how that works with Java, see:
+
+https://www.gnu.org/licenses/lgpl-java.en.html
+
 
 Included shared library files
 -----------------------------
