@@ -12,6 +12,22 @@ If you are using this in your app, we'd love to hear about it! Please send us
 an email at root@guardianproject.info
 
 
+Adding to your project
+----------------------
+
+If you are using gradle, then add this to your project:
+
+    compile 'info.guardianproject.iocipher:IOCipherStandalone:0.3',
+
+Apps that are also using [SQLCipher-for-Android] should use the version that
+only includes IOCipher itself.  The standlone version includes
+*libstlport_shared.so* and *libsqlcipher_android.so*, and they will conflict
+with SQLCipher-for-Android.  Then include this in your gradle:
+
+    compile 'info.guardianproject.iocipher:IOCipher:0.3'
+
+
+
 Getting Supporting Libraries
 ----------------------------
 
@@ -125,3 +141,8 @@ ndk-build -j4
 These shared libraries _must_ not be included in any real app. Android
 provides `/system/lib/libcrypto.so` and you should get SQLCipher directly from
 the source, listed above.
+
+
+
+
+[SQLCipher-for-Android]: https://www.zetetic.net/sqlcipher/open-source

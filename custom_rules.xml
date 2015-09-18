@@ -59,12 +59,12 @@
     </exec>
     <delete>
       <fileset dir=".">
-        <include name="IOCipher-*.zip" />
-        <include name="IOCipher-*.zip.asc" />
-        <include name="IOCipher-*.aar" />
-        <include name="IOCipher-*.aar.asc" />
-        <include name="IOCipher-*.pom" />
-        <include name="IOCipher-*.pom.asc" />
+        <include name="IOCipher*-*.zip" />
+        <include name="IOCipher*-*.zip.asc" />
+        <include name="IOCipher*-*.aar" />
+        <include name="IOCipher*-*.aar.asc" />
+        <include name="IOCipher*-*.pom" />
+        <include name="IOCipher*-*.pom.asc" />
       </fileset>
     </delete>
   </target>
@@ -90,12 +90,16 @@
         <property name="zip.name" value="${ant.project.name}-${git.describe}-debug.zip" />
         <property name="aar.name" value="${ant.project.name}-${git.describe}-debug.aar" />
         <property name="pom.name" value="${ant.project.name}-${git.describe}-debug.pom" />
+        <property name="aar.standalone.name" value="${ant.project.name}Standalone-${git.describe}-debug.aar" />
+        <property name="pom.standalone.name" value="${ant.project.name}Standalone-${git.describe}-debug.pom" />
       </then>
       <else>
         <property name="jar.name" value="${jar.dir}/${ant.project.name}-${git.describe}.jar" />
         <property name="zip.name" value="${ant.project.name}-${git.describe}.zip" />
         <property name="aar.name" value="${ant.project.name}-${git.describe}.aar" />
         <property name="pom.name" value="${ant.project.name}-${git.describe}.pom" />
+        <property name="aar.standalone.name" value="${ant.project.name}Standalone-${git.describe}.aar" />
+        <property name="pom.standalone.name" value="${ant.project.name}Standalone-${git.describe}.pom" />
       </else>
     </if>
     <property file="${sdk.dir}/tools/source.properties" />
@@ -133,18 +137,32 @@
       <fileset dir="res"/>
       <fileset dir="libs"/>
     </touch>
+    <!-- AAR for use with SQLCipher-for-Android -->
     <zip destfile="${aar.name}" level="9">
       <zipfileset dir="." includes="AndroidManifest.xml"/>
       <zipfileset dir="bin" includes="classes.jar"/>
       <zipfileset dir="." includes="R.txt"/>
       <zipfileset dir="res" excludes=".README" prefix="res"/>
-      <zipfileset dir="libs" includes="**/*.so" prefix="jni"/>
+      <zipfileset dir="libs" includes="**/libiocipher.so **/sqlfs*" prefix="jni"/>
+    </zip>
+    <!-- AAR that includes the SQLCipher shared libraries -->
+    <zip destfile="${aar.standalone.name}" level="9">
+      <zipfileset dir="." includes="AndroidManifest.xml"/>
+      <zipfileset dir="bin" includes="classes.jar"/>
+      <zipfileset dir="." includes="R.txt"/>
+      <zipfileset dir="res" excludes=".README" prefix="res"/>
+      <zipfileset dir="libs" includes="**/*.so **/sqlfs*" prefix="jni"/>
     </zip>
     <!-- generate .pom for maven repos -->
     <copy file="IOCipher.pom" tofile="${pom.name}"/>
     <replaceregexp file="${pom.name}"
                    match="VERSION"
                    replace="${git.describe}"
+                   flags="m"/>
+    <copy file="${pom.name}" tofile="${pom.standalone.name}"/>
+    <replaceregexp file="${pom.standalone.name}"
+                   match="IOCipher&lt;"
+                   replace="IOCipherStandalone"
                    flags="m"/>
     <!-- don't leave this jar in libs/ since it confuses Eclipse -->
     <delete file="${jar.name}"/>
@@ -165,6 +183,16 @@
           <arg value="--armor" />
           <arg value="--detach-sign" />
           <arg value="${pom.name}" />
+        </exec>
+        <exec executable="gpg" failonerror="true">
+          <arg value="--armor" />
+          <arg value="--detach-sign" />
+          <arg value="${aar.standalone.name}" />
+        </exec>
+        <exec executable="gpg" failonerror="true">
+          <arg value="--armor" />
+          <arg value="--detach-sign" />
+          <arg value="${pom.standalone.name}" />
         </exec>
       </else>
     </if>
