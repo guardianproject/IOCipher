@@ -59,8 +59,8 @@
     </exec>
     <delete>
       <fileset dir=".">
-        <include name="IOCipher-v*.zip" />
-        <include name="IOCipher-v*.zip.sig" />
+        <include name="IOCipher-*.zip" />
+        <include name="IOCipher-*.zip.asc" />
       </fileset>
     </delete>
   </target>
