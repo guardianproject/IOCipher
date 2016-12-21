@@ -54,7 +54,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libsqlcipher
 LOCAL_SRC_FILES := $(EXTERNAL_PATH)/libs/$(TARGET_ARCH_ABI)/libsqlcipher.so
 LOCAL_EXPORT_C_INCLUDES := external external/openssl/include
-#LOCAL_EXPORT_LDLIBS := -lcrypto
+LOCAL_EXPORT_LDLIBS := -lcrypto
 LOCAL_EXPORT_LDFLAGS := \
 	-L$(LOCAL_PATH)/../external/libs/$(TARGET_ARCH_ABI)
 include $(PREBUILT_SHARED_LIBRARY)
