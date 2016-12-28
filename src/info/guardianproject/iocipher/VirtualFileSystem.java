@@ -16,7 +16,7 @@ public class VirtualFileSystem {
 
     static {
         System.loadLibrary("stlport_shared");
-        System.loadLibrary("sqlcipher_android");
+        System.loadLibrary("sqlcipher");
         System.loadLibrary("iocipher");
     }
 

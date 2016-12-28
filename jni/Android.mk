@@ -8,7 +8,7 @@ sqlfs_DEFS := -D_FILE_OFFSET_BITS=64 -D_REENTRANT -DFUSE_USE_VERSION=25 -DHAVE_L
 
 include $(CLEAR_VARS)
 LOCAL_MODULE     := libsqlfs
-LOCAL_SHARED_LIBRARIES := libsqlcipher_android
+LOCAL_SHARED_LIBRARIES := libsqlcipher
 LOCAL_CFLAGS     := $(sqlfs_DEFS) -Wall -Werror
 LOCAL_C_INCLUDES := external/libsqlfs jni
 LOCAL_EXPORT_C_INCLUDES:= external/libsqlfs
@@ -18,7 +18,7 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE    := libiocipher
 LOCAL_STATIC_LIBRARIES := libsqlfs
-LOCAL_SHARED_LIBRARIES := libsqlcipher_android
+LOCAL_SHARED_LIBRARIES := libsqlcipher
 LOCAL_CFLAGS += -DHAVE_LIBSQLCIPHER
 # Google's gold linker has bugs, so use good ol' binutils
 # https://code.google.com/p/android/issues/detail?id=109071
@@ -44,15 +44,15 @@ include $(CLEAR_VARS)
 LOCAL_MODULE     := sqlfscat
 LOCAL_CFLAGS     := $(sqlfs_DEFS) -Wall -Werror
 LOCAL_C_INCLUDES := external/libsqlfs
-LOCAL_SHARED_LIBRARIES := libiocipher libsqlcipher_android
+LOCAL_SHARED_LIBRARIES := libiocipher libsqlcipher
 LOCAL_LDLIBS     := -llog
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfscat.c
 include $(BUILD_EXECUTABLE)
 
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := libsqlcipher_android
-LOCAL_SRC_FILES := $(EXTERNAL_PATH)/libs/$(TARGET_ARCH_ABI)/libsqlcipher_android.so
+LOCAL_MODULE := libsqlcipher
+LOCAL_SRC_FILES := $(EXTERNAL_PATH)/libs/$(TARGET_ARCH_ABI)/libsqlcipher.so
 LOCAL_EXPORT_C_INCLUDES := external external/openssl/include
 LOCAL_EXPORT_LDLIBS := -lcrypto
 LOCAL_EXPORT_LDFLAGS := \
