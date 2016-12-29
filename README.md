@@ -17,14 +17,14 @@ Adding to your project
 
 If you are using gradle, then add this to your project:
 
-    compile 'info.guardianproject.iocipher:IOCipherStandalone:0.3',
+    compile 'info.guardianproject.iocipher:IOCipherStandalone:0.4',
 
 Apps that are also using [SQLCipher-for-Android] should use the version that
 only includes IOCipher itself.  The standlone version includes
 *libstlport_shared.so* and *libsqlcipher_android.so*, and they will conflict
 with SQLCipher-for-Android.  Then include this in your gradle:
 
-    compile 'info.guardianproject.iocipher:IOCipher:0.3'
+    compile 'info.guardianproject.iocipher:IOCipher:0.4'
 
 
 
@@ -34,9 +34,17 @@ Getting Supporting Libraries
 IOCipher is built upon SQLCipher, which is required in order to use this
 library.  You can get SQLCipher-for-Android here:
 
-http://sqlcipher.net/open-source
+https://www.zetetic.net/sqlcipher/open-source/
 
-For example, SQLCipher for Android v3.1.0 binary is available here:
+With gradle or Android Studio, you can get it from `mavenCentral()` using:
+
+    compile 'net.zetetic:android-database-sqlcipher:3.5.4'
+
+Or via direct download, including PGP signature:
+* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.4/android-database-sqlcipher-3.5.4.aar
+* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.4/android-database-sqlcipher-3.5.4.aar.asc
+
+The older package of SQLCipher for Android v3.1.0 binary is available here:
 https://s3.amazonaws.com/sqlcipher/SQLCipher+for+Android+v3.1.0.zip
 
 And the signature is here:
