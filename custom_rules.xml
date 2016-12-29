@@ -143,7 +143,7 @@
       <zipfileset dir="bin" includes="classes.jar"/>
       <zipfileset dir="." includes="R.txt"/>
       <zipfileset dir="res" excludes=".README" prefix="res"/>
-      <zipfileset dir="libs" includes="**/libiocipher.so **/sqlfs*" prefix="jni"/>
+      <zipfileset dir="libs" includes="**/libiocipher.so **/sqlfs* **/libstlport_shared.so" prefix="jni"/>
     </zip>
     <!-- AAR that includes the SQLCipher shared libraries -->
     <zip destfile="${aar.standalone.name}" level="9">
