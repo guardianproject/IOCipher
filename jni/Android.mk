@@ -49,12 +49,20 @@ LOCAL_LDLIBS     := -llog
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfscat.c
 include $(BUILD_EXECUTABLE)
 
-
 include $(CLEAR_VARS)
 LOCAL_MODULE := libsqlcipher
 LOCAL_SRC_FILES := $(EXTERNAL_PATH)/libs/$(TARGET_ARCH_ABI)/libsqlcipher.so
 LOCAL_EXPORT_C_INCLUDES := external external/openssl/include
-LOCAL_EXPORT_LDLIBS := -lcrypto
+LOCAL_SHARED_LIBRARIES := libcrypto
+##LOCAL_EXPORT_LDLIBS := -lcrypto
+LOCAL_EXPORT_LDFLAGS := \
+	-L$(LOCAL_PATH)/../external/libs/$(TARGET_ARCH_ABI)
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libcrypto
+LOCAL_SRC_FILES := $(EXTERNAL_PATH)/libs/$(TARGET_ARCH_ABI)/libcrypto.so
+LOCAL_EXPORT_C_INCLUDES := external external/openssl/include
 LOCAL_EXPORT_LDFLAGS := \
 	-L$(LOCAL_PATH)/../external/libs/$(TARGET_ARCH_ABI)
 include $(PREBUILT_SHARED_LIBRARY)
