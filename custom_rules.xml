@@ -169,27 +169,27 @@
     <delete file="${release.jar.name}"/>
     <if condition="${build.is.debug}">
       <else>
-        <exec executable="gpg" failonerror="true">
+        <exec executable="gpg">
           <arg value="--armor" />
           <arg value="--detach-sign" />
           <arg value="${zip.name}" />
         </exec>
-        <exec executable="gpg" failonerror="true">
+        <exec executable="gpg">
           <arg value="--armor" />
           <arg value="--detach-sign" />
           <arg value="${aar.name}" />
         </exec>
-        <exec executable="gpg" failonerror="true">
+        <exec executable="gpg">
           <arg value="--armor" />
           <arg value="--detach-sign" />
           <arg value="${pom.name}" />
         </exec>
-        <exec executable="gpg" failonerror="true">
+        <exec executable="gpg">
           <arg value="--armor" />
           <arg value="--detach-sign" />
           <arg value="${aar.standalone.name}" />
         </exec>
-        <exec executable="gpg" failonerror="true">
+        <exec executable="gpg">
           <arg value="--armor" />
           <arg value="--detach-sign" />
           <arg value="${pom.standalone.name}" />
