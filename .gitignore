@@ -31,3 +31,7 @@ IOCipher*-*.pom.asc
 # gradle build products
 .gradle
 build/
+
+# Android Studio files
+.idea/
+*.iml
