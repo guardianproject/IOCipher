@@ -8,7 +8,21 @@ buildscript {
     }
 }
 
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
 apply plugin: 'com.android.library'
+
+dependencies {
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support:support-annotations:25.1.0'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
+}
 
 android {
     compileSdkVersion 25
@@ -18,6 +32,10 @@ android {
         minSdkVersion 9
         targetSdkVersion 25
         ndk.abiFilters 'armeabi', 'armeabi-v7a', 'x86'
+        testApplicationId "info.guardianproject.iocipher.tests"
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        testHandleProfiling true
+        testFunctionalTest true
     }
 
     // both libs/ and 'net.zetetic:android-database-sqlcipher:3.5.4@aar' contain these:
@@ -36,6 +54,16 @@ android {
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+        }
+
+        androidTest {
+            manifest.srcFile 'androidTest/AndroidManifest.xml'
+            java.srcDirs = ['androidTest/src']
+            resources.srcDirs = ['androidTest/src']
+            aidl.srcDirs = ['androidTest/src']
+            renderscript.srcDirs = ['androidTest/src']
+            res.srcDirs = ['androidTest/res']
+            assets.srcDirs = ['androidTest/assets']
         }
     }
 
