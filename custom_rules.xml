@@ -8,15 +8,15 @@
   <exec executable="dirname" outputproperty="ndk.build.dir">
     <arg value="${which.ndk.build}"/>
   </exec>
-  <condition property="set.ndk.dir" value="${env.ANDROID_NDK}" else="${ndk.build.dir}">
-    <isset property="env.ANDROID_NDK" />
+  <condition property="set.ndk.dir" value="${env.ANDROID_NDK_HOME}" else="${ndk.build.dir}">
+    <isset property="env.ANDROID_NDK_HOME" />
   </condition>
   <condition property="ndk.dir" value="${set.ndk.dir}">
     <not>
       <isset property="ndk.dir" />
     </not>
   </condition>
-  <fail message="Cannot find Android NDK! Either set ANDROID_NDK or make sure ndk-build is in your PATH.">
+  <fail message="Cannot find Android NDK! Either set ANDROID_NDK_HOME or make sure ndk-build is in your PATH.">
     <condition>
       <or>
         <not>

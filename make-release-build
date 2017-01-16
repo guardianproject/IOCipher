@@ -14,11 +14,11 @@ if [ -z $ANDROID_HOME ]; then
     fi
 fi
 
-if [ -z $ANDROID_NDK ]; then
+if [ -z $ANDROID_NDK_HOME ]; then
     if which ndk-build 2>&1 /dev/null; then
-        ANDROID_NDK=`which ndk-build |  sed 's,/ndk-build,,'`
+        ANDROID_NDK_HOME=`which ndk-build |  sed 's,/ndk-build,,'`
     else
-        echo "ANDROID_NDK not set and 'ndk-build' not in PATH"
+        echo "ANDROID_NDK_HOME not set and 'ndk-build' not in PATH"
         exit
     fi
 fi
@@ -42,7 +42,7 @@ git submodule update --init --recursive
 ./setup-ant
 
 faketime -f "$TIMESTAMP" make -C external/
-faketime -f "$TIMESTAMP" $ANDROID_NDK/ndk-build
+faketime -f "$TIMESTAMP" $ANDROID_NDK_HOME/ndk-build
 faketime -f "$TIMESTAMP_5" ant release
 
 # `ant release` handles the gpg signing
