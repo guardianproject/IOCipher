@@ -40,6 +40,16 @@ android {
         jni.srcDirs = [] // disable use of automatically generated Android.mk
         jniLibs.srcDir 'build/intermediates/ndk/lib'
     }
+
+    lintOptions {
+        abortOnError true
+
+        htmlReport false
+        xmlReport false
+        textReport true
+
+        error 'AppCompatMethod', 'NestedScrolling', 'StringFormatCount', 'UnsafeProtectedBroadcastReceiver'
+    }
 }
 
 tasks.withType(JavaCompile) {
