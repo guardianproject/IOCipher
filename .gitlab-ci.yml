@@ -8,14 +8,19 @@ before_script:
   - cat /etc/issue
   - uname -a
   - apt-get --quiet update --yes
-  - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1 ant ant-optional faketime git tcl libtool automake autoconf gawk libssl-dev make
+  - apt-get --quiet install --yes wget unzip lib32stdc++6 lib32z1 ant ant-optional faketime git tcl libtool automake autoconf gawk libssl-dev make
+
   - cd ..
+  - wget --quiet --output-document=android-wait-for-emulator https://raw.githubusercontent.com/travis-ci/travis-cookbooks/0f497eb71291b52a703143c5cd63a217c8766dc9/community-cookbooks/android-sdk/files/default/android-wait-for-emulator
+  - chmod +x android-wait-for-emulator
   - wget --quiet --output-document=android-sdk.tgz https://dl.google.com/android/repository/tools_r25.2.5-linux.zip
   - export ANDROID_HOME=$PWD/android-sdk-linux
   - unzip -qq -d $ANDROID_HOME android-sdk.tgz
+
   - echo y | $ANDROID_HOME/tools/android --silent update sdk --no-ui --all --filter
-    android-9,platform-tools,extra-android-m2repository,build-tools-${ANDROID_BUILD_TOOLS}
-  - export PATH=$PATH:${ANDROID_HOME}/platform-tools
+    android-9,android-25,platform-tools,extra-android-m2repository,build-tools-${ANDROID_BUILD_TOOLS}
+  - export PATH=$PATH:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/tools
+
   - wget --quiet --output-document=android-ndk.zip https://dl.google.com/android/repository/android-ndk-r${NDK_VERSION}-linux-x86_64.zip
   - unzip -qq android-ndk.zip
   - export ANDROID_NDK_HOME=$PWD/android-ndk-r${NDK_VERSION}
@@ -24,3 +29,57 @@ build:
   script:
     - cd $CI_PROJECT_DIR
     - ./make-release-build
+
+    # prep for the ./gradlew builds
+    - git clean -fdx
+    - git reset --hard
+    - git submodule foreach --recursive git reset --hard
+    - git submodule foreach --recursive git clean -fdx
+    - git submodule sync --recursive
+    - git submodule foreach --recursive git submodule sync
+    - git submodule update --init --recursive
+    - ./gradlew build
+    - sed -i -e 's,textReport .*,textReport true,' build.gradle
+    - export EXITVALUE=0
+
+    - export AVD_SDK=25
+    - export ABI=x86
+    - export TAG=google_apis
+    - echo y | $ANDROID_HOME/tools/android --silent update sdk --no-ui --all --filter android-${AVD_SDK}
+    - echo y | $ANDROID_HOME/tools/android --silent update sdk --no-ui --all --filter sys-img-${ABI}-${TAG}-${AVD_SDK}
+    - echo no | $ANDROID_HOME/tools/android create avd --name test${AVD_SDK} --target android-${AVD_SDK} --abi $ABI --tag $TAG
+    - emulator64-$ABI -avd test${AVD_SDK} -no-skin -no-audio -no-window &
+    - ../android-wait-for-emulator
+    - adb shell input keyevent 82
+    - ./gradlew connectedCheck || {
+        adb -e logcat -d '*:E';
+        echo "get the full logcat here:";
+        adb -e logcat -d | curl --silent -F 'clbin=<-' https://clbin.com;
+        export EXITVALUE=1;
+      }
+    - for log in build/reports/*ests/*/*ml
+                 build/outputs/*results*/connected/*.xml; do
+        echo "read $log here:";
+        cat "$log" | curl --silent -F 'clbin=<-' https://clbin.com;
+      done
+
+    - export AVD_SDK=16
+    - echo y | $ANDROID_HOME/tools/android --silent update sdk --no-ui --all --filter android-${AVD_SDK}
+    - echo y | $ANDROID_HOME/tools/android --silent update sdk --no-ui --all --filter sys-img-${ABI}-${TAG}-${AVD_SDK}
+    - echo no | $ANDROID_HOME/tools/android create avd --name test${AVD_SDK} --target android-${AVD_SDK} --abi $ABI --tag $TAG
+    - emulator64-$ABI -avd test${AVD_SDK} -no-skin -no-audio -no-window &
+    - ../android-wait-for-emulator
+    - adb shell input keyevent 82
+    - ./gradlew connectedCheck || {
+        adb -e logcat -d '*:E';
+        echo "get the full logcat here:";
+        adb -e logcat -d | curl --silent -F 'clbin=<-' https://clbin.com;
+        export EXITVALUE=1;
+      }
+    - for log in build/reports/*ests/*/*ml
+                 build/outputs/*results*/connected/*.xml; do
+        echo "read $log here:";
+        cat "$log" | curl --silent -F 'clbin=<-' https://clbin.com;
+      done
+
+    - exit $EXITVALUE
