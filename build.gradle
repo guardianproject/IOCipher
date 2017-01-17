@@ -74,6 +74,18 @@ android {
         }
     }
 
+    task makeExternal(type: Exec) {
+        commandLine 'make', '-C', file('external').absolutePath
+    }
+
+    tasks.withType(JavaCompile) {
+        compileTask -> compileTask.dependsOn makeExternal
+    }
+
+    task makeExternalClean(type: Exec) {
+        commandLine 'make', '-C', file('external').absolutePath, 'clean'
+    }
+
     lintOptions {
         abortOnError true
 
