@@ -17,6 +17,11 @@ before_script:
   - export ANDROID_HOME=$PWD/android-sdk-linux
   - unzip -qq -d $ANDROID_HOME android-sdk.tgz
 
+  - mkdir -p $ANDROID_HOME/licenses || true
+  - echo 8933bad161af4178b1185d1a37fbf41ea5269c55 > $ANDROID_HOME/licenses/android-sdk-license
+  - echo 79120722343a6f314e0719f863036c702b0e6b2a > $ANDROID_HOME/licenses/android-sdk-preview-license
+  - echo 84831b9409646a918e30573bab4c9c91346d8abd > $ANDROID_HOME/licenses/android-sdk-preview-license-d099d938
+
   - echo y | $ANDROID_HOME/tools/android --silent update sdk --no-ui --all --filter
     android-9,android-25,platform-tools,extra-android-m2repository,build-tools-${ANDROID_BUILD_TOOLS}
   - export PATH=$PATH:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/tools
