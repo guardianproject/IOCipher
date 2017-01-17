@@ -2,8 +2,6 @@
 package info.guardianproject.iocipher.tests;
 
 import android.app.Instrumentation;
-import android.content.Context;
-import android.os.Environment;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
@@ -121,7 +119,7 @@ public class VirtualFileSystemTest {
         vfs.unmount();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testMountPasswordWithBadPassword() {
         vfs.createNewContainer(path, goodPassword);
         vfs.mount(goodPassword);
@@ -130,22 +128,10 @@ public class VirtualFileSystemTest {
             Log.v(TAG, "file: " + f);
         }
         vfs.unmount();
-        try {
-            vfs.mount(badPassword);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        } finally {
-            try {
-                vfs.unmount();
-            } catch (IllegalStateException e) {
-                // was not mounted, ignore
-            }
-        }
-        fail();
+        vfs.mount(badPassword);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testMountKeyWithBadKey() {
         vfs.setContainerPath(path);
         vfs.createNewContainer(goodKey);
@@ -157,19 +143,7 @@ public class VirtualFileSystemTest {
             Log.v(TAG, "file: " + f);
         }
         vfs.unmount();
-        try {
-            vfs.mount(badKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        } finally {
-            try {
-                vfs.unmount();
-            } catch (IllegalStateException e) {
-                // was not mounted, ignore
-            }
-        }
-        fail();
+        vfs.mount(badKey);
     }
 
     @Test
@@ -254,26 +228,14 @@ public class VirtualFileSystemTest {
         fail();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testNoWritePermsInDir() {
-        try {
-            vfs.setContainerPath("/file-to-create-here");
-        } catch (IllegalArgumentException e) {
-            // it is correct to throw this
-            return;
-        }
-        fail();
+        vfs.setContainerPath("/file-to-create-here");
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testMountKeyNonExistentFile() {
-        try {
-            vfs.setContainerPath("/foo/bar/this/does/not/exist");
-        } catch (IllegalArgumentException e) {
-            // it is correct to throw this
-            return;
-        }
-        fail();
+        vfs.setContainerPath("/foo/bar/this/does/not/exist");
     }
 
     @Test
@@ -282,7 +244,7 @@ public class VirtualFileSystemTest {
         assertTrue(path.equals(vfs.getContainerPath()));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testMountAfterFileDeleted() {
         vfs.setContainerPath(path);
         vfs.createNewContainer(goodKey);
@@ -294,47 +256,23 @@ public class VirtualFileSystemTest {
         assertTrue(containerFile.exists());
         containerFile.delete();
         assertFalse(containerFile.exists());
-        try {
-            vfs.mount(goodKey);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            return;
-        }
-        fail();
+        vfs.mount(goodKey);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testMountWithoutCreate() {
         vfs.setContainerPath(path);
-        try {
-            vfs.mount(goodKey);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            return;
-        }
-        fail();
+        vfs.mount(goodKey);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testMountWithoutCreateSeparat() {
         vfs.setContainerPath(path);
-        try {
-            vfs.mount(goodKey);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            return;
-        }
-        fail();
+        vfs.mount(goodKey);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testMountWithoutCreateAtOnce() {
-        try {
-            vfs.mount(path, goodKey);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            return;
-        }
-        fail();
+        vfs.mount(path, goodKey);
     }
 }
