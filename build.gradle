@@ -10,9 +10,6 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
-dependencies {
-}
-
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -20,25 +17,33 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
+        ndk.abiFilters 'armeabi', 'armeabi-v7a', 'x86'
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
+    // both libs/ and 'net.zetetic:android-database-sqlcipher:3.5.4@aar' contain these:
+    packagingOptions {
+        pickFirst 'lib/armeabi/libsqlcipher.so'
+        pickFirst 'lib/armeabi-v7a/libsqlcipher.so'
+        pickFirst 'lib/x86/libsqlcipher.so'
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
         }
     }
 
-    sourceSets.main {
-        manifest.srcFile 'AndroidManifest.xml'
-        java.srcDirs = ['src']
-        resources.srcDirs = ['src']
-        aidl.srcDirs = ['src']
-        renderscript.srcDirs = ['src']
-        res.srcDirs = ['res']
-        assets.srcDirs = ['assets']
-
-        jni.srcDirs = [] // disable use of automatically generated Android.mk
-        jniLibs.srcDir 'build/intermediates/ndk/lib'
+    // before working here, run this in terminal: `make -C external`
+    externalNativeBuild {
+        ndkBuild {
+            path 'jni/Android.mk'
+        }
     }
 
     lintOptions {
@@ -50,18 +55,4 @@ android {
 
         error 'AppCompatMethod', 'NestedScrolling', 'StringFormatCount', 'UnsafeProtectedBroadcastReceiver'
     }
-}
-
-tasks.withType(JavaCompile) {
-    compileTask -> compileTask.dependsOn ndkBuild
-}
-
-task ndkBuild(type: Exec, description: 'Compile JNI source via NDK') {
-    def ndkDir = project.android.ndkDirectory
-    commandLine "$ndkDir/ndk-build",
-            "NDK_PROJECT_PATH=null",
-            "APP_BUILD_SCRIPT=$projectDir/jni/Android.mk",
-            "NDK_APPLICATION_MK=$projectDir/jni/Application.mk",
-            "NDK_OUT=$buildDir/intermediates/ndk/obj",
-            "NDK_LIBS_OUT=$buildDir/intermediates/ndk/lib"
 }
