@@ -8,7 +8,7 @@ before_script:
   - cat /etc/issue
   - uname -a
   - apt-get --quiet update --yes
-  - apt-get --quiet install --yes wget unzip lib32stdc++6 lib32z1 ant ant-optional faketime git tcl libtool automake autoconf gawk libssl-dev make
+  - apt-get --quiet install --yes wget unzip lib32stdc++6 lib32z1 ant ant-optional faketime git tcl libtool automake autoconf gawk libssl-dev make libqt5widgets5
 
   - cd ..
   - wget --quiet --output-document=android-wait-for-emulator https://raw.githubusercontent.com/travis-ci/travis-cookbooks/0f497eb71291b52a703143c5cd63a217c8766dc9/community-cookbooks/android-sdk/files/default/android-wait-for-emulator
