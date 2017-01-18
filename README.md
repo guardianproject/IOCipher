@@ -36,19 +36,14 @@ library.  You can get SQLCipher-for-Android here:
 
 https://www.zetetic.net/sqlcipher/open-source/
 
-With gradle or Android Studio, you can get it from `mavenCentral()` using:
+With _gradle_ or Android Studio, you can get it from `mavenCentral()` or
+`jcenter()` by adding this to your _gradle_ dependencies:
 
     compile 'net.zetetic:android-database-sqlcipher:3.5.4'
 
 Or via direct download, including PGP signature:
 * https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.4/android-database-sqlcipher-3.5.4.aar
 * https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.4/android-database-sqlcipher-3.5.4.aar.asc
-
-The older package of SQLCipher for Android v3.1.0 binary is available here:
-https://s3.amazonaws.com/sqlcipher/SQLCipher+for+Android+v3.1.0.zip
-
-And the signature is here:
-https://s3.amazonaws.com/sqlcipher/SQLCipher+for+Android+v3.1.0.zip.sig
 
 The releases should be signed by this key:
 
@@ -73,20 +68,28 @@ Java. First, make sure you have the build prerequisites:
 
   apt-get install tcl libtool automake autoconf gawk libssl-dev
 
-Point `ant` to where your Android NDK is installed, either by setting
-`ndk.dir` in your local.properties or setting the environment variable:
+Point the build to where your Android SDK and NDK are installed,
+either by setting `sdk.dir` and `ndk.dir` in your _local.properties_ or
+setting the environment variables:
 
-  export ANDROID_NDK=/opt/android-ndk
+  export ANDROID_HOME=/opt/android-sdk
+  export ANDROID_NDK_HOME=/opt/android-ndk
 
-Now build everything:
+With _gradle_, just run `gradle build` and it will run all the steps.
+
+Using _ant_, build everything like this:
 
   git clone https://github.com/guardianproject/IOCipher
   git submodule update --init --recursive
-  android update lib-project --path .
+  ./setup-ant
+  make -C external/
+  $ANDROID_NDK_HOME/ndk-build
   ant clean debug
 
-The iocipher.jar is in bin/.  The shared library .so files are in libs/armeabi
-and the libsqlfs.a static library is in external/libsqlfs/.libs/libsqlfs.a.
+The official releases are built using _ant_ using a script that fully resets
+the git repo, then runs the whole build:
+
+  ./make-release-build
 
 
 Building Native Bits for Eclipse
