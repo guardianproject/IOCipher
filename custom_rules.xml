@@ -28,6 +28,9 @@
     </condition>
   </fail>
 
+  <property name="java.source" value="1.6" />
+  <property name="java.target" value="1.6" />
+
   <target name="javadoc" description="Generate Javadocs">
     <javadoc sourcepath="${source.dir}"
              destdir="${out.dir}/javadoc"
