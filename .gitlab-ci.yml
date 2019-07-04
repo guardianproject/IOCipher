@@ -31,9 +31,16 @@ before_script:
   - export ANDROID_NDK_HOME=$PWD/android-ndk-r${NDK_VERSION}
 
 build:
+  artifacts:
+    name: "${CI_PROJECT_PATH}_${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHA}"
+    paths:
+      - ${CI_PROJECT_NAME}*.*
+    expire_in: 1 week
+    when: always
+  after_script:
+    - echo "Download debug artifacts from https://gitlab.com/${CI_PROJECT_PATH}/-/jobs"
   script:
     - cd $CI_PROJECT_DIR
-    - ./make-release-build
 
     # prep for the ./gradlew builds
     - git clean -fdx
@@ -45,3 +52,5 @@ build:
     - git submodule update --init --recursive
     - ./gradlew build
     - sed -i -e 's,textReport .*,textReport true,' build.gradle
+
+    - ./make-release-build
