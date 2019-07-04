@@ -39,11 +39,11 @@ https://www.zetetic.net/sqlcipher/open-source/
 With _gradle_ or Android Studio, you can get it from `mavenCentral()` or
 `jcenter()` by adding this to your _gradle_ dependencies:
 
-    compile 'net.zetetic:android-database-sqlcipher:3.5.4'
+    compile 'net.zetetic:android-database-sqlcipher:4.2.0'
 
 Or via direct download, including PGP signature:
-* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.4/android-database-sqlcipher-3.5.4.aar
-* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.4/android-database-sqlcipher-3.5.4.aar.asc
+* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/4.2.0/android-database-sqlcipher-4.2.0.aar
+* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/4.2.0/android-database-sqlcipher-4.2.0.aar.asc
 
 The releases should be signed by this key:
 
