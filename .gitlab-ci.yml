@@ -25,7 +25,7 @@ before_script:
   - echo 84831b9409646a918e30573bab4c9c91346d8abd > $ANDROID_HOME/licenses/android-sdk-preview-license-d099d938
 
   - echo y | $ANDROID_HOME/tools/android --silent update sdk --no-ui --all --filter
-    android-14,android-25,platform-tools,extra-android-m2repository,build-tools-${ANDROID_BUILD_TOOLS}
+    android-14,android-29,platform-tools,extra-android-m2repository,build-tools-${ANDROID_BUILD_TOOLS}
   - export PATH=$PATH:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/tools
 
   - rm -rf $PWD/android-ndk*  android-ndk.zip
