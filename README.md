@@ -9,54 +9,13 @@ between developers and fully encrypted file storage. It is based on libsqlfs
 and SQLCipher.
 
 If you are using this in your app, we'd love to hear about it! Please send us
-an email at root@guardianproject.info
+an email at support@guardianproject.info
 
 
 Adding to your project
 ----------------------
 
-If you are using gradle, then add this to your project:
-
-    compile 'info.guardianproject.iocipher:IOCipherStandalone:0.4',
-
-Apps that are also using [SQLCipher-for-Android] should use the version that
-only includes IOCipher itself.  The standlone version includes
-*libstlport_shared.so* and *libsqlcipher_android.so*, and they will conflict
-with SQLCipher-for-Android.  Then include this in your gradle:
-
-    compile 'info.guardianproject.iocipher:IOCipher:0.4'
-
-
-
-Getting Supporting Libraries
-----------------------------
-
-IOCipher is built upon SQLCipher, which is required in order to use this
-library.  You can get SQLCipher-for-Android here:
-
-https://www.zetetic.net/sqlcipher/open-source/
-
-With _gradle_ or Android Studio, you can get it from `mavenCentral()` or
-`jcenter()` by adding this to your _gradle_ dependencies:
-
-    compile 'net.zetetic:android-database-sqlcipher:4.2.0'
-
-Or via direct download, including PGP signature:
-* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/4.2.0/android-database-sqlcipher-4.2.0.aar
-* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/4.2.0/android-database-sqlcipher-4.2.0.aar.asc
-
-The releases should be signed by this key:
-
-```
-$ gpg --recv-keys D1FA3A2A97ED25C2
-$ gpg --fingerprint support@zetetic.net
-pub   4096R/97ED25C2 2014-04-22 [expires: 2017-04-21]
-      Key fingerprint = D83F 5F9E B811 D6E6 B4A0  D9C5 D1FA 3A2A 97ED 25C2
-uid                  Zetetic LLC <support@zetetic.net>
-sub   3072R/67FD0322 2014-04-22 [expires: 2015-04-22]
-sub   3072R/D4DFEDA7 2014-04-22 [expires: 2015-04-22]
-sub   3072R/B1C49DF6 2014-04-22 [expires: 2015-04-22]
-```
+See https://guardianproject.info/code/iocipher
 
 
 Building
@@ -92,8 +51,8 @@ the git repo, then runs the whole build:
   ./make-release-build
 
 
-Building Native Bits for Eclipse
---------------------------------
+Building Native Bits
+--------------------
 
 If you are using Eclipse with this library, you can have the NDK parts built
 as part of the Eclipse build process.  You just need to set ANDROID_NDK in the
