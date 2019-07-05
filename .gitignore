@@ -37,3 +37,6 @@ gradle.properties
 .idea/
 *.iml
 .externalNativeBuild/
+
+# GitHub Pages
+/public/
