@@ -29,7 +29,7 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
         targetSdkVersion 25
         ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         testApplicationId "info.guardianproject.iocipher.tests"
