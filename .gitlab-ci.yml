@@ -3,6 +3,7 @@ image: openjdk:8-jdk
 variables:
   ANDROID_BUILD_TOOLS: "25.0.2"
   NDK_VERSION: "17c"
+  WGET: "wget --quiet --tries=0"
 
 before_script:
   - cat /etc/issue
@@ -11,10 +12,11 @@ before_script:
   - apt-get --quiet install --yes wget unzip lib32stdc++6 lib32z1 ant ant-optional faketime git tcl libtool automake autoconf gawk libssl-dev make libqt5widgets5
 
   - cd ..
-  - wget --quiet --output-document=android-wait-for-emulator https://raw.githubusercontent.com/travis-ci/travis-cookbooks/0f497eb71291b52a703143c5cd63a217c8766dc9/community-cookbooks/android-sdk/files/default/android-wait-for-emulator
+  - $WGET --output-document=android-wait-for-emulator https://raw.githubusercontent.com/travis-ci/travis-cookbooks/0f497eb71291b52a703143c5cd63a217c8766dc9/community-cookbooks/android-sdk/files/default/android-wait-for-emulator
   - chmod +x android-wait-for-emulator
-  - wget --quiet --output-document=android-sdk.tgz https://dl.google.com/android/repository/tools_r25.2.5-linux.zip
   - export ANDROID_HOME=$PWD/android-sdk-linux
+  - rm -rf $ANDROID_HOME android-sdk.tgz
+  - $WGET --output-document=android-sdk.tgz https://dl.google.com/android/repository/tools_r25.2.5-linux.zip
   - unzip -qq -d $ANDROID_HOME android-sdk.tgz
 
   - mkdir -p $ANDROID_HOME/licenses || true
@@ -26,7 +28,8 @@ before_script:
     android-14,android-25,platform-tools,extra-android-m2repository,build-tools-${ANDROID_BUILD_TOOLS}
   - export PATH=$PATH:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/tools
 
-  - wget --quiet --output-document=android-ndk.zip https://dl.google.com/android/repository/android-ndk-r${NDK_VERSION}-linux-x86_64.zip
+  - rm -rf $PWD/android-ndk*  android-ndk.zip
+  - $WGET --output-document=android-ndk.zip https://dl.google.com/android/repository/android-ndk-r${NDK_VERSION}-linux-x86_64.zip
   - unzip -qq android-ndk.zip
   - export ANDROID_NDK_HOME=$PWD/android-ndk-r${NDK_VERSION}
 
