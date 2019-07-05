@@ -1,5 +1,9 @@
 image: openjdk:8-jdk
 
+stages:
+  - test
+  - deploy
+
 variables:
   ANDROID_BUILD_TOOLS: "25.0.2"
   NDK_VERSION: "17c"
@@ -34,6 +38,9 @@ before_script:
   - export ANDROID_NDK_HOME=$PWD/android-ndk-r${NDK_VERSION}
 
 build:
+  stage: test
+  except:
+    - gh-pages
   artifacts:
     name: "${CI_PROJECT_PATH}_${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHA}"
     paths:
@@ -57,3 +64,16 @@ build:
     - sed -i -e 's,textReport .*,textReport true,' build.gradle
 
     - ./make-release-build
+
+pages:
+  stage: deploy
+  only:
+    - master
+  artifacts:
+    paths:
+      - public
+  script:
+    - cd $CI_PROJECT_DIR
+    - ./gradlew javadoc
+    - test -d public || mkdir public
+    - cp -a build/docs/javadoc/* public/
