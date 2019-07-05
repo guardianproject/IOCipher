@@ -50,7 +50,7 @@ build:
     - git submodule sync --recursive
     - git submodule foreach --recursive git submodule sync
     - git submodule update --init --recursive
-    - ./gradlew build
+    - ./gradlew clean assemble lint
     - sed -i -e 's,textReport .*,textReport true,' build.gradle
 
     - ./make-release-build

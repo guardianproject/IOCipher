@@ -97,3 +97,20 @@ android {
         error 'AppCompatMethod', 'NestedScrolling', 'StringFormatCount', 'UnsafeProtectedBroadcastReceiver'
     }
 }
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += configurations.compile
+    options.addStringOption('notimestamp')
+    failOnError false
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+}
