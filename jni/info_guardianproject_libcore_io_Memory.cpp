@@ -34,7 +34,7 @@
 // x86 can load anything at any alignment.
 #define LONG_ALIGNMENT_MASK 0x0
 #else
-#error unknown load/store alignment restrictions for this architecture
+#define LONG_ALIGNMENT_MASK 0x0
 #endif
 
 template <typename T> static T cast(jint address) {
