@@ -40,9 +40,10 @@ android {
 
     // both libs/ and 'net.zetetic:android-database-sqlcipher:3.5.4@aar' contain these:
     packagingOptions {
-        pickFirst 'lib/armeabi/libsqlcipher.so'
         pickFirst 'lib/armeabi-v7a/libsqlcipher.so'
+        pickFirst 'lib/arm64-v8a/libsqlcipher.so'
         pickFirst 'lib/x86/libsqlcipher.so'
+        pickFirst 'lib/x86_64/libsqlcipher.so'
     }
 
     sourceSets {
