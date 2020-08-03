@@ -1,7 +1,7 @@
 image: openjdk:8-jdk
 
 variables:
-  ANDROID_BUILD_TOOLS: "25.0.2"
+  ANDROID_BUILD_TOOLS: "29.0.3"
   NDK_VERSION: "21d"
 
 before_script:
