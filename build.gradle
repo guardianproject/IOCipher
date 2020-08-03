@@ -102,7 +102,7 @@ apply plugin: 'maven'
 
 uploadArchives {
         repositories.mavenDeployer {
-                def deployPath = file(getProperty('aar.deployPath'))
+                def deployPath = file("gpmaven")
                 repository(url: "file://${deployPath.absolutePath}")
                 pom.project {
                         groupId 'info.guardianproject.iocipher'
