@@ -29,6 +29,8 @@ before_script:
   - wget --quiet --output-document=android-ndk.zip https://dl.google.com/android/repository/android-ndk-r${NDK_VERSION}-linux-x86_64.zip
   - unzip -qq android-ndk.zip
   - export ANDROID_NDK_HOME=$PWD/android-ndk-r${NDK_VERSION}
+  - mkdir -p $PWD/gpmaven || true
+  - export aar.deployPath=$PWD/gpmaven
 
 build:
   script:
