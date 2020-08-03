@@ -2,7 +2,7 @@ image: openjdk:8-jdk
 
 variables:
   ANDROID_BUILD_TOOLS: "25.0.2"
-  NDK_VERSION: "13b"
+  NDK_VERSION: "21d"
 
 before_script:
   - cat /etc/issue
