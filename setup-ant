@@ -15,4 +15,4 @@ fi
 # fetch target from project.properties
 eval `grep '^target=' project.properties`
 
-$ANDROID_HOME/tools/android update lib-project --path . --target $target
+##$ANDROID_HOME/tools/android update lib-project --path . --target $target

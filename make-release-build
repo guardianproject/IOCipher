@@ -36,10 +36,10 @@ git submodule sync --recursive
 git submodule foreach --recursive git submodule sync
 git submodule update --init --recursive
 
-#./setup-ant
+##./setup-ant
 
 faketime -f "$TIMESTAMP" make -C external/
 faketime -f "$TIMESTAMP" $ANDROID_NDK_HOME/ndk-build
-ant release
+##ant release
 
 # `ant release` handles the gpg signing
