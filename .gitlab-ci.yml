@@ -30,10 +30,8 @@ before_script:
   - set +o pipefail
   - yes | ${ANDROID_HOME}/tools/bin/sdkmanager --licenses || true
   - set -o pipefail
-  - mkdir - ${ANDROID_HOME}/licenses
-  - cat << EOF >> ${ANDROID_HOME}/licenses/android-sdk-license
-    24333f8a63b6825ea9c5514f83c2829b004d1fee
-EOF 
+  - mkdir -p ${ANDROID_HOME}/licenses
+  - echo 24333f8a63b6825ea9c5514f83c2829b004d1fee > ${ANDROID_HOME}/licenses/android-sdk-license
 
   - wget --quiet --output-document=android-ndk.zip https://dl.google.com/android/repository/android-ndk-r${NDK_VERSION}-linux-x86_64.zip
   - unzip -qq android-ndk.zip
