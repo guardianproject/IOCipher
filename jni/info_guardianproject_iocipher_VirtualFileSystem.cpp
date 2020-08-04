@@ -108,7 +108,7 @@ static void VirtualFileSystem_setContainerPath(JNIEnv *env, jobject obj, jstring
     } else if (stat(dir, &sb) == -1) {
         validFileName = 0;
         snprintf(msg, MAX_MSG_LEN, "Cannot stat %s (%d)!", dir, errno);
-    } else if (!sb.st_mode & S_IFDIR) {
+    } else if ((!sb.st_mode) & S_IFDIR) {
         validFileName = 0;
         snprintf(msg, MAX_MSG_LEN, "Base path %s is not a directory!", dir);
     }
