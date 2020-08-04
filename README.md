@@ -17,14 +17,26 @@ Adding to your project
 
 If you are using gradle, then add this to your project:
 
-    compile 'info.guardianproject.iocipher:IOCipherStandalone:0.4',
+    implementation 'info.guardianproject.iocipher:IOCipherStandalone:0.4',
 
 Apps that are also using [SQLCipher-for-Android] should use the version that
 only includes IOCipher itself.  The standlone version includes
 *libstlport_shared.so* and *libsqlcipher_android.so*, and they will conflict
 with SQLCipher-for-Android.  Then include this in your gradle:
 
-    compile 'info.guardianproject.iocipher:IOCipher:0.4'
+    implementation 'info.guardianproject.iocipher:IOCipher:0.4.2'
+
+If you get a message during APK building about a libsqlcipher.so conflict, you should also add this into your build.gradle
+
+ packagingOptions {
+    // both libs/ and 'net.zetetic:android-database-sqlcipher:3.5.4@aar' contain these:
+
+        pickFirst 'lib/armeabi-v7a/libsqlcipher.so'
+        pickFirst 'lib/arm64-v8a/libsqlcipher.so'
+        pickFirst 'lib/x86/libsqlcipher.so'
+        pickFirst 'lib/x86_64/libsqlcipher.so'
+    }
+
 
 
 
@@ -39,11 +51,11 @@ https://www.zetetic.net/sqlcipher/open-source/
 With _gradle_ or Android Studio, you can get it from `mavenCentral()` or
 `jcenter()` by adding this to your _gradle_ dependencies:
 
-    compile 'net.zetetic:android-database-sqlcipher:3.5.4'
+    compile 'net.zetetic:android-database-sqlcipher:3.5.9'
 
 Or via direct download, including PGP signature:
-* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.4/android-database-sqlcipher-3.5.4.aar
-* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.4/android-database-sqlcipher-3.5.4.aar.asc
+* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.9/android-database-sqlcipher-3.5.9.aar
+* https://repo1.maven.org/maven2/net/zetetic/android-database-sqlcipher/3.5.9/android-database-sqlcipher-3.5.9.aar.asc
 
 The releases should be signed by this key:
 
