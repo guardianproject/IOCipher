@@ -10,8 +10,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE     := libsqlfs
 LOCAL_SHARED_LIBRARIES := libsqlcipher
 LOCAL_CFLAGS     := $(sqlfs_DEFS) -Wall -Werror
-LOCAL_C_INCLUDES := external/libsqlfs jni
-LOCAL_EXPORT_C_INCLUDES:= external/libsqlfs
+LOCAL_C_INCLUDES := external/libsqlfs external/sqlcipher jni
+LOCAL_EXPORT_C_INCLUDES:= external/libsqlfs external/sqlcipher
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfs.c
 include $(BUILD_STATIC_LIBRARY)
 
@@ -47,7 +47,7 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE     := sqlfscat
 LOCAL_CFLAGS     := $(sqlfs_DEFS) -Wall -Werror
-LOCAL_C_INCLUDES := external/libsqlfs
+LOCAL_C_INCLUDES := external/libsqlfs external/sqlcipher
 LOCAL_SHARED_LIBRARIES := libiocipher libsqlcipher
 LOCAL_LDLIBS     := -llog
 LOCAL_SRC_FILES  := ../external/libsqlfs/sqlfscat.c
