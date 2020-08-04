@@ -100,3 +100,16 @@ android {
     }
 }
 
+apply plugin: 'maven'
+
+uploadArchives {
+        repositories.mavenDeployer {
+                def deployPath = file("mavenbuild")
+                repository(url: "file://${deployPath.absolutePath}")
+                pom.project {
+                        groupId 'info.guardianproject.iocipher'
+                        artifactId 'IOCipher'
+                        version '0.4.2'
+                }
+        }
+}
