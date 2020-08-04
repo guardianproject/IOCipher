@@ -51,6 +51,7 @@ build:
     - git submodule foreach --recursive git submodule sync
     - git submodule update --init --recursive
     - echo yes | ${ANDROID_HOME}/tools/bin/sdkmanager --licenses || true
+    - make -C external/
     - ./gradlew clean assemble lint
     - sed -i -e 's,textReport .*,textReport true,' build.gradle
 
