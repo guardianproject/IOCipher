@@ -68,7 +68,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     /** File access mode */
     private final int mode;
-
+    private final boolean append;
     /**
      * Constructs a new {@code FileOutputStream} that writes to {@code file}.
      * The file will be truncated if it exists, and created if it doesn't exist.
@@ -95,6 +95,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         this.fd = IoBridge.open(file.getAbsolutePath(), mode);
         this.channel = new IOCipherFileChannel(this, fd, mode);
         this.shouldClose = true;
+        this.append = append;
     }
 
     /**
@@ -110,6 +111,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         this.shouldClose = false;
         this.mode = O_WRONLY;
         this.channel = new IOCipherFileChannel(this, fd, mode);
+        this.append = false;
     }
 
     /**
@@ -189,7 +191,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     @Override
     public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        IoBridge.write(fd, buffer, byteOffset, byteCount, this.mode);
+
+        IoBridge.write(fd, buffer, byteOffset, byteCount, append ? 1 : 0);
     }
 
     @Override
