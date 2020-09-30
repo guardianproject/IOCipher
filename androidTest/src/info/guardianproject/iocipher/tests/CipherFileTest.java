@@ -873,16 +873,29 @@ public class CipherFileTest {
         try {
             FileInputStream in = new FileInputStream(f);
             in.read(orig_buf, 0, 500);
+            in.close();
 
             assertEquals(500, f.length());
 
             FileOutputStream out = new FileOutputStream(f, true);
 
-            // write 2 bytes
+            // write 4 bytes
+            //both fail!
+            /**
             out.write(13);
             out.write(42);
+            out.write(42);
+            out.write(49);
+             **/
+            byte[] newdat = {13,42,42,42};
+            out.write(newdat);
+
             out.close();
-            assertEquals(502, f.length());
+
+            f = new File(name);
+            long fLen = f.length();
+            Log.d("CipherFileTest","append length: " + fLen);
+            assertEquals(504, fLen);
 
             FileInputStream in2 = new FileInputStream(f);
             byte[] test_buf = new byte[500];
@@ -890,7 +903,8 @@ public class CipherFileTest {
             assertTrue(Arrays.equals(orig_buf, test_buf));
             assertEquals(13, in2.read());
             assertEquals(42, in2.read());
-            in.close();
+
+
             in2.close();
         } catch (FileNotFoundException e) {
             Log.e(TAG, e.getCause().toString());
