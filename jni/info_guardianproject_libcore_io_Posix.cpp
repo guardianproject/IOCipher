@@ -348,21 +348,22 @@ static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaB
     }
 }
 
-static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount, jlong offset, jint flags) {
+static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jlong offset, jint modeFlags) {
     ScopedBytesRO bytes(env, javaBytes);
     if (bytes.get() == NULL) {
         return -1;
     }
     jstring javaPath = jniGetPathFromFileDescriptor(env, javaFd);
     ScopedUtfChars path(env, javaPath);
-    struct fuse_file_info ffi;
-    ffi.flags = flags;
+    //struct fuse_file_info ffi;
+    //ffi.flags = flags;
+    int modeFlagsNow = modeFlags;
     int result = sqlfs_proc_write(0,
                                   path.c_str(),
                                   reinterpret_cast<const char*>(bytes.get() + byteOffset),
                                   byteCount,
                                   offset,
-                                  &ffi);
+                                  modeFlagsNow);
     if (result < 0) {
         throwErrnoException(env, "pwrite", result);
         return -1;
